@@ -82,12 +82,13 @@ body {
 
 /* Vibrant warm hero gradient — used on landing & inspire pages */
 .bg-hero {
-  background-color: #fdf8f3;
+  background-color: #fdf7ee;
   background-image:
-    radial-gradient(at 10% 15%, rgb(253 186 116 / 0.30) 0px, transparent 55%),
-    radial-gradient(at 85% 5%,  rgb(251 113 133 / 0.18) 0px, transparent 45%),
-    radial-gradient(at 60% 85%, rgb(13 148 136 / 0.12) 0px, transparent 45%),
-    radial-gradient(at 30% 70%, rgb(249 115 22 / 0.10) 0px, transparent 40%);
+    radial-gradient(at 8%  12%, rgb(253 186 116 / 0.40) 0px, transparent 52%),
+    radial-gradient(at 88%  8%, rgb(251 113 133 / 0.22) 0px, transparent 46%),
+    radial-gradient(at 55% 90%, rgb(13 148 136 / 0.15) 0px, transparent 48%),
+    radial-gradient(at 28% 68%, rgb(249 115 22  / 0.14) 0px, transparent 42%),
+    radial-gradient(at 72% 50%, rgb(167 139 250 / 0.08) 0px, transparent 40%);
 }
 
 /* ── Glass / Frosted ─────────────────────────────────── */
@@ -182,6 +183,12 @@ body {
     0 12px 32px rgb(0 0 0 / 0.06);
 }
 
+/* ── Smooth scrolling ────────────────────────────────── */
+
+html {
+  scroll-behavior: smooth;
+}
+
 /* ── Animations ──────────────────────────────────────── */
 
 @keyframes fade-up {
@@ -194,6 +201,11 @@ body {
   to   { opacity: 1; }
 }
 
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50%       { transform: translateY(-8px); }
+}
+
 .animate-fade-up {
   animation: fade-up 0.5s ease both;
 }
@@ -201,3 +213,13 @@ body {
 .animate-fade-in {
   animation: fade-in 0.4s ease both;
 }
+
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+/* ── Landing page overrides ──────────────────────────── */
+
+/* Ensure consistent rounded icon size in landing features */
+.h-13 { height: 3.25rem; }
+.w-13 { width: 3.25rem; }
