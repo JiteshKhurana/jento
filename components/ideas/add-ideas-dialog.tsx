@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { Search, SlidersHorizontal, X } from "lucide-react";
+import { Search, X } from "lucide-react";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -10,8 +10,10 @@ import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Spinner } from "@/components/ui/spinner";
 import { PlaceSearchCard } from "@/components/ideas/place-search-card";
+import { ExploreFilters } from "@/components/explore/explore-filters";
 import { cn } from "@/lib/utils";
 import type { PlaceSearchResult } from "@/lib/places/google-places";
+import type { BudgetTier } from "@/lib/trips/intake";
 
 type AddIdeasDialogProps = {
   open: boolean;
@@ -41,6 +43,7 @@ export function AddIdeasDialog({
   const [tab, setTab] = useState<Tab>("search");
   const [category, setCategory] = useState<(typeof CATEGORIES)[number]["id"]>("for-you");
   const [searchQuery, setSearchQuery] = useState("");
+  const [budget, setBudget] = useState<BudgetTier | null>(null);
   const [results, setResults] = useState<PlaceSearchResult[]>([]);
   const [loading, setLoading] = useState(false);
   const [addedIds, setAddedIds] = useState<Set<string>>(new Set());
@@ -56,6 +59,7 @@ export function AddIdeasDialog({
       try {
         const q = query.trim() || activeCategory.query;
         const params = new URLSearchParams({ q, location: destination });
+        if (budget) params.set("budget", budget);
         const res = await fetch(`/api/places/search?${params}`);
         if (res.ok) {
           const data = await res.json();
@@ -65,14 +69,14 @@ export function AddIdeasDialog({
         setLoading(false);
       }
     },
-    [destination, activeCategory.query],
+    [destination, activeCategory.query, budget],
   );
 
   useEffect(() => {
     if (!open) return;
     setAddedIds(new Set());
     runSearch("");
-  }, [open, category, runSearch]);
+  }, [open, category, budget, runSearch]);
 
   useEffect(() => {
     if (!open || tab !== "search") return;
@@ -182,9 +186,7 @@ export function AddIdeasDialog({
                     className="h-11 rounded-xl border-neutral-200 bg-neutral-50 pl-9"
                   />
                 </div>
-                <Button variant="outline" size="icon" className="h-11 w-11 shrink-0 rounded-xl">
-                  <SlidersHorizontal className="h-4 w-4" />
-                </Button>
+                <ExploreFilters budget={budget} onBudgetChange={setBudget} />
               </div>
 
               <div className="flex gap-2 overflow-x-auto pb-1">

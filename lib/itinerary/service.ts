@@ -7,6 +7,7 @@ import {
   type DayPlan,
   type ItineraryDraft,
 } from "@/lib/ai/schemas";
+import { enrichRoadTripItinerary } from "@/lib/itinerary/road-trip";
 
 export async function saveItineraryToDb(
   tripId: string,
@@ -15,9 +16,14 @@ export async function saveItineraryToDb(
     destination: string;
     startDate?: Date | null;
     endDate?: Date | null;
+    preferences?: unknown;
   },
 ) {
-  const parsed = itineraryDraftSchema.parse(draft);
+  const enrichedDraft = await enrichRoadTripItinerary(
+    draft,
+    tripContext.preferences,
+  );
+  const parsed = itineraryDraftSchema.parse(enrichedDraft);
 
   const latest = await prisma.itinerary.findFirst({
     where: { tripId },
@@ -115,6 +121,7 @@ export async function updateItineraryDayInDb(
     destination: string;
     startDate?: Date | null;
     endDate?: Date | null;
+    preferences?: unknown;
   },
 ) {
   const itinerary = await prisma.itinerary.findFirst({

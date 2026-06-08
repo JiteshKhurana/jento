@@ -17,6 +17,13 @@ import { Badge } from "@/components/ui/badge";
 import { LoadingState } from "@/components/ui/spinner";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
+import { getCurrentLocation } from "@/lib/locations/get-current-location";
+import {
+  getStartingLocation,
+  isRoadTrip,
+  parseTripPreferences,
+  type TripPreferences,
+} from "@/lib/trips/preferences";
 
 const TripMap = dynamic(
   () => import("@/components/map/trip-map").then((m) => m.TripMap),
@@ -38,6 +45,7 @@ type TripPlannerProps = {
     startDate: string | null;
     endDate: string | null;
     status: string;
+    preferences?: TripPreferences | null;
     messages: Array<{ role: string; content: string }>;
     itineraries: Array<{ days: ItineraryDayData[] }>;
   };
@@ -73,6 +81,7 @@ export function TripPlanner({
 }: TripPlannerProps) {
   const [trip, setTrip] = useState(initialTrip);
   const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
+  const [chatInitialQuery, setChatInitialQuery] = useState<string | null>(null);
   const [leftView, setLeftView] = useState<"chat" | "itinerary" | "ideas">(
     isOwner ? "chat" : "itinerary",
   );
@@ -85,6 +94,62 @@ export function TripPlanner({
 
   const days = trip.itineraries[0]?.days ?? [];
   const filteredMessages = trip.messages.filter((m) => m.role !== "SYSTEM");
+
+  useEffect(() => {
+    if (!isOwner) {
+      setChatInitialQuery(null);
+      return;
+    }
+
+    if (!initialQuery) {
+      setChatInitialQuery(null);
+      return;
+    }
+
+    if (!isRoadTrip(trip.preferences) || getStartingLocation(trip.preferences)) {
+      setChatInitialQuery(initialQuery);
+      return;
+    }
+
+    let cancelled = false;
+
+    getCurrentLocation().then(async (startingLocation) => {
+      if (cancelled) return;
+
+      if (startingLocation) {
+        const mergedPreferences = {
+          ...parseTripPreferences(trip.preferences),
+          startingLocation,
+        };
+
+        const res = await fetch(`/api/trips/${trip.id}`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ preferences: mergedPreferences }),
+        });
+
+        if (!cancelled && res.ok) {
+          setTrip((current) => ({
+            ...current,
+            preferences: mergedPreferences,
+          }));
+        }
+      }
+
+      const startingNote = startingLocation
+        ? ` Starting from ${startingLocation.label || startingLocation.name}.`
+        : "";
+      setChatInitialQuery(
+        initialQuery.includes("Starting from")
+          ? initialQuery
+          : `${initialQuery}${startingNote}`,
+      );
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [isOwner, initialQuery, trip.id, trip.preferences]);
 
   const refreshItinerary = useCallback(async () => {
     setRefreshing(true);
@@ -131,7 +196,7 @@ export function TripPlanner({
   const chatPanel = (
     <ChatPanel
       tripId={trip.id}
-      initialQuery={initialQuery}
+      initialQuery={chatInitialQuery}
       initialMessages={filteredMessages}
       onItineraryUpdate={isOwner ? refreshItinerary : undefined}
       readOnly={!isOwner}

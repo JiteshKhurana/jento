@@ -21,6 +21,8 @@ import {
   updateItineraryDayInDb,
 } from "@/lib/itinerary/service";
 import { searchPlaces } from "@/lib/places/google-places";
+import { getDrivingDuration } from "@/lib/places/directions";
+import { getStartingLocation } from "@/lib/trips/preferences";
 
 export const maxDuration = 60;
 
@@ -42,6 +44,7 @@ export async function POST(req: Request) {
       destination: trip.destination,
       startDate: trip.startDate,
       endDate: trip.endDate,
+      preferences: trip.preferences,
     };
 
     const lastUserMessage = [...messages]
@@ -87,6 +90,51 @@ export async function POST(req: Request) {
               location ?? trip.destination,
             );
             return results;
+          },
+        }),
+        getDrivingTime: tool({
+          description:
+            "Get accurate driving time and distance between two locations. Use for road trip itineraries.",
+          inputSchema: z.object({
+            origin: z
+              .string()
+              .optional()
+              .describe(
+                "Starting location. Defaults to the user's current/starting location for road trips.",
+              ),
+            destination: z
+              .string()
+              .describe("Ending location, e.g. 'San Antonio, TX'"),
+          }),
+          execute: async ({ origin, destination }) => {
+            const startingLocation = getStartingLocation(trip.preferences);
+            const resolvedOrigin =
+              origin ??
+              startingLocation?.label ??
+              startingLocation?.name ??
+              null;
+
+            if (!resolvedOrigin) {
+              return {
+                success: false,
+                error:
+                  "No starting location available. Ask the user where they are driving from.",
+              };
+            }
+
+            const route = await getDrivingDuration(resolvedOrigin, destination);
+            if (!route) {
+              return {
+                success: false,
+                error: "Could not calculate driving time for those locations.",
+              };
+            }
+            return {
+              success: true,
+              duration: route.durationText,
+              durationMinutes: route.durationMinutes,
+              distance: route.distanceText ?? null,
+            };
           },
         }),
         saveItinerary: tool({

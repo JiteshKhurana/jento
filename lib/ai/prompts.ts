@@ -9,6 +9,28 @@ export function buildSystemPrompt(trip: {
       ? `from ${trip.startDate.toISOString().split("T")[0]} to ${trip.endDate.toISOString().split("T")[0]}`
       : "dates to be determined";
 
+  const preferences = trip.preferences as
+    | {
+        isRoadTrip?: boolean;
+        locations?: Array<{ name: string }>;
+        startingLocation?: { name: string; label?: string };
+      }
+    | undefined;
+  const startingFrom = preferences?.startingLocation;
+  const roadTripGuidelines =
+    preferences?.isRoadTrip === true
+      ? `
+Road trip rules (this trip is marked as a road trip):
+- The route stops are listed in preferences.locations in driving order.
+- The user's starting point is preferences.startingLocation${startingFrom ? ` (${startingFrom.label ?? startingFrom.name})` : " (use their current location when available)"}.
+- Always include transport items with realistic driving duration for travel to and from the destination.
+- Put the outbound drive from startingLocation to the first route stop as the first item on day 1 (type: transport).
+- Put the return drive from the final route stop back to startingLocation as the last item on the final day (type: transport).
+- For multi-stop routes, also include driving legs between intermediate stops on the appropriate days.
+- Use getDrivingTime with startingLocation as the origin for outbound/return legs before calling saveItinerary.
+- Set each drive item's duration field to the driving time (e.g. "4h 30m").`
+      : "";
+
   return `You are AITravel, an expert AI travel assistant similar to Mindtrip.ai.
 
 Your goal is to help users plan personalized, bookable trips through natural conversation.
@@ -17,7 +39,7 @@ Current trip context:
 - Destination: ${trip.destination}
 - Dates: ${dateRange}
 - Preferences: ${JSON.stringify(trip.preferences ?? {})}
-
+${roadTripGuidelines}
 Guidelines:
 1. Use the trip context (destination, dates, travelers, budget) already provided — do not re-ask for information the user has already given unless something is missing or unclear.
 2. Ask clarifying questions only about pace, interests, dietary needs, and travel style before generating a full itinerary.

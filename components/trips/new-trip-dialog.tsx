@@ -35,6 +35,7 @@ import {
   type BudgetTier,
   type TravelerType,
 } from "@/lib/trips/intake";
+import { getCurrentLocation } from "@/lib/locations/get-current-location";
 
 type TimingMode = "flexible" | "dates";
 
@@ -159,43 +160,52 @@ export function NewTripDialog({ open, onOpenChange }: NewTripDialogProps) {
       endDate = (dateRange.to ?? dateRange.from).toISOString();
     }
 
-    const tripPreferences = {
-      locations,
-      isRoadTrip,
-      timingMode,
-      flexibleDays:
-        timingMode === "flexible" ? Number(flexibleDays) || null : null,
-      travelers: travelerType
-        ? {
-            type: travelerType,
-            count: travelerCount ? Number(travelerCount) : null,
-          }
-        : null,
-      budget,
-      notes: preferences.trim() || null,
-    };
-
     const initialParts: string[] = [`Plan a trip to ${destination}.`];
     if (isRoadTrip) initialParts.push("This is a road trip.");
-    if (timingMode === "flexible" && flexibleDays) {
-      initialParts.push(`Flexible timing, about ${flexibleDays} days.`);
-    } else if (startDate) {
-      initialParts.push(
-        `Dates: ${format(new Date(startDate), "MMM d, yyyy")}${endDate && endDate !== startDate ? ` – ${format(new Date(endDate), "MMM d, yyyy")}` : ""}.`,
-      );
-    }
-    if (travelerType) {
-      initialParts.push(
-        `Traveling as ${formatTravelerSummary(travelerType, travelerCount ? Number(travelerCount) : undefined).toLowerCase()}.`,
-      );
-    }
-    if (budget) {
-      initialParts.push(`${BUDGET_LABELS[budget]} budget.`);
-    }
-    if (preferences.trim()) initialParts.push(preferences.trim());
 
     setLoading(true);
     try {
+      const startingLocation = isRoadTrip ? await getCurrentLocation() : null;
+      if (startingLocation) {
+        initialParts.push(
+          `Starting from ${startingLocation.label || startingLocation.name}.`,
+        );
+      }
+
+      const tripPreferences = {
+        locations,
+        isRoadTrip,
+        startingLocation,
+        timingMode,
+        flexibleDays:
+          timingMode === "flexible" ? Number(flexibleDays) || null : null,
+        travelers: travelerType
+          ? {
+              type: travelerType,
+              count: travelerCount ? Number(travelerCount) : null,
+            }
+          : null,
+        budget,
+        notes: preferences.trim() || null,
+      };
+
+      if (timingMode === "flexible" && flexibleDays) {
+        initialParts.push(`Flexible timing, about ${flexibleDays} days.`);
+      } else if (startDate) {
+        initialParts.push(
+          `Dates: ${format(new Date(startDate), "MMM d, yyyy")}${endDate && endDate !== startDate ? ` – ${format(new Date(endDate), "MMM d, yyyy")}` : ""}.`,
+        );
+      }
+      if (travelerType) {
+        initialParts.push(
+          `Traveling as ${formatTravelerSummary(travelerType, travelerCount ? Number(travelerCount) : undefined).toLowerCase()}.`,
+        );
+      }
+      if (budget) {
+        initialParts.push(`${BUDGET_LABELS[budget]} budget.`);
+      }
+      if (preferences.trim()) initialParts.push(preferences.trim());
+
       const res = await fetch("/api/trips", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
