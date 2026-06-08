@@ -3,7 +3,7 @@
 import dynamic from "next/dynamic";
 import { useCallback, useEffect, useState } from "react";
 import { format } from "date-fns";
-import { Calendar, Lightbulb, MapPin } from "lucide-react";
+import { Calendar, MapPin } from "lucide-react";
 import { AppHeader } from "@/components/layout/app-header";
 import { ChatPanel } from "@/components/chat/chat-panel";
 import { IdeasPanel } from "@/components/ideas/ideas-panel";
@@ -11,6 +11,7 @@ import {
   DayTimeline,
   type ItineraryDayData,
 } from "@/components/itinerary/day-timeline";
+import { TripCalendar } from "@/components/itinerary/trip-calendar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { LoadingState } from "@/components/ui/spinner";
@@ -75,6 +76,7 @@ export function TripPlanner({
   const [leftView, setLeftView] = useState<"chat" | "itinerary" | "ideas">(
     isOwner ? "chat" : "itinerary",
   );
+  const [rightView, setRightView] = useState<"map" | "calendar">("map");
   const [selectedDay, setSelectedDay] = useState<number | undefined>(
     () => initialTrip.itineraries[0]?.days[0]?.dayNumber,
   );
@@ -292,13 +294,49 @@ export function TripPlanner({
             </div>
           </div>
 
-          <div className="min-h-0 bg-neutral-100">
-            <TripMap
-              days={days}
-              destination={trip.destination}
-              selectedItemId={selectedItemId}
-              onSelectItem={handleSelectItem}
-            />
+          <div className="flex min-h-0 flex-col">
+            {/* Map / Calendar toggle */}
+            <div className="shrink-0 border-b border-neutral-200/80 bg-white px-3 py-2">
+              <div className="flex rounded-lg bg-neutral-100 p-0.5">
+                {(["map", "calendar"] as const).map((v) => (
+                  <button
+                    key={v}
+                    type="button"
+                    onClick={() => setRightView(v)}
+                    className={cn(
+                      "flex flex-1 items-center justify-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-all",
+                      rightView === v
+                        ? "bg-white text-neutral-900 shadow-sm"
+                        : "text-neutral-500 hover:text-neutral-700",
+                    )}
+                  >
+                    {v === "map" ? (
+                      <>
+                        <MapPin className="h-3.5 w-3.5" />
+                        Map
+                      </>
+                    ) : (
+                      <>
+                        <Calendar className="h-3.5 w-3.5" />
+                        Calendar
+                      </>
+                    )}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div className="min-h-0 flex-1 bg-neutral-100">
+              {rightView === "map" ? (
+                <TripMap
+                  days={days}
+                  destination={trip.destination}
+                  selectedItemId={selectedItemId}
+                  onSelectItem={handleSelectItem}
+                />
+              ) : (
+                <TripCalendar days={days} tripStartDate={trip.startDate} />
+              )}
+            </div>
           </div>
         </div>
       ) : (
@@ -308,20 +346,20 @@ export function TripPlanner({
             className="flex min-h-0 flex-1 flex-col"
           >
             <div className="shrink-0 px-4 pt-3">
-              <TabsList className="grid w-full grid-cols-4 rounded-xl bg-neutral-100 p-1">
+              <TabsList className="grid w-full grid-cols-5 rounded-xl bg-neutral-100 p-1">
                 <TabsTrigger value="chat" className="rounded-lg text-xs">Chat</TabsTrigger>
                 <TabsTrigger value="itinerary" className="rounded-lg text-xs">
-                  Itinerary
+                  Plan
                   {totalItems > 0 && (
                     <span className="ml-1 rounded-full bg-orange-100 px-1 py-0 text-[10px] font-bold text-orange-700">
                       {totalItems}
                     </span>
                   )}
                 </TabsTrigger>
-                <TabsTrigger value="ideas" className="gap-1 rounded-lg text-xs">
-                  <Lightbulb className="hidden h-3 w-3 sm:inline" />
+                <TabsTrigger value="ideas" className="rounded-lg text-xs">
                   Ideas
                 </TabsTrigger>
+                <TabsTrigger value="calendar" className="rounded-lg text-xs">Cal</TabsTrigger>
                 <TabsTrigger value="map" className="rounded-lg text-xs">Map</TabsTrigger>
               </TabsList>
             </div>
@@ -336,6 +374,9 @@ export function TripPlanner({
             </TabsContent>
             <TabsContent value="ideas" className="flex-1 overflow-auto">
               {ideasPanel}
+            </TabsContent>
+            <TabsContent value="calendar" className="flex-1 overflow-hidden">
+              <TripCalendar days={days} tripStartDate={trip.startDate} />
             </TabsContent>
             <TabsContent value="map" className="flex-1">
               <TripMap
