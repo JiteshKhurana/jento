@@ -8,14 +8,15 @@ datasource db {
 }
 
 model User {
-  id              String   @id @default(cuid())
-  clerkId         String   @unique
+  id              String       @id @default(cuid())
+  clerkId         String       @unique
   email           String?
   name            String?
   profileImageUrl String?
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
   trips           Trip[]
+  savedPlaces     SavedPlace[]
 }
 
 model Trip {
@@ -124,6 +125,23 @@ model PlaceCache {
   lastFetchedAt DateTime        @default(now())
   items         ItineraryItem[]
   ideas         TripIdea[]
+  savedPlaces   SavedPlace[]
+}
+
+model SavedPlace {
+  id            String      @id @default(cuid())
+  userId        String
+  user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  googlePlaceId String?
+  placeCache    PlaceCache? @relation(fields: [googlePlaceId], references: [googlePlaceId])
+  title         String
+  latitude      Float?
+  longitude     Float?
+  locationLabel String?
+  createdAt     DateTime    @default(now())
+
+  @@unique([userId, googlePlaceId])
+  @@index([userId])
 }
 
 model TripIdea {

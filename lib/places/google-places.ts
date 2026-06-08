@@ -1,3 +1,5 @@
+import { applyBudgetToQuery } from "@/lib/explore/budget-query";
+import type { BudgetTier } from "@/lib/trips/intake";
 import {
   placeHasPhotos,
   toApiPlaceId,
@@ -40,13 +42,47 @@ function getApiKey() {
   return key;
 }
 
+export type SearchPlacesOptions = {
+  location?: string;
+  latitude?: number;
+  longitude?: number;
+  budget?: BudgetTier | null;
+  pageSize?: number;
+};
+
 export async function searchPlaces(
   query: string,
-  location?: string,
+  locationOrOptions?: string | SearchPlacesOptions,
   pageSize = 10,
 ): Promise<PlaceSearchResult[]> {
   const apiKey = getApiKey();
-  const textQuery = location ? `${query} in ${location}` : query;
+
+  const options: SearchPlacesOptions =
+    typeof locationOrOptions === "string"
+      ? { location: locationOrOptions, pageSize }
+      : { pageSize, ...locationOrOptions };
+
+  const resolvedPageSize = options.pageSize ?? pageSize;
+  const hasCoords = options.latitude != null && options.longitude != null;
+  const budgetedQuery = applyBudgetToQuery(query, options.budget);
+  const textQuery =
+    hasCoords || !options.location
+      ? budgetedQuery
+      : `${budgetedQuery} in ${options.location}`;
+
+  const body: Record<string, unknown> = { textQuery, pageSize: resolvedPageSize };
+
+  if (hasCoords) {
+    body.locationBias = {
+      circle: {
+        center: {
+          latitude: options.latitude,
+          longitude: options.longitude,
+        },
+        radius: 15000,
+      },
+    };
+  }
 
   const res = await fetch(`${PLACES_API_BASE}/places:searchText`, {
     method: "POST",
@@ -56,7 +92,7 @@ export async function searchPlaces(
       "X-Goog-FieldMask":
         "places.id,places.displayName,places.formattedAddress,places.location,places.rating,places.userRatingCount",
     },
-    body: JSON.stringify({ textQuery, pageSize }),
+    body: JSON.stringify(body),
   });
 
   if (!res.ok) {
