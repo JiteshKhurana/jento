@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { TripIntakeBar } from "@/components/trips/trip-intake-bar";
+import { PopularDestinations } from "@/components/home/popular-destinations";
 import { LoadingState } from "@/components/ui/spinner";
 import {
   buildTripPayload,
@@ -13,11 +14,13 @@ import { cn } from "@/lib/utils";
 type ChatStarterProps = {
   signedIn: boolean;
   className?: string;
+  showPopularDestinations?: boolean;
 };
 
-export function ChatStarter({ signedIn, className }: ChatStarterProps) {
+export function ChatStarter({ signedIn, className, showPopularDestinations = false }: ChatStarterProps) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+  const [destinationQuery, setDestinationQuery] = useState("");
 
   async function handleSubmit(data: TripIntakeData) {
     if (loading) return;
@@ -56,7 +59,12 @@ export function ChatStarter({ signedIn, className }: ChatStarterProps) {
 
   return (
     <div className={cn("relative mx-auto w-full max-w-3xl", className)}>
-      <TripIntakeBar onSubmit={handleSubmit} loading={loading} />
+      <TripIntakeBar
+        key={destinationQuery}
+        onSubmit={handleSubmit}
+        loading={loading}
+        initialDestinationQuery={destinationQuery}
+      />
       {loading && (
         <div
           className="absolute inset-0 z-10 flex items-center justify-center rounded-3xl bg-white/80 backdrop-blur-sm"
@@ -64,6 +72,11 @@ export function ChatStarter({ signedIn, className }: ChatStarterProps) {
           aria-live="polite"
         >
           <LoadingState label="Creating your trip…" />
+        </div>
+      )}
+      {showPopularDestinations && !loading && (
+        <div className="mt-4">
+          <PopularDestinations onSelect={setDestinationQuery} />
         </div>
       )}
     </div>

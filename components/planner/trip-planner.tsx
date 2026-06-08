@@ -154,16 +154,16 @@ export function TripPlanner({
         </div>
       )}
       {days.length > 1 && (
-        <div className="sticky top-0 z-10 flex gap-1.5 overflow-x-auto border-b border-neutral-100 bg-white px-4 py-2.5">
+        <div className="sticky top-0 z-10 flex gap-1.5 overflow-x-auto border-b border-neutral-100 bg-white px-4 py-3">
           {days.map((day) => (
             <button
               key={day.id}
               type="button"
               onClick={() => setSelectedDay(day.dayNumber)}
               className={cn(
-                "shrink-0 rounded-full px-3 py-1 text-xs font-medium transition-colors",
+                "shrink-0 rounded-full px-3.5 py-1.5 text-xs font-semibold transition-all",
                 selectedDay === day.dayNumber
-                  ? "bg-neutral-900 text-white"
+                  ? "bg-orange-500 text-white shadow-sm shadow-orange-200"
                   : "bg-neutral-100 text-neutral-600 hover:bg-neutral-200",
               )}
             >
@@ -183,6 +183,8 @@ export function TripPlanner({
     </div>
   );
 
+  const totalItems = days.reduce((n, d) => n + d.items.length, 0);
+
   return (
     <div className="flex h-screen flex-col overflow-hidden bg-neutral-50">
       <AppHeader />
@@ -193,6 +195,7 @@ export function TripPlanner({
         </div>
       )}
 
+      {/* Trip header bar */}
       <div className="shrink-0 border-b border-neutral-200/80 bg-white px-4 py-3 md:px-6">
         <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
           <h1 className="text-base font-semibold text-neutral-900">{trip.title}</h1>
@@ -201,12 +204,12 @@ export function TripPlanner({
           </Badge>
           <div className="flex items-center gap-3 text-sm text-neutral-500">
             <span className="flex items-center gap-1">
-              <MapPin className="h-3.5 w-3.5" />
+              <MapPin className="h-3.5 w-3.5 text-orange-500" />
               {trip.destination}
             </span>
             {trip.startDate && (
               <span className="flex items-center gap-1">
-                <Calendar className="h-3.5 w-3.5" />
+                <Calendar className="h-3.5 w-3.5 text-teal-500" />
                 {format(new Date(trip.startDate), "MMM d")}
                 {trip.endDate && ` – ${format(new Date(trip.endDate), "MMM d, yyyy")}`}
               </span>
@@ -229,48 +232,36 @@ export function TripPlanner({
       ) : isDesktop ? (
         <div className="hidden min-h-0 flex-1 md:grid md:grid-cols-[minmax(380px,42%)_1fr]">
           <div className="flex min-h-0 flex-col overflow-hidden border-r border-neutral-200/80 bg-white">
-            <div className="flex shrink-0 border-b border-neutral-100">
-              <button
-                type="button"
-                onClick={() => setLeftView("chat")}
-                className={cn(
-                  "flex-1 px-4 py-3 text-sm font-medium transition-colors",
-                  leftView === "chat"
-                    ? "border-b-2 border-neutral-900 text-neutral-900"
-                    : "text-neutral-400 hover:text-neutral-600",
-                )}
-              >
-                Chat
-              </button>
-              <button
-                type="button"
-                onClick={() => setLeftView("itinerary")}
-                className={cn(
-                  "flex-1 px-4 py-3 text-sm font-medium transition-colors",
-                  leftView === "itinerary"
-                    ? "border-b-2 border-neutral-900 text-neutral-900"
-                    : "text-neutral-400 hover:text-neutral-600",
-                )}
-              >
-                Itinerary
-                {days.length > 0 && (
-                  <span className="ml-1.5 text-xs text-neutral-400">
-                    ({days.reduce((n, d) => n + d.items.length, 0)})
-                  </span>
-                )}
-              </button>
-              <button
-                type="button"
-                onClick={() => setLeftView("ideas")}
-                className={cn(
-                  "flex-1 px-4 py-3 text-sm font-medium transition-colors",
-                  leftView === "ideas"
-                    ? "border-b-2 border-neutral-900 text-neutral-900"
-                    : "text-neutral-400 hover:text-neutral-600",
-                )}
-              >
-                Ideas
-              </button>
+            {/* Pill-style tab switcher */}
+            <div className="shrink-0 border-b border-neutral-100 bg-white px-4 py-3">
+              <div className="flex rounded-xl bg-neutral-100 p-1">
+                {(["chat", "itinerary", "ideas"] as const).map((view) => (
+                  <button
+                    key={view}
+                    type="button"
+                    onClick={() => setLeftView(view)}
+                    className={cn(
+                      "flex-1 rounded-lg px-3 py-2 text-sm font-medium transition-all",
+                      leftView === view
+                        ? "bg-white text-neutral-900 shadow-sm"
+                        : "text-neutral-500 hover:text-neutral-700",
+                    )}
+                  >
+                    {view === "chat" && "Chat"}
+                    {view === "itinerary" && (
+                      <>
+                        Itinerary
+                        {totalItems > 0 && (
+                          <span className="ml-1.5 rounded-full bg-orange-100 px-1.5 py-0.5 text-[10px] font-semibold text-orange-700">
+                            {totalItems}
+                          </span>
+                        )}
+                      </>
+                    )}
+                    {view === "ideas" && "Ideas"}
+                  </button>
+                ))}
+              </div>
             </div>
 
             <div className="relative min-h-0 flex-1 overflow-hidden">
@@ -316,15 +307,24 @@ export function TripPlanner({
             defaultValue={isOwner ? "chat" : "itinerary"}
             className="flex min-h-0 flex-1 flex-col"
           >
-            <TabsList className="mx-4 mt-2 grid w-auto grid-cols-4 rounded-full">
-              <TabsTrigger value="chat">Chat</TabsTrigger>
-              <TabsTrigger value="itinerary">Itinerary</TabsTrigger>
-              <TabsTrigger value="ideas" className="gap-1">
-                <Lightbulb className="hidden h-3 w-3 sm:inline" />
-                Ideas
-              </TabsTrigger>
-              <TabsTrigger value="map">Map</TabsTrigger>
-            </TabsList>
+            <div className="shrink-0 px-4 pt-3">
+              <TabsList className="grid w-full grid-cols-4 rounded-xl bg-neutral-100 p-1">
+                <TabsTrigger value="chat" className="rounded-lg text-xs">Chat</TabsTrigger>
+                <TabsTrigger value="itinerary" className="rounded-lg text-xs">
+                  Itinerary
+                  {totalItems > 0 && (
+                    <span className="ml-1 rounded-full bg-orange-100 px-1 py-0 text-[10px] font-bold text-orange-700">
+                      {totalItems}
+                    </span>
+                  )}
+                </TabsTrigger>
+                <TabsTrigger value="ideas" className="gap-1 rounded-lg text-xs">
+                  <Lightbulb className="hidden h-3 w-3 sm:inline" />
+                  Ideas
+                </TabsTrigger>
+                <TabsTrigger value="map" className="rounded-lg text-xs">Map</TabsTrigger>
+              </TabsList>
+            </div>
             <TabsContent
               value="chat"
               className="mt-0 min-h-0 flex-1 overflow-hidden data-[state=active]:flex data-[state=inactive]:hidden data-[state=active]:flex-col"

@@ -17,10 +17,18 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { Route } from "lucide-react";
+import {
+  Route,
+  Clock,
+  ExternalLink,
+  Navigation,
+  GripVertical,
+  Star,
+  MapPin,
+} from "lucide-react";
 import { Spinner } from "@/components/ui/spinner";
-import { PlaceCard } from "@/components/places/place-card";
 import { ItemEditor } from "@/components/itinerary/item-editor";
+import { buildStaticMapUrl, placeHasPhotos } from "@/lib/places/utils";
 
 export type ItineraryItemData = {
   id: string;
@@ -56,17 +64,54 @@ export type ItineraryDayData = {
 };
 
 const DAY_COLORS = [
-  "#0d9488",
-  "#2563eb",
-  "#7c3aed",
-  "#db2777",
-  "#ea580c",
-  "#ca8a04",
-  "#059669",
+  "#f97316", // orange-500
+  "#0d9488", // teal-600
+  "#7c3aed", // violet-600
+  "#db2777", // pink-600
+  "#2563eb", // blue-600
+  "#ca8a04", // yellow-600
+  "#059669", // emerald-600
 ];
 
 export function getDayColor(dayNumber: number) {
   return DAY_COLORS[(dayNumber - 1) % DAY_COLORS.length];
+}
+
+// Map item type → CSS class from globals.css + label
+function getCategoryStyle(type: string): { className: string; label: string } {
+  const t = type.toLowerCase();
+  if (t.includes("restaurant") || t.includes("food") || t.includes("cafe") || t.includes("bar")) {
+    return { className: "badge-restaurant", label: "Restaurant" };
+  }
+  if (t.includes("hotel") || t.includes("accommodation") || t.includes("lodging") || t.includes("hostel")) {
+    return { className: "badge-hotel", label: "Hotel" };
+  }
+  if (t.includes("transport") || t.includes("flight") || t.includes("train") || t.includes("transit")) {
+    return { className: "badge-transport", label: "Transport" };
+  }
+  if (t.includes("activity") || t.includes("tour") || t.includes("adventure")) {
+    return { className: "badge-activity", label: "Activity" };
+  }
+  return { className: "badge-attraction", label: "Attraction" };
+}
+
+function resolveImageUrl(
+  googlePlaceId: string | null | undefined,
+  placeCache: ItineraryItemData["placeCache"],
+  latitude: number | null | undefined,
+  longitude: number | null | undefined,
+): string | null {
+  const lat = latitude ?? placeCache?.latitude;
+  const lng = longitude ?? placeCache?.longitude;
+  const mapsKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
+
+  if (googlePlaceId && placeHasPhotos(placeCache?.photos)) {
+    return `/api/places/${encodeURIComponent(googlePlaceId)}/photo?index=0`;
+  }
+  if (lat != null && lng != null && mapsKey) {
+    return buildStaticMapUrl(lat, lng, mapsKey, 400, 180);
+  }
+  return null;
 }
 
 type ItemBlockProps = {
@@ -86,12 +131,18 @@ function ItemBlock({
   dragHandleProps,
   readOnly = false,
 }: ItemBlockProps) {
+  const [editing, setEditing] = useState(false);
+
+  const imageUrl = resolveImageUrl(item.googlePlaceId, item.placeCache, item.latitude, item.longitude);
+  const { className: badgeClass, label: badgeLabel } = getCategoryStyle(item.type);
+
   async function handleSave(updates: Partial<ItineraryItemData>) {
     await fetch(`/api/trips/${tripId}/items/${item.id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(updates),
     });
+    setEditing(false);
     onUpdate?.();
   }
 
@@ -100,26 +151,161 @@ function ItemBlock({
     onUpdate?.();
   }
 
+  const mapsUrl =
+    item.latitude != null && item.longitude != null
+      ? `https://www.google.com/maps/search/?api=1&query=${item.latitude},${item.longitude}`
+      : item.placeCache?.name
+        ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(item.placeCache.name)}`
+        : null;
+
+  if (editing && !readOnly) {
+    return (
+      <div className="rounded-2xl border border-orange-200 bg-orange-50/30 p-1">
+        <ItemEditor
+          item={item}
+          onSave={handleSave}
+          onDelete={handleDelete}
+          dragHandleProps={dragHandleProps}
+          readOnly={false}
+        />
+      </div>
+    );
+  }
+
   return (
-    <div className="space-y-2">
-      <ItemEditor
-        item={item}
-        onSave={handleSave}
-        onDelete={handleDelete}
-        dragHandleProps={dragHandleProps}
-        readOnly={readOnly}
-      />
-      <PlaceCard
-        googlePlaceId={item.googlePlaceId}
-        title={item.title}
-        type={item.type}
-        description={item.description}
-        bookingUrl={item.bookingUrl}
-        latitude={item.latitude}
-        longitude={item.longitude}
-        placeCache={item.placeCache}
-        onSelect={() => onSelectItem?.(item.id)}
-      />
+    <div
+      className="group relative overflow-hidden rounded-2xl border border-neutral-200/80 bg-white shadow-sm transition-all duration-200 hover:border-neutral-300 hover:shadow-md"
+      onClick={() => onSelectItem?.(item.id)}
+      role={onSelectItem ? "button" : undefined}
+      tabIndex={onSelectItem ? 0 : undefined}
+      onKeyDown={(e) => e.key === "Enter" && onSelectItem?.(item.id)}
+    >
+      {/* Drag handle + actions — shown on hover */}
+      {!readOnly && (
+        <div className="absolute right-2 top-2 z-20 flex items-center gap-1 opacity-0 transition-opacity group-hover:opacity-100">
+          <button
+            type="button"
+            onClick={(e) => { e.stopPropagation(); setEditing(true); }}
+            className="flex h-7 w-7 items-center justify-center rounded-full bg-white/90 text-neutral-500 shadow-sm backdrop-blur-sm hover:text-neutral-900"
+            aria-label="Edit"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-3.5 w-3.5">
+              <path d="M5.433 13.917l1.262-3.155A4 4 0 017.58 9.42l6.92-6.918a2.121 2.121 0 013 3l-6.92 6.918c-.383.383-.84.685-1.343.886l-3.154 1.262a.5.5 0 01-.65-.65z" />
+              <path d="M3.5 5.75c0-.69.56-1.25 1.25-1.25H10A.75.75 0 0010 3H4.75A2.75 2.75 0 002 5.75v9.5A2.75 2.75 0 004.75 18h9.5A2.75 2.75 0 0017 15.25V10a.75.75 0 00-1.5 0v5.25c0 .69-.56 1.25-1.25 1.25h-9.5c-.69 0-1.25-.56-1.25-1.25v-9.5z" />
+            </svg>
+          </button>
+          {dragHandleProps && (
+            <button
+              type="button"
+              className="flex h-7 w-7 cursor-grab items-center justify-center rounded-full bg-white/90 text-neutral-400 shadow-sm backdrop-blur-sm active:cursor-grabbing"
+              aria-label="Drag to reorder"
+              {...dragHandleProps}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <GripVertical className="h-3.5 w-3.5" />
+            </button>
+          )}
+        </div>
+      )}
+
+      {/* Photo area */}
+      {imageUrl ? (
+        <div className="relative h-36 w-full overflow-hidden bg-neutral-100">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={imageUrl}
+            alt={item.title}
+            className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+            loading="lazy"
+            onError={(e) => {
+              const img = e.target as HTMLImageElement;
+              img.parentElement!.style.display = "none";
+            }}
+          />
+          {/* Time chip overlaid on photo */}
+          {item.startTime && (
+            <div className="absolute bottom-2 left-2 flex items-center gap-1 rounded-full bg-black/60 px-2.5 py-1 text-[11px] font-semibold text-white backdrop-blur-sm">
+              <Clock className="h-3 w-3" />
+              {item.startTime}
+              {item.duration && <span className="text-white/70"> · {item.duration}</span>}
+            </div>
+          )}
+        </div>
+      ) : (
+        /* No photo — show gradient placeholder with time chip */
+        <div className="relative flex h-14 items-center bg-linear-to-r from-neutral-50 to-neutral-100 px-4">
+          <MapPin className="mr-2 h-4 w-4 shrink-0 text-neutral-300" />
+          {item.startTime && (
+            <span className="ml-auto flex items-center gap-1 rounded-full bg-neutral-200 px-2.5 py-0.5 text-[11px] font-semibold text-neutral-600">
+              <Clock className="h-3 w-3" />
+              {item.startTime}
+              {item.duration && <span className="text-neutral-400"> · {item.duration}</span>}
+            </span>
+          )}
+        </div>
+      )}
+
+      {/* Card content */}
+      <div className="p-3">
+        <div className="flex items-start justify-between gap-2">
+          <div className="flex-1 min-w-0">
+            <div className="flex flex-wrap items-center gap-1.5">
+              <h4 className="font-semibold leading-snug text-neutral-900 truncate">{item.title}</h4>
+              <span className={`tag-pill shrink-0 text-[10px] py-0 ${badgeClass}`}>
+                {badgeLabel}
+              </span>
+            </div>
+            {item.placeCache?.address && (
+              <p className="mt-0.5 truncate text-[11px] text-neutral-400">
+                {item.placeCache.address}
+              </p>
+            )}
+          </div>
+          {item.placeCache?.rating != null && (
+            <div className="shrink-0 flex items-center gap-0.5 text-xs font-semibold text-neutral-700">
+              <Star className="h-3 w-3 fill-amber-400 text-amber-400" />
+              {item.placeCache.rating.toFixed(1)}
+            </div>
+          )}
+        </div>
+
+        {item.description && !imageUrl && (
+          <p className="mt-1.5 line-clamp-2 text-xs leading-relaxed text-neutral-500">
+            {item.description}
+          </p>
+        )}
+
+        {/* Quick actions */}
+        {(mapsUrl || item.bookingUrl) && (
+          <div
+            className="mt-2.5 flex items-center gap-2 border-t border-neutral-100 pt-2"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {mapsUrl && (
+              <a
+                href={mapsUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-1 rounded-lg bg-neutral-50 px-2.5 py-1.5 text-[11px] font-medium text-neutral-600 transition-colors hover:bg-teal-50 hover:text-teal-700"
+              >
+                <Navigation className="h-3 w-3" />
+                Directions
+              </a>
+            )}
+            {item.bookingUrl && (
+              <a
+                href={item.bookingUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-1 rounded-lg bg-orange-50 px-2.5 py-1.5 text-[11px] font-medium text-orange-700 transition-colors hover:bg-orange-100"
+              >
+                <ExternalLink className="h-3 w-3" />
+                Book
+              </a>
+            )}
+          </div>
+        )}
+      </div>
     </div>
   );
 }
@@ -195,7 +381,7 @@ function DayItems({
   }
 
   const list = (
-    <div className="relative ml-3 space-y-5 border-l border-neutral-200 pl-5">
+    <div className="relative flex flex-col gap-3">
       {reordering && (
         <div className="absolute inset-0 z-10 flex items-center justify-center rounded-lg bg-white/70">
           <Spinner size="sm" />
@@ -275,12 +461,12 @@ export function DayTimeline({
     return (
       <div className="flex h-full items-center justify-center p-8 text-center">
         <div>
-          <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-neutral-100">
-            <Route className="h-7 w-7 text-neutral-400" />
+          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-orange-50">
+            <Route className="h-8 w-8 text-orange-400" />
           </div>
-          <p className="font-medium text-neutral-700">No itinerary yet</p>
+          <p className="font-semibold text-neutral-700">No itinerary yet</p>
           <p className="mt-1 text-sm text-neutral-400">
-            Chat to generate your day-by-day plan
+            Chat with the AI to generate your day-by-day plan
           </p>
         </div>
       </div>
@@ -288,22 +474,29 @@ export function DayTimeline({
   }
 
   return (
-    <div className="space-y-6 p-4">
+    <div className="space-y-8 p-4">
       {filteredDays.map((day) => (
         <section key={day.id} id={`day-${day.dayNumber}`}>
-          <div className="mb-3 flex items-center gap-2">
+          {/* Day header banner */}
+          <div
+            className="mb-4 flex items-center gap-3 rounded-xl px-4 py-3"
+            style={{ backgroundColor: `${getDayColor(day.dayNumber)}15` }}
+          >
             <div
-              className="flex h-7 w-7 items-center justify-center rounded-full text-xs font-bold text-white"
+              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-sm font-black text-white"
               style={{ backgroundColor: getDayColor(day.dayNumber) }}
             >
               {day.dayNumber}
             </div>
-            <div>
-              <h3 className="font-semibold text-neutral-900">{day.title}</h3>
+            <div className="flex-1 min-w-0">
+              <h3 className="font-semibold text-neutral-900 truncate">{day.title}</h3>
               {day.summary && (
-                <p className="text-xs text-neutral-500">{day.summary}</p>
+                <p className="truncate text-xs text-neutral-500">{day.summary}</p>
               )}
             </div>
+            <span className="shrink-0 text-xs font-medium text-neutral-400">
+              {day.items.length} {day.items.length === 1 ? "stop" : "stops"}
+            </span>
           </div>
 
           <DayItems

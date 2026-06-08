@@ -32,6 +32,7 @@ type TripIntakeBarProps = {
   onSubmit: (data: TripIntakeData) => void;
   loading?: boolean;
   className?: string;
+  initialDestinationQuery?: string;
 };
 
 const TRAVELER_TYPES: TravelerType[] = [
@@ -60,10 +61,10 @@ function Segment({ label, value }: { label: string; value: string | null }) {
   );
 }
 
-export function TripIntakeBar({ onSubmit, loading, className }: TripIntakeBarProps) {
+export function TripIntakeBar({ onSubmit, loading, className, initialDestinationQuery }: TripIntakeBarProps) {
   const [openField, setOpenField] = useState<IntakeField | null>("where");
   const [location, setLocation] = useState<SelectedLocation | null>(null);
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchQuery, setSearchQuery] = useState(initialDestinationQuery ?? "");
   const [timingMode, setTimingMode] = useState<TimingMode>("dates");
   const [dateRange, setDateRange] = useState<DateRange | undefined>();
   const [flexibleDays, setFlexibleDays] = useState("");
