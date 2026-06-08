@@ -1,0 +1,70 @@
+import { NextResponse } from "next/server";
+import { requireCurrentDbUser, requireTripForUser } from "@/lib/auth";
+import { prisma } from "@/lib/prisma";
+import { getTripMetaById } from "@/lib/trips/queries";
+
+type RouteParams = { params: Promise<{ tripId: string }> };
+
+export async function GET(req: Request, { params }: RouteParams) {
+  try {
+    const user = await requireCurrentDbUser();
+    const { tripId } = await params;
+    const { searchParams } = new URL(req.url);
+
+    if (searchParams.get("view") === "meta") {
+      const trip = await getTripMetaById(tripId);
+      if (!trip) return NextResponse.json({ error: "Not found" }, { status: 404 });
+      return NextResponse.json(trip);
+    }
+
+    const trip = await getTripMetaById(tripId);
+    if (!trip) return NextResponse.json({ error: "Not found" }, { status: 404 });
+    return NextResponse.json(trip);
+  } catch {
+    return NextResponse.json({ error: "Not found" }, { status: 404 });
+  }
+}
+
+export async function PATCH(req: Request, { params }: RouteParams) {
+  try {
+    const user = await requireCurrentDbUser();
+    const { tripId } = await params;
+    await requireTripForUser(tripId, user.id);
+
+    const body = await req.json();
+    const { title, destination, startDate, endDate, status, preferences } = body;
+
+    const trip = await prisma.trip.update({
+      where: { id: tripId },
+      data: {
+        ...(title !== undefined && { title }),
+        ...(destination !== undefined && { destination }),
+        ...(startDate !== undefined && {
+          startDate: startDate ? new Date(startDate) : null,
+        }),
+        ...(endDate !== undefined && {
+          endDate: endDate ? new Date(endDate) : null,
+        }),
+        ...(status !== undefined && { status }),
+        ...(preferences !== undefined && { preferences }),
+      },
+    });
+
+    return NextResponse.json(trip);
+  } catch {
+    return NextResponse.json({ error: "Not found" }, { status: 404 });
+  }
+}
+
+export async function DELETE(_req: Request, { params }: RouteParams) {
+  try {
+    const user = await requireCurrentDbUser();
+    const { tripId } = await params;
+    await requireTripForUser(tripId, user.id);
+
+    await prisma.trip.delete({ where: { id: tripId } });
+    return NextResponse.json({ success: true });
+  } catch {
+    return NextResponse.json({ error: "Not found" }, { status: 404 });
+  }
+}

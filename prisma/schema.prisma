@@ -1,0 +1,145 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../app/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id              String   @id @default(cuid())
+  clerkId         String   @unique
+  email           String?
+  name            String?
+  profileImageUrl String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  trips           Trip[]
+}
+
+model Trip {
+  id          String        @id @default(cuid())
+  userId      String
+  user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title       String
+  destination String
+  startDate   DateTime?
+  endDate     DateTime?
+  status      TripStatus    @default(PLANNING)
+  preferences Json?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  messages    ChatMessage[]
+  itineraries Itinerary[]
+  ideas       TripIdea[]
+
+  @@index([userId])
+}
+
+enum TripStatus {
+  PLANNING
+  READY
+}
+
+model ChatMessage {
+  id        String      @id @default(cuid())
+  tripId    String
+  trip      Trip        @relation(fields: [tripId], references: [id], onDelete: Cascade)
+  role      MessageRole
+  content   String      @db.Text
+  metadata  Json?
+  createdAt DateTime    @default(now())
+
+  @@index([tripId])
+}
+
+enum MessageRole {
+  USER
+  ASSISTANT
+  SYSTEM
+}
+
+model Itinerary {
+  id        String         @id @default(cuid())
+  tripId    String
+  trip      Trip           @relation(fields: [tripId], references: [id], onDelete: Cascade)
+  version   Int            @default(1)
+  isActive  Boolean        @default(true)
+  createdAt DateTime       @default(now())
+  days      ItineraryDay[]
+
+  @@index([tripId])
+}
+
+model ItineraryDay {
+  id          String          @id @default(cuid())
+  itineraryId String
+  itinerary   Itinerary       @relation(fields: [itineraryId], references: [id], onDelete: Cascade)
+  dayNumber   Int
+  date        DateTime?
+  title       String
+  summary     String?         @db.Text
+  items       ItineraryItem[]
+
+  @@unique([itineraryId, dayNumber])
+}
+
+model ItineraryItem {
+  id            String       @id @default(cuid())
+  dayId         String
+  day           ItineraryDay @relation(fields: [dayId], references: [id], onDelete: Cascade)
+  type          ItemType
+  title         String
+  description   String?      @db.Text
+  startTime     String?
+  duration      String?
+  sortOrder     Int          @default(0)
+  latitude      Float?
+  longitude     Float?
+  googlePlaceId String?
+  bookingUrl    String?
+  placeCache    PlaceCache?  @relation(fields: [googlePlaceId], references: [googlePlaceId])
+
+  @@index([dayId])
+}
+
+enum ItemType {
+  ACTIVITY
+  FOOD
+  LODGING
+  TRANSPORT
+}
+
+model PlaceCache {
+  googlePlaceId String          @id
+  name          String
+  address       String?
+  photos        Json            @default("[]")
+  rating        Float?
+  reviewCount   Int?
+  reviews       Json            @default("[]")
+  latitude      Float?
+  longitude     Float?
+  lastFetchedAt DateTime        @default(now())
+  items         ItineraryItem[]
+  ideas         TripIdea[]
+}
+
+model TripIdea {
+  id            String      @id @default(cuid())
+  tripId        String
+  trip          Trip        @relation(fields: [tripId], references: [id], onDelete: Cascade)
+  title         String
+  notes         String?     @db.Text
+  type          ItemType    @default(ACTIVITY)
+  googlePlaceId String?
+  placeCache    PlaceCache? @relation(fields: [googlePlaceId], references: [googlePlaceId])
+  latitude      Float?
+  longitude     Float?
+  sortOrder     Int         @default(0)
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  @@index([tripId])
+}
