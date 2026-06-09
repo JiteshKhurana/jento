@@ -4,7 +4,7 @@ import dynamic from "next/dynamic";
 import { useCallback, useEffect, useState } from "react";
 import { format } from "date-fns";
 import { Calendar, MapPin } from "lucide-react";
-import { AppHeader } from "@/components/layout/app-header";
+import { AppShell } from "@/components/layout/app-shell";
 import { ChatPanel } from "@/components/chat/chat-panel";
 import { IdeasPanel } from "@/components/ideas/ideas-panel";
 import {
@@ -12,8 +12,9 @@ import {
   type ItineraryDayData,
 } from "@/components/itinerary/day-timeline";
 import { TripCalendar } from "@/components/itinerary/trip-calendar";
+import { TripExportMenu } from "@/components/itinerary/trip-export-menu";
+import { TripTitleEditor } from "@/components/trips/trip-title-editor";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Badge } from "@/components/ui/badge";
 import { LoadingState } from "@/components/ui/spinner";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
@@ -44,7 +45,6 @@ type TripPlannerProps = {
     destination: string;
     startDate: string | null;
     endDate: string | null;
-    status: string;
     preferences?: TripPreferences | null;
     messages: Array<{ role: string; content: string }>;
     itineraries: Array<{ days: ItineraryDayData[] }>;
@@ -106,7 +106,10 @@ export function TripPlanner({
       return;
     }
 
-    if (!isRoadTrip(trip.preferences) || getStartingLocation(trip.preferences)) {
+    if (
+      !isRoadTrip(trip.preferences) ||
+      getStartingLocation(trip.preferences)
+    ) {
       setChatInitialQuery(initialQuery);
       return;
     }
@@ -159,20 +162,13 @@ export function TripPlanner({
         return res.ok ? res.json() : null;
       };
 
-      let meta = await fetchMeta();
-      let itineraryDays = await fetchItineraryDays(trip.id);
-
-      if (meta?.status === "READY" && itineraryDays.length === 0) {
-        await new Promise((resolve) => setTimeout(resolve, 600));
-        meta = await fetchMeta();
-        itineraryDays = await fetchItineraryDays(trip.id);
-      }
+      const meta = await fetchMeta();
+      const itineraryDays = await fetchItineraryDays(trip.id);
 
       if (!meta) return;
 
       setTrip((prev) => ({
         ...prev,
-        status: meta.status,
         title: meta.title,
         itineraries: [{ days: itineraryDays }],
       }));
@@ -189,7 +185,9 @@ export function TripPlanner({
     setSelectedItemId(itemId);
     setLeftView("itinerary");
     setTimeout(() => {
-      document.getElementById(`item-${itemId}`)?.scrollIntoView({ behavior: "smooth", block: "center" });
+      document
+        .getElementById(`item-${itemId}`)
+        ?.scrollIntoView({ behavior: "smooth", block: "center" });
     }, 100);
   }
 
@@ -230,7 +228,7 @@ export function TripPlanner({
               className={cn(
                 "shrink-0 rounded-full px-3.5 py-1.5 text-xs font-semibold transition-all",
                 selectedDay === day.dayNumber
-                  ? "bg-orange-500 text-white shadow-sm shadow-orange-200"
+                  ? "bg-neutral-900 text-white shadow-sm shadow-neutral-200"
                   : "bg-neutral-100 text-neutral-600 hover:bg-neutral-200",
               )}
             >
@@ -253,8 +251,7 @@ export function TripPlanner({
   const totalItems = days.reduce((n, d) => n + d.items.length, 0);
 
   return (
-    <div className="flex h-screen flex-col overflow-hidden bg-neutral-50">
-      <AppHeader />
+    <AppShell fullHeight className="overflow-hidden bg-neutral-50">
 
       {!isOwner && (
         <div className="shrink-0 border-b border-amber-200/80 bg-amber-50 px-4 py-2 text-center text-sm text-amber-800 md:px-6">
@@ -264,24 +261,37 @@ export function TripPlanner({
 
       {/* Trip header bar */}
       <div className="shrink-0 border-b border-neutral-200/80 bg-white px-4 py-3 md:px-6">
-        <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
-          <h1 className="text-base font-semibold text-neutral-900">{trip.title}</h1>
-          <Badge variant={trip.status === "READY" ? "success" : "secondary"}>
-            {trip.status === "READY" ? "Ready" : "Planning"}
-          </Badge>
-          <div className="flex items-center gap-3 text-sm text-neutral-500">
-            <span className="flex items-center gap-1">
-              <MapPin className="h-3.5 w-3.5 text-orange-500" />
-              {trip.destination}
-            </span>
-            {trip.startDate && (
+        <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
+            <TripTitleEditor
+              tripId={trip.id}
+              title={trip.title}
+              readOnly={!isOwner}
+              onTitleChange={(title) => setTrip((prev) => ({ ...prev, title }))}
+            />
+            <div className="flex items-center gap-3 text-sm text-neutral-500">
               <span className="flex items-center gap-1">
-                <Calendar className="h-3.5 w-3.5 text-teal-500" />
-                {format(new Date(trip.startDate), "MMM d")}
-                {trip.endDate && ` – ${format(new Date(trip.endDate), "MMM d, yyyy")}`}
+                <MapPin className="h-3.5 w-3.5 text-neutral-700" />
+                {trip.destination}
               </span>
-            )}
+              {trip.startDate && (
+                <span className="flex items-center gap-1">
+                  <Calendar className="h-3.5 w-3.5 text-teal-500" />
+                  {format(new Date(trip.startDate), "MMM d")}
+                  {trip.endDate &&
+                    ` – ${format(new Date(trip.endDate), "MMM d, yyyy")}`}
+                </span>
+              )}
+            </div>
           </div>
+          <TripExportMenu
+            tripId={trip.id}
+            tripTitle={trip.title}
+            destination={trip.destination}
+            tripStartDate={trip.startDate}
+            tripEndDate={trip.endDate}
+            days={days}
+          />
         </div>
       </div>
 
@@ -319,7 +329,7 @@ export function TripPlanner({
                       <>
                         Itinerary
                         {totalItems > 0 && (
-                          <span className="ml-1.5 rounded-full bg-orange-100 px-1.5 py-0.5 text-[10px] font-semibold text-orange-700">
+                          <span className="ml-1.5 rounded-full bg-neutral-100 px-1.5 py-0.5 text-[10px] font-semibold text-neutral-700">
                             {totalItems}
                           </span>
                         )}
@@ -412,11 +422,13 @@ export function TripPlanner({
           >
             <div className="shrink-0 px-4 pt-3">
               <TabsList className="grid w-full grid-cols-5 rounded-xl bg-neutral-100 p-1">
-                <TabsTrigger value="chat" className="rounded-lg text-xs">Chat</TabsTrigger>
+                <TabsTrigger value="chat" className="rounded-lg text-xs">
+                  Chat
+                </TabsTrigger>
                 <TabsTrigger value="itinerary" className="rounded-lg text-xs">
                   Plan
                   {totalItems > 0 && (
-                    <span className="ml-1 rounded-full bg-orange-100 px-1 py-0 text-[10px] font-bold text-orange-700">
+                    <span className="ml-1 rounded-full bg-neutral-100 px-1 py-0 text-[10px] font-bold text-neutral-700">
                       {totalItems}
                     </span>
                   )}
@@ -424,8 +436,12 @@ export function TripPlanner({
                 <TabsTrigger value="ideas" className="rounded-lg text-xs">
                   Ideas
                 </TabsTrigger>
-                <TabsTrigger value="calendar" className="rounded-lg text-xs">Cal</TabsTrigger>
-                <TabsTrigger value="map" className="rounded-lg text-xs">Map</TabsTrigger>
+                <TabsTrigger value="calendar" className="rounded-lg text-xs">
+                  Cal
+                </TabsTrigger>
+                <TabsTrigger value="map" className="rounded-lg text-xs">
+                  Map
+                </TabsTrigger>
               </TabsList>
             </div>
             <TabsContent
@@ -454,6 +470,6 @@ export function TripPlanner({
           </Tabs>
         </div>
       )}
-    </div>
+    </AppShell>
   );
 }

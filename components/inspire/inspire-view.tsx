@@ -70,7 +70,7 @@ export function InspireView({ destinationPhotos, templatePhotos, signedIn }: Pro
       {/* Hero */}
       <section className="bg-hero px-6 py-16 text-center md:py-24">
         <div className="mx-auto max-w-3xl">
-          <div className="inline-flex items-center gap-2 rounded-full bg-orange-100 px-4 py-1.5 text-xs font-semibold text-orange-700 mb-4">
+          <div className="inline-flex items-center gap-2 rounded-full bg-neutral-100 px-4 py-1.5 text-xs font-semibold text-neutral-700 mb-4">
             <Plane className="h-3 w-3" />
             Popular destinations & itineraries
           </div>
@@ -104,7 +104,7 @@ export function InspireView({ destinationPhotos, templatePhotos, signedIn }: Pro
       {/* Creating overlay */}
       {creating && (
         <div className="fixed inset-0 z-50 flex flex-col items-center justify-center gap-3 bg-white/90 backdrop-blur-sm">
-          <div className="h-8 w-8 animate-spin rounded-full border-2 border-neutral-200 border-t-orange-500" />
+          <div className="h-8 w-8 animate-spin rounded-full border-2 border-neutral-200 border-t-neutral-900" />
           <p className="font-medium text-neutral-700">Creating your {creating} trip…</p>
         </div>
       )}

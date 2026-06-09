@@ -1,10 +1,9 @@
-import { AppHeader } from "@/components/layout/app-header";
+import { AppShell } from "@/components/layout/app-shell";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export function TripsPageSkeleton() {
   return (
-    <div className="flex min-h-screen flex-col bg-mesh">
-      <AppHeader />
+    <AppShell className="bg-mesh">
       <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-10 md:px-8 md:py-14">
         <div className="mb-10 flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
           <div className="space-y-3">
@@ -29,6 +28,6 @@ export function TripsPageSkeleton() {
           ))}
         </div>
       </main>
-    </div>
+    </AppShell>
   );
 }

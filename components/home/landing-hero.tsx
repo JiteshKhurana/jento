@@ -3,7 +3,6 @@
 import { motion } from "framer-motion";
 import Image from "next/image";
 import { Plane, Star, Map, Camera } from "lucide-react";
-import { ChatStarter } from "@/components/home/chat-starter";
 import type { UnsplashPhoto } from "@/lib/unsplash/photos";
 import type { FeaturedDestination } from "@/lib/inspire/templates";
 
@@ -36,8 +35,7 @@ const floatIn = {
 
 const CARD_POSITIONS = [
   {
-    wrapClass:
-      "absolute left-6 top-20 h-56 w-44 -rotate-[7deg] shadow-2xl",
+    wrapClass: "absolute left-6 top-20 h-56 w-44 -rotate-[7deg] shadow-2xl",
     delay: 0.45,
   },
   {
@@ -46,8 +44,7 @@ const CARD_POSITIONS = [
     delay: 0.65,
   },
   {
-    wrapClass:
-      "absolute right-6 top-14 h-60 w-48 rotate-[6deg] shadow-2xl",
+    wrapClass: "absolute right-6 top-14 h-60 w-48 rotate-[6deg] shadow-2xl",
     delay: 0.55,
   },
   {
@@ -58,14 +55,13 @@ const CARD_POSITIONS = [
 ];
 
 const FALLBACK_GRADIENTS = [
-  "from-orange-400 to-rose-500",
+  "from-neutral-400 to-neutral-700",
   "from-teal-400 to-cyan-500",
   "from-violet-400 to-purple-500",
-  "from-amber-400 to-orange-500",
+  "from-neutral-500 to-neutral-800",
 ];
 
 export function LandingHero({
-  userId,
   previewPhotos,
   previewDestinations,
 }: LandingHeroProps) {
@@ -93,10 +89,10 @@ export function LandingHero({
                 />
               ) : (
                 <div
-                  className={`h-full w-full bg-gradient-to-br ${FALLBACK_GRADIENTS[idx % FALLBACK_GRADIENTS.length]}`}
+                  className={`h-full w-full bg-linear-to-br ${FALLBACK_GRADIENTS[idx % FALLBACK_GRADIENTS.length]}`}
                 />
               )}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-black/5 to-transparent" />
+              <div className="absolute inset-0 bg-linear-to-t from-black/50 via-black/5 to-transparent" />
               {previewDestinations[idx] && (
                 <div className="absolute bottom-3 left-3 right-3">
                   <p className="text-xs font-bold text-white drop-shadow">
@@ -122,7 +118,7 @@ export function LandingHero({
           variants={fadeUp}
           className="mb-8"
         >
-          <span className="inline-flex items-center gap-2 rounded-full border border-orange-200/80 bg-orange-50 px-4 py-2 text-xs font-semibold tracking-wide text-orange-700">
+          <span className="inline-flex items-center gap-2 rounded-full border border-neutral-200/80 bg-neutral-100 px-4 py-2 text-xs font-semibold tracking-wide text-neutral-700">
             <Plane className="h-3 w-3" />
             AI-powered travel planning
           </span>
@@ -150,20 +146,9 @@ export function LandingHero({
           variants={fadeUp}
           className="mx-auto mt-7 max-w-lg text-lg leading-relaxed text-neutral-500 md:text-xl"
         >
-          AITravel brings the world to you and empowers you to experience it{" "}
+          Tripzy brings the world to you and empowers you to experience it{" "}
           <strong className="font-semibold text-neutral-700">your</strong> way.
         </motion.p>
-
-        {/* Chat / CTA */}
-        <motion.div
-          initial="hidden"
-          animate="visible"
-          custom={0.3}
-          variants={fadeUp}
-          className="mt-10 w-full"
-        >
-          <ChatStarter signedIn={!!userId} showPopularDestinations />
-        </motion.div>
 
         {/* Social proof */}
         <motion.div
@@ -174,9 +159,17 @@ export function LandingHero({
           className="mt-8 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-sm text-neutral-500"
         >
           {[
-            { icon: Star, cls: "fill-amber-400 text-amber-400", label: "Personalized itineraries" },
+            {
+              icon: Star,
+              cls: "fill-amber-400 text-amber-400",
+              label: "Personalized itineraries",
+            },
             { icon: Map, cls: "text-teal-500", label: "Interactive maps" },
-            { icon: Camera, cls: "text-violet-500", label: "Real photos & reviews" },
+            {
+              icon: Camera,
+              cls: "text-violet-500",
+              label: "Real photos & reviews",
+            },
           ].map(({ icon: Icon, cls, label }) => (
             <span key={label} className="flex items-center gap-1.5">
               <Icon className={`h-4 w-4 ${cls}`} />

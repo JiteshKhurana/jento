@@ -1,5 +1,5 @@
 import { auth, currentUser } from "@clerk/nextjs/server";
-import { AppHeader } from "@/components/layout/app-header";
+import { AppShell } from "@/components/layout/app-shell";
 import { NewTripButton } from "@/components/trips/new-trip-button";
 import { TripCard } from "@/components/trips/trip-card";
 import { TripsEmptyState } from "@/components/trips/trips-empty-state";
@@ -52,8 +52,7 @@ export default async function TripsPage() {
   const firstName = user?.name?.split(" ")[0];
 
   return (
-    <div className="flex min-h-screen flex-col bg-mesh">
-      <AppHeader />
+    <AppShell className="bg-mesh">
       <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-10 md:px-8 md:py-14">
         <div className="mb-10 flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
           <div>
@@ -79,6 +78,6 @@ export default async function TripsPage() {
           </div>
         )}
       </main>
-    </div>
+    </AppShell>
   );
 }

@@ -32,7 +32,7 @@ export async function PATCH(req: Request, { params }: RouteParams) {
     await requireTripForUser(tripId, user.id);
 
     const body = await req.json();
-    const { title, destination, startDate, endDate, status, preferences } = body;
+    const { title, destination, startDate, endDate, preferences } = body;
 
     const trip = await prisma.trip.update({
       where: { id: tripId },
@@ -45,7 +45,6 @@ export async function PATCH(req: Request, { params }: RouteParams) {
         ...(endDate !== undefined && {
           endDate: endDate ? new Date(endDate) : null,
         }),
-        ...(status !== undefined && { status }),
         ...(preferences !== undefined && { preferences }),
       },
     });

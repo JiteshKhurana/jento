@@ -10,21 +10,21 @@ type DestinationCardProps = {
 
 export function DestinationCard({ destination, photo, onPlanTrip }: DestinationCardProps) {
   const GRADIENTS: Record<string, string> = {
-    tokyo: "from-rose-400 to-orange-500",
+    tokyo: "from-neutral-400 to-neutral-700",
     bali: "from-teal-400 to-emerald-600",
     paris: "from-violet-400 to-purple-600",
     santorini: "from-blue-400 to-cyan-600",
     "new-york": "from-neutral-600 to-neutral-900",
-    "machu-picchu": "from-amber-500 to-lime-600",
-    amalfi: "from-orange-400 to-rose-500",
+    "machu-picchu": "from-neutral-500 to-neutral-800",
+    amalfi: "from-neutral-400 to-neutral-600",
     kyoto: "from-pink-400 to-rose-600",
-    safari: "from-amber-600 to-orange-700",
+    safari: "from-neutral-600 to-neutral-900",
     maldives: "from-cyan-400 to-blue-500",
-    barcelona: "from-orange-400 to-red-500",
+    barcelona: "from-neutral-400 to-neutral-700",
     iceland: "from-indigo-500 to-violet-700",
   };
 
-  const gradient = GRADIENTS[destination.id] ?? "from-orange-400 to-rose-500";
+  const gradient = GRADIENTS[destination.id] ?? "from-neutral-400 to-neutral-700";
 
   return (
     <button

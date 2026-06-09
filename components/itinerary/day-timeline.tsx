@@ -64,7 +64,7 @@ export type ItineraryDayData = {
 };
 
 const DAY_COLORS = [
-  "#f97316", // orange-500
+  "#171717", // neutral-900
   "#0d9488", // teal-600
   "#7c3aed", // violet-600
   "#db2777", // pink-600
@@ -160,7 +160,7 @@ function ItemBlock({
 
   if (editing && !readOnly) {
     return (
-      <div className="rounded-2xl border border-orange-200 bg-orange-50/30 p-1">
+      <div className="rounded-2xl border border-neutral-200 bg-neutral-50/30 p-1">
         <ItemEditor
           item={item}
           onSave={handleSave}
@@ -297,7 +297,7 @@ function ItemBlock({
                 href={item.bookingUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-1 rounded-lg bg-orange-50 px-2.5 py-1.5 text-[11px] font-medium text-orange-700 transition-colors hover:bg-orange-100"
+                className="flex items-center gap-1 rounded-lg bg-neutral-100 px-2.5 py-1.5 text-[11px] font-medium text-neutral-700 transition-colors hover:bg-neutral-200"
               >
                 <ExternalLink className="h-3 w-3" />
                 Book
@@ -461,8 +461,8 @@ export function DayTimeline({
     return (
       <div className="flex h-full items-center justify-center p-8 text-center">
         <div>
-          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-orange-50">
-            <Route className="h-8 w-8 text-orange-400" />
+          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-neutral-100">
+            <Route className="h-8 w-8 text-neutral-500" />
           </div>
           <p className="font-semibold text-neutral-700">No itinerary yet</p>
           <p className="mt-1 text-sm text-neutral-400">

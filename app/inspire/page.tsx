@@ -1,23 +1,31 @@
 import { auth } from "@clerk/nextjs/server";
-import { AppHeader } from "@/components/layout/app-header";
+import { AppShell } from "@/components/layout/app-shell";
 import { InspireView } from "@/components/inspire/inspire-view";
-import { FEATURED_DESTINATIONS, ITINERARY_TEMPLATES } from "@/lib/inspire/templates";
+import {
+  FEATURED_DESTINATIONS,
+  ITINERARY_TEMPLATES,
+} from "@/lib/inspire/templates";
 import { getUnsplashPhoto } from "@/lib/unsplash/photos";
 import type { UnsplashPhoto } from "@/lib/unsplash/photos";
 
 export const revalidate = 86400;
 
 export const metadata = {
-  title: "Inspiration — AITravel",
-  description: "Browse popular destinations and ready-made itineraries. One click to start planning your next adventure.",
+  title: "Inspiration — Tripzy",
+  description:
+    "Browse popular destinations and ready-made itineraries. One click to start planning your next adventure.",
 };
 
 export default async function InspirePage() {
   const { userId } = await auth();
 
   const [destinationPhotosArr, templatePhotosArr] = await Promise.all([
-    Promise.all(FEATURED_DESTINATIONS.map((d) => getUnsplashPhoto(d.unsplashQuery))),
-    Promise.all(ITINERARY_TEMPLATES.map((t) => getUnsplashPhoto(t.unsplashQuery))),
+    Promise.all(
+      FEATURED_DESTINATIONS.map((d) => getUnsplashPhoto(d.unsplashQuery)),
+    ),
+    Promise.all(
+      ITINERARY_TEMPLATES.map((t) => getUnsplashPhoto(t.unsplashQuery)),
+    ),
   ]);
 
   const destinationPhotos: Record<string, UnsplashPhoto | null> = {};
@@ -31,13 +39,12 @@ export default async function InspirePage() {
   });
 
   return (
-    <div className="flex min-h-screen flex-col">
-      <AppHeader />
+    <AppShell>
       <InspireView
         destinationPhotos={destinationPhotos}
         templatePhotos={templatePhotos}
         signedIn={!!userId}
       />
-    </div>
+    </AppShell>
   );
 }

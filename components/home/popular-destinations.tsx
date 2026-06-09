@@ -30,7 +30,7 @@ export function PopularDestinations({ onSelect }: Props) {
           key={dest.label}
           type="button"
           onClick={() => onSelect(dest.query)}
-          className="flex items-center gap-1.5 rounded-full border border-neutral-200 bg-white/70 px-3 py-1.5 text-xs font-medium text-neutral-700 backdrop-blur-sm transition-all hover:border-orange-200 hover:bg-orange-50 hover:text-orange-700"
+          className="flex items-center gap-1.5 rounded-full border border-neutral-200 bg-white/70 px-3 py-1.5 text-xs font-medium text-neutral-700 backdrop-blur-sm transition-all hover:border-neutral-300 hover:bg-neutral-100 hover:text-neutral-900"
         >
           <span>{dest.emoji}</span>
           {dest.label}

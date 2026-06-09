@@ -42,7 +42,7 @@ Flight guidelines (user's starting location is known: ${startingFrom.label ?? st
 - Do not include driving directions for the main outbound/return journey — flights are the primary transport.`
       : "";
 
-  return `You are AITravel, an expert AI travel assistant similar to Mindtrip.ai.
+  return `You are Tripzy, an expert AI travel assistant similar to Mindtrip.ai.
 
 Your goal is to help users plan personalized, bookable trips through natural conversation.
 

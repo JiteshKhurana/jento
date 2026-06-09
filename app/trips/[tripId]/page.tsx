@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { requireCurrentDbUser, getTripById, isTripOwner } from "@/lib/auth";
 import { TripPlanner } from "@/components/planner/trip-planner";
+import { parseTripPreferences } from "@/lib/trips/preferences";
 
 export const dynamic = "force-dynamic";
 
@@ -26,6 +27,7 @@ export default async function TripPage({ params, searchParams }: PageProps) {
       initialQuery={owner ? (q ?? null) : null}
       trip={{
         ...trip,
+        preferences: parseTripPreferences(trip.preferences),
         startDate: trip.startDate?.toISOString() ?? null,
         endDate: trip.endDate?.toISOString() ?? null,
         messages: trip.messages.map((m) => ({

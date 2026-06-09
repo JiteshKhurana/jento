@@ -6,7 +6,6 @@ const tripMetaSelect = {
   destination: true,
   startDate: true,
   endDate: true,
-  status: true,
 } as const;
 
 const itineraryInclude = {

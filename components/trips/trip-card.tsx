@@ -16,7 +16,7 @@ const COVER_GRADIENTS = [
   "from-sky-500 to-blue-700",
   "from-emerald-500 to-teal-700",
   "from-violet-500 to-purple-700",
-  "from-amber-500 to-orange-700",
+  "from-neutral-500 to-neutral-900",
   "from-rose-500 to-pink-700",
   "from-cyan-500 to-indigo-700",
 ] as const;
@@ -36,7 +36,6 @@ type TripCardProps = {
     destination: string;
     startDate: string | Date | null;
     endDate: string | Date | null;
-    status: string;
     updatedAt: string | Date;
     itineraries?: Array<{ days: Array<{ items: unknown[] }> }>;
   };

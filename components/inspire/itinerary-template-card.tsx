@@ -12,7 +12,7 @@ type ItineraryTemplateCardProps = {
 const CATEGORY_COLORS: Record<string, string> = {
   beach: "bg-cyan-100 text-cyan-800",
   city: "bg-violet-100 text-violet-800",
-  adventure: "bg-orange-100 text-orange-800",
+  adventure: "bg-neutral-100 text-neutral-800",
   culture: "bg-amber-100 text-amber-800",
   food: "bg-rose-100 text-rose-800",
   all: "bg-neutral-100 text-neutral-700",
@@ -32,7 +32,7 @@ export function ItineraryTemplateCard({ template, photo, onPlanTrip }: Itinerary
             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
           />
         ) : (
-          <div className="absolute inset-0 bg-linear-to-br from-orange-300 to-rose-400" />
+          <div className="absolute inset-0 bg-linear-to-br from-neutral-300 to-neutral-500" />
         )}
         <div className="absolute inset-0 bg-linear-to-t from-black/50 via-transparent to-transparent" />
 
@@ -71,7 +71,7 @@ export function ItineraryTemplateCard({ template, photo, onPlanTrip }: Itinerary
         <div className="mt-3 space-y-1">
           {template.highlights.map((highlight) => (
             <div key={highlight} className="flex items-center gap-2 text-xs text-neutral-600">
-              <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-orange-400" />
+              <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-neutral-500" />
               {highlight}
             </div>
           ))}

@@ -23,10 +23,10 @@ export default async function HomePage() {
           href="/"
           className="flex items-center gap-2 text-xl font-black tracking-tight text-neutral-900"
         >
-          <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-orange-500">
+          <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-neutral-900">
             <Plane className="h-4 w-4 text-white" />
           </span>
-          AITravel
+          Tripzy
         </Link>
 
         <nav className="hidden items-center gap-8 text-sm font-medium text-neutral-600 md:flex">
@@ -70,7 +70,7 @@ export default async function HomePage() {
                 <Link href="/sign-in">Sign in</Link>
               </Button>
               <Button
-                className="rounded-full bg-orange-500 px-5 text-white shadow-md shadow-orange-200 hover:bg-orange-600"
+                className="rounded-full bg-neutral-900 px-5 text-white shadow-md shadow-neutral-200 hover:bg-neutral-800"
                 asChild
               >
                 <Link href="/sign-up">Get started free</Link>
@@ -100,10 +100,10 @@ export default async function HomePage() {
             href="/"
             className="flex items-center gap-2 font-bold text-neutral-700"
           >
-            <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-orange-500">
+            <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-neutral-900">
               <Plane className="h-3 w-3 text-white" />
             </span>
-            AITravel
+            Tripzy
           </Link>
           <div className="flex gap-6 text-xs">
             <Link href="/inspire" className="hover:text-neutral-700">
@@ -119,7 +119,7 @@ export default async function HomePage() {
               {userId ? "My trips" : "Sign up"}
             </Link>
           </div>
-          <p>© {new Date().getFullYear()} AITravel. Plan smarter. Travel better.</p>
+          <p>© {new Date().getFullYear()} Tripzy. Plan smarter. Travel better.</p>
         </div>
       </footer>
     </div>

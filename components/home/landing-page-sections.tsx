@@ -35,7 +35,7 @@ function useReveal(delay = 0) {
 
 function SectionLabel({ children }: { children: React.ReactNode }) {
   return (
-    <p className="text-sm font-semibold uppercase tracking-widest text-orange-500">
+    <p className="text-sm font-semibold uppercase tracking-widest text-neutral-900">
       {children}
     </p>
   );
@@ -70,7 +70,7 @@ function DestinationsSection({
           <motion.div {...useReveal(0.1)} className="hidden sm:block">
             <Link
               href="/inspire"
-              className="group flex items-center gap-1.5 rounded-full border border-neutral-200 px-4 py-2 text-sm font-medium text-neutral-600 transition-all hover:border-orange-300 hover:text-orange-600"
+              className="group flex items-center gap-1.5 rounded-full border border-neutral-200 px-4 py-2 text-sm font-medium text-neutral-600 transition-all hover:border-neutral-400 hover:text-neutral-900"
             >
               See all destinations
               <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
@@ -89,7 +89,7 @@ function DestinationsSection({
               transition={{ duration: 0.6, delay: i * 0.08, ease }}
             >
               <Link href="/inspire" className="card-photo group block">
-                <div className="relative aspect-[3/4] overflow-hidden rounded-2xl bg-neutral-100">
+                <div className="relative aspect-3/4 overflow-hidden rounded-2xl bg-neutral-100">
                   {previewPhotos[i] ? (
                     <Image
                       src={previewPhotos[i]!.url}
@@ -100,19 +100,21 @@ function DestinationsSection({
                     />
                   ) : (
                     <div
-                      className={`absolute inset-0 bg-gradient-to-br ${
+                      className={`absolute inset-0 bg-linear-to-br ${
                         [
-                          "from-orange-400 to-rose-500",
+                          "from-neutral-400 to-neutral-700",
                           "from-teal-400 to-cyan-500",
                           "from-violet-400 to-purple-500",
-                          "from-amber-400 to-orange-500",
+                          "from-neutral-500 to-neutral-800",
                         ][i % 4]
                       }`}
                     />
                   )}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/15 to-transparent" />
+                  <div className="absolute inset-0 bg-linear-to-t from-black/75 via-black/15 to-transparent" />
                   <div className="absolute bottom-0 left-0 right-0 p-4">
-                    <h3 className="text-lg font-bold text-white">{dest.name}</h3>
+                    <h3 className="text-lg font-bold text-white">
+                      {dest.name}
+                    </h3>
                     <p className="text-sm text-white/75">{dest.country}</p>
                     <div className="mt-2 flex flex-wrap gap-1">
                       {dest.categories.slice(0, 2).map((cat) => (
@@ -149,9 +151,9 @@ function DestinationsSection({
 const FEATURES = [
   {
     icon: Camera,
-    iconColor: "text-orange-500",
-    iconBg: "bg-orange-50",
-    borderColor: "hover:border-orange-200",
+    iconColor: "text-neutral-900",
+    iconBg: "bg-neutral-100",
+    borderColor: "hover:border-neutral-300",
     title: "Photos, maps & reviews",
     description:
       "Don't just read about a place — experience it. Vibrant photos, interactive maps, and real traveler reviews for every stop on your journey.",
@@ -187,7 +189,17 @@ function FeaturesSection() {
 
         <div className="mt-14 grid gap-6 md:grid-cols-3">
           {FEATURES.map(
-            ({ icon: Icon, iconColor, iconBg, borderColor, title, description }, i) => (
+            (
+              {
+                icon: Icon,
+                iconColor,
+                iconBg,
+                borderColor,
+                title,
+                description,
+              },
+              i,
+            ) => (
               <motion.div
                 key={title}
                 initial={{ opacity: 0, y: 40 }}
@@ -203,7 +215,9 @@ function FeaturesSection() {
                   >
                     <Icon className={`h-6 w-6 ${iconColor}`} />
                   </div>
-                  <h3 className="text-lg font-bold text-neutral-900">{title}</h3>
+                  <h3 className="text-lg font-bold text-neutral-900">
+                    {title}
+                  </h3>
                   <p className="mt-3 text-sm leading-relaxed text-neutral-500">
                     {description}
                   </p>
@@ -226,8 +240,8 @@ const STEPS = [
     title: "Start chatting",
     description:
       "Ask for suggestions for any destination or a full itinerary. Be as specific as you like about the experiences you love.",
-    accent: "text-orange-500",
-    bg: "bg-orange-50",
+    accent: "text-neutral-900",
+    bg: "bg-neutral-100",
   },
   {
     number: "02",
@@ -266,39 +280,43 @@ function HowItWorksSection() {
           <SectionLabel>How it works</SectionLabel>
           <SectionHeading>Plan your next adventure in minutes</SectionHeading>
           <p className="mx-auto mt-4 max-w-xl text-neutral-500">
-            From first idea to full itinerary — AITravel handles the heavy
+            From first idea to full itinerary — Tripzy handles the heavy
             lifting so you can focus on the excitement.
           </p>
         </motion.div>
 
         <div className="mt-16 grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
-          {STEPS.map(({ number, icon: Icon, title, description, accent, bg }, i) => (
-            <motion.div
-              key={title}
-              initial={{ opacity: 0, y: 40 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-60px" }}
-              transition={{ duration: 0.6, delay: i * 0.1, ease }}
-              className="relative"
-            >
-              {/* Connector line */}
-              {i < STEPS.length - 1 && (
-                <div className="absolute right-0 top-6 hidden h-[1px] w-8 bg-neutral-200 lg:block lg:translate-x-full" />
-              )}
-              <div className="mb-5 flex items-center gap-3">
-                <span className="text-4xl font-black text-neutral-100/80 leading-none select-none">
-                  {number}
-                </span>
-                <div className={`flex h-11 w-11 items-center justify-center rounded-xl ${bg}`}>
-                  <Icon className={`h-5 w-5 ${accent}`} />
+          {STEPS.map(
+            ({ number, icon: Icon, title, description, accent, bg }, i) => (
+              <motion.div
+                key={title}
+                initial={{ opacity: 0, y: 40 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-60px" }}
+                transition={{ duration: 0.6, delay: i * 0.1, ease }}
+                className="relative"
+              >
+                {/* Connector line */}
+                {i < STEPS.length - 1 && (
+                  <div className="absolute right-0 top-6 hidden h-px w-8 bg-neutral-200 lg:block lg:translate-x-full" />
+                )}
+                <div className="mb-5 flex items-center gap-3">
+                  <span className="text-4xl font-black text-neutral-100/80 leading-none select-none">
+                    {number}
+                  </span>
+                  <div
+                    className={`flex h-11 w-11 items-center justify-center rounded-xl ${bg}`}
+                  >
+                    <Icon className={`h-5 w-5 ${accent}`} />
+                  </div>
                 </div>
-              </div>
-              <h3 className="font-bold text-neutral-900">{title}</h3>
-              <p className="mt-2 text-sm leading-relaxed text-neutral-500">
-                {description}
-              </p>
-            </motion.div>
-          ))}
+                <h3 className="font-bold text-neutral-900">{title}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-neutral-500">
+                  {description}
+                </p>
+              </motion.div>
+            ),
+          )}
         </div>
       </div>
     </section>
@@ -312,7 +330,7 @@ function CtaSection({ userId }: { userId: string | null }) {
     <section className="relative overflow-hidden bg-neutral-950 px-8 py-28 text-center text-white md:px-16">
       {/* Ambient orbs */}
       <div className="pointer-events-none absolute inset-0">
-        <div className="absolute left-1/4 top-0 h-80 w-80 -translate-x-1/2 rounded-full bg-orange-500 opacity-20 blur-[100px]" />
+        <div className="absolute left-1/4 top-0 h-80 w-80 -translate-x-1/2 rounded-full bg-neutral-500 opacity-20 blur-[100px]" />
         <div className="absolute right-1/4 bottom-0 h-64 w-64 translate-x-1/2 rounded-full bg-teal-400 opacity-15 blur-[80px]" />
         <div className="absolute left-1/2 top-1/2 h-48 w-48 -translate-x-1/2 -translate-y-1/2 rounded-full bg-violet-500 opacity-10 blur-[60px]" />
       </div>
@@ -334,7 +352,7 @@ function CtaSection({ userId }: { userId: string | null }) {
         transition={{ duration: 0.7, ease }}
         className="relative mx-auto max-w-2xl"
       >
-        <p className="mb-3 text-sm font-semibold uppercase tracking-widest text-orange-400">
+        <p className="mb-3 text-sm font-semibold uppercase tracking-widest text-neutral-400">
           Start for free
         </p>
         <h2 className="text-4xl font-black tracking-tight md:text-6xl">
@@ -342,13 +360,13 @@ function CtaSection({ userId }: { userId: string | null }) {
           <span className="text-gradient-warm">starts here.</span>
         </h2>
         <p className="mx-auto mt-5 max-w-lg text-neutral-400">
-          Join thousands of travellers who plan smarter with AITravel. Free to
+          Join thousands of travellers who plan smarter with Tripzy. Free to
           start, no credit card required.
         </p>
         <div className="mt-10 flex flex-wrap items-center justify-center gap-3">
           <Button
             size="lg"
-            className="rounded-full bg-orange-500 px-8 font-semibold text-white shadow-lg shadow-orange-500/25 hover:bg-orange-600"
+            className="rounded-full bg-white px-8 font-semibold text-neutral-900 shadow-lg shadow-white/10 hover:bg-neutral-100"
             asChild
           >
             <Link href={userId ? "/trips/new" : "/sign-up"}>

@@ -1,10 +1,9 @@
-import { AppHeader } from "@/components/layout/app-header";
+import { AppShell } from "@/components/layout/app-shell";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export function TripPlannerSkeleton() {
   return (
-    <div className="flex h-screen flex-col overflow-hidden bg-neutral-50">
-      <AppHeader />
+    <AppShell fullHeight className="overflow-hidden bg-neutral-50">
 
       <div className="shrink-0 border-b border-neutral-200/80 bg-white px-4 py-3 md:px-6">
         <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
@@ -53,6 +52,6 @@ export function TripPlannerSkeleton() {
           <Skeleton className="h-full w-full rounded-2xl" />
         </div>
       </div>
-    </div>
+    </AppShell>
   );
 }

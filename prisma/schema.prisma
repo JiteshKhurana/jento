@@ -27,7 +27,6 @@ model Trip {
   destination String
   startDate   DateTime?
   endDate     DateTime?
-  status      TripStatus    @default(PLANNING)
   preferences Json?
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
@@ -36,11 +35,6 @@ model Trip {
   ideas       TripIdea[]
 
   @@index([userId])
-}
-
-enum TripStatus {
-  PLANNING
-  READY
 }
 
 model ChatMessage {

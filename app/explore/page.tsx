@@ -1,8 +1,11 @@
 import { auth, currentUser } from "@clerk/nextjs/server";
-import { AppHeader } from "@/components/layout/app-header";
+import { AppShell } from "@/components/layout/app-shell";
 import { ExploreView } from "@/components/explore/explore-view";
 import { prisma } from "@/lib/prisma";
-import { getSavedPlaceIdsForUser } from "@/lib/saved-places/service";
+import {
+  getSavedPlaceIdsForUser,
+  getSavedPlacesForUser,
+} from "@/lib/saved-places/service";
 
 export const dynamic = "force-dynamic";
 
@@ -34,20 +37,25 @@ export default async function ExplorePage() {
       })
     : [];
 
-  const savedIds = user ? await getSavedPlaceIdsForUser(user.id) : [];
+  const [savedIds, savedPlaces] = user
+    ? await Promise.all([
+        getSavedPlaceIdsForUser(user.id),
+        getSavedPlacesForUser(user.id),
+      ])
+    : [[], []];
   const recentTrip = trips[0];
 
   return (
-    <div className="flex h-screen flex-col overflow-hidden bg-white">
-      <AppHeader />
+    <AppShell fullHeight className="overflow-hidden bg-white">
       <ExploreView
         trips={trips}
         initialSavedIds={savedIds}
+        initialSavedPlaces={savedPlaces}
         defaultLocation={{
           name: recentTrip?.destination ?? "Paris",
           label: recentTrip?.destination ?? "Paris, France",
         }}
       />
-    </div>
+    </AppShell>
   );
 }

@@ -208,8 +208,8 @@ export function TripCalendar({ days, tripStartDate }: TripCalendarProps) {
     return (
       <div className="flex h-full items-center justify-center p-8 text-center">
         <div>
-          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-orange-50">
-            <Route className="h-8 w-8 text-orange-400" />
+          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-neutral-100">
+            <Route className="h-8 w-8 text-neutral-500" />
           </div>
           <p className="font-semibold text-neutral-700">No itinerary yet</p>
           <p className="mt-1 text-sm text-neutral-400">

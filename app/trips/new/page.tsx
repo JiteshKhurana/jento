@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { AppHeader } from "@/components/layout/app-header";
+import { AppShell } from "@/components/layout/app-shell";
 import { NewTripDialog } from "@/components/trips/new-trip-dialog";
 
 export default function NewTripPage() {
@@ -14,9 +14,8 @@ export default function NewTripPage() {
   }, [open]);
 
   return (
-    <div className="flex min-h-screen flex-col bg-neutral-50">
-      <AppHeader />
+    <AppShell className="bg-neutral-50">
       <NewTripDialog open={open} onOpenChange={setOpen} />
-    </div>
+    </AppShell>
   );
 }

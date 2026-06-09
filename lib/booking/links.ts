@@ -44,8 +44,7 @@ function buildMMTFlightUrl(
 ): string {
   const country1 = getCountryByIATA(iata1);
   const country2 = getCountryByIATA(iata2);
-  const intl =
-    country1 && country2 && country1 !== country2 ? "true" : "false";
+  const intl = country1 && country2 && country1 !== country2 ? "true" : "false";
 
   const base = "https://www.makemytrip.com/flight/search";
   const pax = "paxType=A-1_C-0_I-0";

@@ -111,11 +111,6 @@ export async function saveItineraryToDb(
     }),
   ]);
 
-  await prisma.trip.update({
-    where: { id: tripId },
-    data: { status: "READY" },
-  });
-
   return itinerary;
 }
 

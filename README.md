@@ -1,4 +1,4 @@
-# AITravel — AI Trip Planner
+# Tripzy — AI Trip Planner
 
 An AI-powered travel planning app like Mindtrip.ai. Chat with Gemini to build personalized, day-by-day itineraries with maps, place photos, reviews, and booking links.
 

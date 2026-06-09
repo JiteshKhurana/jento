@@ -28,11 +28,6 @@ export async function POST(req: Request, { params }: RouteParams) {
       return NextResponse.json({ error: "Idea or day not found" }, { status: 404 });
     }
 
-    await prisma.trip.update({
-      where: { id: tripId },
-      data: { status: "READY" },
-    });
-
     return NextResponse.json(item, { status: 201 });
   } catch {
     return NextResponse.json({ error: "Failed to add to itinerary" }, { status: 500 });
