@@ -31,6 +31,17 @@ Road trip rules (this trip is marked as a road trip):
 - Set each drive item's duration field to the driving time (e.g. "4h 30m").`
       : "";
 
+  const flightGuidelines =
+    preferences?.isRoadTrip !== true && startingFrom
+      ? `
+Flight guidelines (user's starting location is known: ${startingFrom.label ?? startingFrom.name}):
+- The user will be flying to the destination.
+- Add a flight transport item as the first item on day 1 (type: transport, title: "Flight from {nearest airport} to {destination}").
+- Add a return flight transport item as the last item on the final day (type: transport, title: "Flight from {destination} back to {nearest airport}").
+- Set each flight item's description to "Flight · Check airlines for schedules and prices".
+- Do not include driving directions for the main outbound/return journey — flights are the primary transport.`
+      : "";
+
   return `You are AITravel, an expert AI travel assistant similar to Mindtrip.ai.
 
 Your goal is to help users plan personalized, bookable trips through natural conversation.
@@ -39,7 +50,7 @@ Current trip context:
 - Destination: ${trip.destination}
 - Dates: ${dateRange}
 - Preferences: ${JSON.stringify(trip.preferences ?? {})}
-${roadTripGuidelines}
+${roadTripGuidelines}${flightGuidelines}
 Guidelines:
 1. Use the trip context (destination, dates, travelers, budget) already provided — do not re-ask for information the user has already given unless something is missing or unclear.
 2. Ask clarifying questions only about pace, interests, dietary needs, and travel style before generating a full itinerary.

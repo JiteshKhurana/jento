@@ -165,10 +165,12 @@ export function NewTripDialog({ open, onOpenChange }: NewTripDialogProps) {
 
     setLoading(true);
     try {
-      const startingLocation = isRoadTrip ? await getCurrentLocation() : null;
+      const startingLocation = await getCurrentLocation();
       if (startingLocation) {
         initialParts.push(
-          `Starting from ${startingLocation.label || startingLocation.name}.`,
+          isRoadTrip
+            ? `Starting from ${startingLocation.label || startingLocation.name}.`
+            : `Departing from near ${startingLocation.label || startingLocation.name}.`,
         );
       }
 

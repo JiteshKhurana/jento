@@ -8,6 +8,7 @@ import {
   type ItineraryDraft,
 } from "@/lib/ai/schemas";
 import { enrichRoadTripItinerary } from "@/lib/itinerary/road-trip";
+import { enrichFlightItinerary } from "@/lib/itinerary/flight";
 
 export async function saveItineraryToDb(
   tripId: string,
@@ -19,9 +20,14 @@ export async function saveItineraryToDb(
     preferences?: unknown;
   },
 ) {
-  const enrichedDraft = await enrichRoadTripItinerary(
+  const roadTripEnriched = await enrichRoadTripItinerary(
     draft,
     tripContext.preferences,
+  );
+  const enrichedDraft = await enrichFlightItinerary(
+    roadTripEnriched,
+    tripContext.preferences,
+    tripContext.destination,
   );
   const parsed = itineraryDraftSchema.parse(enrichedDraft);
 
