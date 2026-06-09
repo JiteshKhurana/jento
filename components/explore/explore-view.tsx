@@ -60,17 +60,10 @@ type ExploreViewProps = {
 
 type ExploreTab = "explore" | "saved";
 
-function loadStoredLocation(): ExploreLocation | null {
-  if (typeof window === "undefined") return null;
-  try {
-    const raw = localStorage.getItem(LOCATION_STORAGE_KEY);
-    return raw ? (JSON.parse(raw) as ExploreLocation) : null;
-  } catch {
-    return null;
-  }
-}
-
 const locationListeners = new Set<() => void>();
+
+let cachedLocationSnapshot: ExploreLocation | null = null;
+let cachedLocationSnapshotKey: string | null = null;
 
 function subscribeToExploreLocation(listener: () => void) {
   locationListeners.add(listener);
@@ -81,7 +74,10 @@ function subscribeToExploreLocation(listener: () => void) {
 
 function storeLocation(location: ExploreLocation) {
   try {
-    localStorage.setItem(LOCATION_STORAGE_KEY, JSON.stringify(location));
+    const serialized = JSON.stringify(location);
+    localStorage.setItem(LOCATION_STORAGE_KEY, serialized);
+    cachedLocationSnapshotKey = serialized;
+    cachedLocationSnapshot = location;
     locationListeners.forEach((listener) => listener());
   } catch {
     // ignore storage errors
@@ -89,7 +85,25 @@ function storeLocation(location: ExploreLocation) {
 }
 
 function getExploreLocationSnapshot(defaultLocation: ExploreLocation): ExploreLocation {
-  return loadStoredLocation() ?? defaultLocation;
+  if (typeof window === "undefined") return defaultLocation;
+
+  let raw: string | null = null;
+  try {
+    raw = localStorage.getItem(LOCATION_STORAGE_KEY);
+  } catch {
+    return defaultLocation;
+  }
+
+  const snapshotKey = raw ?? `default:${JSON.stringify(defaultLocation)}`;
+  if (cachedLocationSnapshot && cachedLocationSnapshotKey === snapshotKey) {
+    return cachedLocationSnapshot;
+  }
+
+  cachedLocationSnapshotKey = snapshotKey;
+  cachedLocationSnapshot = raw
+    ? (JSON.parse(raw) as ExploreLocation)
+    : defaultLocation;
+  return cachedLocationSnapshot;
 }
 
 export function ExploreView({
