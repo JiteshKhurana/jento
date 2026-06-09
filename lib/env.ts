@@ -10,11 +10,15 @@ const serverSchema = z.object({
   GEMINI_API_KEY: z.string().optional(),
   CSC_API_KEY: z.string().optional(),
   UNSPLASH_ACCESS_KEY: z.string().optional(),
+  CLOUDINARY_CLOUD_NAME: z.string().optional(),
+  CLOUDINARY_API_KEY: z.string().optional(),
+  CLOUDINARY_API_SECRET: z.string().optional(),
 });
 
 const clientSchema = z.object({
   NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: z.string().min(1),
   NEXT_PUBLIC_GOOGLE_MAPS_API_KEY: z.string().optional(),
+  NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME: z.string().optional(),
 });
 
 export type ServerEnv = z.infer<typeof serverSchema>;
@@ -27,6 +31,7 @@ export function getClientEnv() {
   return clientSchema.parse({
     NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY,
     NEXT_PUBLIC_GOOGLE_MAPS_API_KEY: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY,
+    NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
   });
 }
 

@@ -34,6 +34,7 @@
     "@radix-ui/react-tooltip": "^1.2.9",
     "ai": "^6.0.197",
     "class-variance-authority": "^0.7.1",
+    "cloudinary": "^2.10.0",
     "clsx": "^2.1.1",
     "country-state-city": "^3.2.1",
     "date-fns": "^4.4.0",

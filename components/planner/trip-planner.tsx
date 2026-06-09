@@ -3,10 +3,11 @@
 import dynamic from "next/dynamic";
 import { useCallback, useEffect, useState } from "react";
 import { format } from "date-fns";
-import { Calendar, MapPin } from "lucide-react";
+import { Calendar, MapPin, Ticket } from "lucide-react";
 import { AppShell } from "@/components/layout/app-shell";
 import { ChatPanel } from "@/components/chat/chat-panel";
 import { IdeasPanel } from "@/components/ideas/ideas-panel";
+import { BookingsPanel } from "@/components/bookings/bookings-panel";
 import {
   DayTimeline,
   type ItineraryDayData,
@@ -82,7 +83,7 @@ export function TripPlanner({
   const [trip, setTrip] = useState(initialTrip);
   const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
   const [chatInitialQuery, setChatInitialQuery] = useState<string | null>(null);
-  const [leftView, setLeftView] = useState<"chat" | "itinerary" | "ideas">(
+  const [leftView, setLeftView] = useState<"chat" | "itinerary" | "ideas" | "bookings">(
     isOwner ? "chat" : "itinerary",
   );
   const [rightView, setRightView] = useState<"map" | "calendar">("map");
@@ -211,6 +212,10 @@ export function TripPlanner({
     />
   );
 
+  const bookingsPanel = (
+    <BookingsPanel tripId={trip.id} readOnly={!isOwner} />
+  );
+
   const itineraryPanel = (
     <div className="relative min-h-full">
       {refreshing && (
@@ -312,7 +317,7 @@ export function TripPlanner({
             {/* Pill-style tab switcher */}
             <div className="shrink-0 border-b border-neutral-100 bg-white px-4 py-3">
               <div className="flex rounded-xl bg-neutral-100 p-1">
-                {(["chat", "itinerary", "ideas"] as const).map((view) => (
+                {(["chat", "itinerary", "ideas", "bookings"] as const).map((view) => (
                   <button
                     key={view}
                     type="button"
@@ -336,6 +341,12 @@ export function TripPlanner({
                       </>
                     )}
                     {view === "ideas" && "Ideas"}
+                    {view === "bookings" && (
+                      <span className="flex items-center justify-center gap-1">
+                        <Ticket className="h-3.5 w-3.5" />
+                        Bookings
+                      </span>
+                    )}
                   </button>
                 ))}
               </div>
@@ -365,6 +376,14 @@ export function TripPlanner({
                 )}
               >
                 {ideasPanel}
+              </div>
+              <div
+                className={cn(
+                  "absolute inset-0 flex flex-col overflow-hidden",
+                  leftView !== "bookings" && "pointer-events-none invisible",
+                )}
+              >
+                {bookingsPanel}
               </div>
             </div>
           </div>
@@ -421,7 +440,7 @@ export function TripPlanner({
             className="flex min-h-0 flex-1 flex-col"
           >
             <div className="shrink-0 px-4 pt-3">
-              <TabsList className="grid w-full grid-cols-5 rounded-xl bg-neutral-100 p-1">
+              <TabsList className="grid w-full grid-cols-6 rounded-xl bg-neutral-100 p-1">
                 <TabsTrigger value="chat" className="rounded-lg text-xs">
                   Chat
                 </TabsTrigger>
@@ -435,6 +454,9 @@ export function TripPlanner({
                 </TabsTrigger>
                 <TabsTrigger value="ideas" className="rounded-lg text-xs">
                   Ideas
+                </TabsTrigger>
+                <TabsTrigger value="bookings" className="rounded-lg text-xs">
+                  Docs
                 </TabsTrigger>
                 <TabsTrigger value="calendar" className="rounded-lg text-xs">
                   Cal
@@ -455,6 +477,12 @@ export function TripPlanner({
             </TabsContent>
             <TabsContent value="ideas" className="flex-1 overflow-auto">
               {ideasPanel}
+            </TabsContent>
+            <TabsContent
+              value="bookings"
+              className="mt-0 min-h-0 flex-1 overflow-hidden data-[state=active]:flex data-[state=inactive]:hidden data-[state=active]:flex-col"
+            >
+              {bookingsPanel}
             </TabsContent>
             <TabsContent value="calendar" className="flex-1 overflow-hidden">
               <TripCalendar days={days} tripStartDate={trip.startDate} />

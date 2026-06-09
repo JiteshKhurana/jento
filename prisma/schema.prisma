@@ -33,6 +33,7 @@ model Trip {
   messages    ChatMessage[]
   itineraries Itinerary[]
   ideas       TripIdea[]
+  bookings    TripBooking[]
 
   @@index([userId])
 }
@@ -154,4 +155,33 @@ model TripIdea {
   updatedAt     DateTime    @updatedAt
 
   @@index([tripId])
+}
+
+model TripBooking {
+  id               String      @id @default(cuid())
+  tripId           String
+  trip             Trip        @relation(fields: [tripId], references: [id], onDelete: Cascade)
+  title            String
+  category         BookingCategory @default(OTHER)
+  cloudinaryId     String
+  cloudinaryUrl    String
+  resourceType     String      @default("raw")
+  fileFormat       String?
+  fileSizeBytes    Int?
+  notes            String?     @db.Text
+  createdAt        DateTime    @default(now())
+  updatedAt        DateTime    @updatedAt
+
+  @@index([tripId])
+}
+
+enum BookingCategory {
+  FLIGHT
+  HOTEL
+  CAR_RENTAL
+  TRAIN
+  ACTIVITY
+  INSURANCE
+  VISA
+  OTHER
 }
