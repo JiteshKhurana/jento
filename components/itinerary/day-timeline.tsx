@@ -25,9 +25,25 @@ import {
   GripVertical,
   Star,
   MapPin,
+  BedDouble,
+  UtensilsCrossed,
+  Zap,
+  Bus,
+  Footprints,
+  Gauge,
 } from "lucide-react";
+import { DEFAULT_BUDGET_CURRENCY, getCurrencySymbol } from "@/lib/trips/intake";
+import {
+  computeDayInsights,
+  formatStepCount,
+  getFatigueColor,
+  getFatigueDescription,
+  getFatigueLabel,
+} from "@/lib/itinerary/day-insights";
 import { Spinner } from "@/components/ui/spinner";
+import { cn } from "@/lib/utils";
 import { ItemEditor } from "@/components/itinerary/item-editor";
+import { DayAudioButton } from "@/components/itinerary/day-audio-button";
 import { buildStaticMapUrl, placeHasPhotos } from "@/lib/places/utils";
 
 export type ItineraryItemData = {
@@ -60,6 +76,14 @@ export type ItineraryDayData = {
   dayNumber: number;
   title: string;
   summary?: string | null;
+  estimatedSteps?: number | null;
+  fatigueLevel?: string | null;
+  cityTransport?: string | null;
+  budgetAccommodation?: number | null;
+  budgetTransport?: number | null;
+  budgetActivities?: number | null;
+  budgetFood?: number | null;
+  budgetTotal?: number | null;
   items: ItineraryItemData[];
 };
 
@@ -80,13 +104,28 @@ export function getDayColor(dayNumber: number) {
 // Map item type → CSS class from globals.css + label
 function getCategoryStyle(type: string): { className: string; label: string } {
   const t = type.toLowerCase();
-  if (t.includes("restaurant") || t.includes("food") || t.includes("cafe") || t.includes("bar")) {
+  if (
+    t.includes("restaurant") ||
+    t.includes("food") ||
+    t.includes("cafe") ||
+    t.includes("bar")
+  ) {
     return { className: "badge-restaurant", label: "Restaurant" };
   }
-  if (t.includes("hotel") || t.includes("accommodation") || t.includes("lodging") || t.includes("hostel")) {
+  if (
+    t.includes("hotel") ||
+    t.includes("accommodation") ||
+    t.includes("lodging") ||
+    t.includes("hostel")
+  ) {
     return { className: "badge-hotel", label: "Hotel" };
   }
-  if (t.includes("transport") || t.includes("flight") || t.includes("train") || t.includes("transit")) {
+  if (
+    t.includes("transport") ||
+    t.includes("flight") ||
+    t.includes("train") ||
+    t.includes("transit")
+  ) {
     return { className: "badge-transport", label: "Transport" };
   }
   if (t.includes("activity") || t.includes("tour") || t.includes("adventure")) {
@@ -133,8 +172,15 @@ function ItemBlock({
 }: ItemBlockProps) {
   const [editing, setEditing] = useState(false);
 
-  const imageUrl = resolveImageUrl(item.googlePlaceId, item.placeCache, item.latitude, item.longitude);
-  const { className: badgeClass, label: badgeLabel } = getCategoryStyle(item.type);
+  const imageUrl = resolveImageUrl(
+    item.googlePlaceId,
+    item.placeCache,
+    item.latitude,
+    item.longitude,
+  );
+  const { className: badgeClass, label: badgeLabel } = getCategoryStyle(
+    item.type,
+  );
 
   async function handleSave(updates: Partial<ItineraryItemData>) {
     await fetch(`/api/trips/${tripId}/items/${item.id}`, {
@@ -174,7 +220,10 @@ function ItemBlock({
 
   return (
     <div
-      className="group relative overflow-hidden rounded-2xl border border-neutral-200/80 bg-white shadow-sm transition-all duration-200 hover:border-neutral-300 hover:shadow-md"
+      className={cn(
+        "group relative overflow-hidden rounded-2xl border border-neutral-200/80 bg-white shadow-sm transition-all duration-200 hover:border-neutral-300 hover:shadow-md",
+        onSelectItem && "cursor-pointer",
+      )}
       onClick={() => onSelectItem?.(item.id)}
       role={onSelectItem ? "button" : undefined}
       tabIndex={onSelectItem ? 0 : undefined}
@@ -185,11 +234,19 @@ function ItemBlock({
         <div className="absolute right-2 top-2 z-20 flex items-center gap-1 opacity-0 transition-opacity group-hover:opacity-100">
           <button
             type="button"
-            onClick={(e) => { e.stopPropagation(); setEditing(true); }}
+            onClick={(e) => {
+              e.stopPropagation();
+              setEditing(true);
+            }}
             className="flex h-7 w-7 items-center justify-center rounded-full bg-white/90 text-neutral-500 shadow-sm backdrop-blur-sm hover:text-neutral-900"
             aria-label="Edit"
           >
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-3.5 w-3.5">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 20 20"
+              fill="currentColor"
+              className="h-3.5 w-3.5"
+            >
               <path d="M5.433 13.917l1.262-3.155A4 4 0 017.58 9.42l6.92-6.918a2.121 2.121 0 013 3l-6.92 6.918c-.383.383-.84.685-1.343.886l-3.154 1.262a.5.5 0 01-.65-.65z" />
               <path d="M3.5 5.75c0-.69.56-1.25 1.25-1.25H10A.75.75 0 0010 3H4.75A2.75 2.75 0 002 5.75v9.5A2.75 2.75 0 004.75 18h9.5A2.75 2.75 0 0017 15.25V10a.75.75 0 00-1.5 0v5.25c0 .69-.56 1.25-1.25 1.25h-9.5c-.69 0-1.25-.56-1.25-1.25v-9.5z" />
             </svg>
@@ -227,7 +284,9 @@ function ItemBlock({
             <div className="absolute bottom-2 left-2 flex items-center gap-1 rounded-full bg-black/60 px-2.5 py-1 text-[11px] font-semibold text-white backdrop-blur-sm">
               <Clock className="h-3 w-3" />
               {item.startTime}
-              {item.duration && <span className="text-white/70"> · {item.duration}</span>}
+              {item.duration && (
+                <span className="text-white/70"> · {item.duration}</span>
+              )}
             </div>
           )}
         </div>
@@ -239,7 +298,9 @@ function ItemBlock({
             <span className="ml-auto flex items-center gap-1 rounded-full bg-neutral-200 px-2.5 py-0.5 text-[11px] font-semibold text-neutral-600">
               <Clock className="h-3 w-3" />
               {item.startTime}
-              {item.duration && <span className="text-neutral-400"> · {item.duration}</span>}
+              {item.duration && (
+                <span className="text-neutral-400"> · {item.duration}</span>
+              )}
             </span>
           )}
         </div>
@@ -250,8 +311,12 @@ function ItemBlock({
         <div className="flex items-start justify-between gap-2">
           <div className="flex-1 min-w-0">
             <div className="flex flex-wrap items-center gap-1.5">
-              <h4 className="font-semibold leading-snug text-neutral-900 truncate">{item.title}</h4>
-              <span className={`tag-pill shrink-0 text-[10px] py-0 ${badgeClass}`}>
+              <h4 className="font-semibold leading-snug text-neutral-900 truncate">
+                {item.title}
+              </h4>
+              <span
+                className={`tag-pill shrink-0 text-[10px] py-0 ${badgeClass}`}
+              >
                 {badgeLabel}
               </span>
             </div>
@@ -322,6 +387,179 @@ function SortableItem(props: ItemBlockProps) {
       style={{ transform: CSS.Transform.toString(transform), transition }}
     >
       <ItemBlock {...props} dragHandleProps={{ ...attributes, ...listeners }} />
+    </div>
+  );
+}
+
+type DayExpenseBreakdownProps = {
+  day: ItineraryDayData;
+  fallbackDailyBudget: number | null;
+  currencyCode: string;
+  dayColor: string;
+};
+
+const BUDGET_CATEGORIES = [
+  { key: "budgetAccommodation" as const, label: "Accommodation", icon: BedDouble, color: "#7c3aed" },
+  { key: "budgetFood" as const, label: "Food & Drinks", icon: UtensilsCrossed, color: "#db2777" },
+  { key: "budgetActivities" as const, label: "Activities", icon: Zap, color: "#2563eb" },
+  { key: "budgetTransport" as const, label: "Transport", icon: Bus, color: "#0d9488" },
+] as const;
+
+const FALLBACK_SPLITS = { budgetAccommodation: 0.35, budgetFood: 0.25, budgetActivities: 0.25, budgetTransport: 0.1 } as const;
+
+function DayExpenseBreakdown({
+  day,
+  fallbackDailyBudget,
+  currencyCode,
+  dayColor,
+}: DayExpenseBreakdownProps) {
+  const symbol = getCurrencySymbol(currencyCode);
+
+  const hasAiBudget =
+    day.budgetTotal != null &&
+    day.budgetTotal > 0;
+
+  const totalToShow = hasAiBudget
+    ? (day.budgetTotal as number)
+    : fallbackDailyBudget;
+
+  if (!totalToShow) return null;
+
+  function fmt(amount: number) {
+    return amount < 1000
+      ? `${symbol}${Math.round(amount)}`
+      : `${symbol}${(amount / 1000).toFixed(1)}k`;
+  }
+
+  return (
+    <div
+      className="mb-4 overflow-hidden rounded-xl border border-neutral-100"
+      style={{ background: `${dayColor}08` }}
+    >
+      <div className="flex items-center justify-between border-b border-neutral-100 px-4 py-2.5">
+        <span className="text-xs font-semibold text-neutral-500 uppercase tracking-wide">
+          Estimated daily spend
+        </span>
+        <span className="text-sm font-bold" style={{ color: dayColor }}>
+          ~{fmt(totalToShow)}/person
+        </span>
+      </div>
+      <div className="grid grid-cols-2 gap-px bg-neutral-100 sm:grid-cols-4">
+        {BUDGET_CATEGORIES.map((cat) => {
+          const Icon = cat.icon;
+          const amount = hasAiBudget
+            ? (day[cat.key] ?? 0)
+            : totalToShow * FALLBACK_SPLITS[cat.key];
+          return (
+            <div
+              key={cat.label}
+              className="flex flex-col gap-1 bg-white px-3 py-2.5"
+            >
+              <div className="flex items-center gap-1.5">
+                <Icon className="h-3 w-3 shrink-0" style={{ color: cat.color }} />
+                <span className="text-[10px] font-medium text-neutral-500 truncate">
+                  {cat.label}
+                </span>
+              </div>
+              <span className="text-sm font-semibold text-neutral-800">
+                ~{fmt(amount)}
+              </span>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+type DayActivityInsightProps = {
+  day: ItineraryDayData;
+  dayColor: string;
+};
+
+function DayActivityInsight({ day, dayColor }: DayActivityInsightProps) {
+  const insights = computeDayInsights(day.items, {
+    cityTransport: day.cityTransport,
+  });
+
+  const fatigueColor = getFatigueColor(insights.fatigueLevel);
+
+  return (
+    <div
+      className="mb-4 overflow-hidden rounded-xl border border-neutral-100"
+      style={{ background: `${dayColor}08` }}
+    >
+      <div className="flex items-center justify-between border-b border-neutral-100 px-4 py-2.5">
+        <span className="text-xs font-semibold uppercase tracking-wide text-neutral-500">
+          Day on foot
+        </span>
+        <span
+          className="flex items-center gap-1.5 text-sm font-bold"
+          style={{ color: dayColor }}
+        >
+          <Footprints className="h-3.5 w-3.5" />
+          {formatStepCount(insights.estimatedSteps)} steps
+        </span>
+      </div>
+      <div className="flex flex-col gap-1 bg-white px-4 py-3">
+        <div className="flex items-center gap-1.5">
+          <Gauge
+            className="h-3.5 w-3.5 shrink-0"
+            style={{ color: fatigueColor }}
+          />
+          <span className="text-[10px] font-medium uppercase tracking-wide text-neutral-500">
+            How tiring
+          </span>
+        </div>
+        <span
+          className="text-sm font-semibold"
+          style={{ color: fatigueColor }}
+        >
+          {getFatigueLabel(insights.fatigueLevel)}
+        </span>
+        <p className="text-[11px] leading-relaxed text-neutral-500">
+          {getFatigueDescription(insights.fatigueLevel)}
+        </p>
+      </div>
+    </div>
+  );
+}
+
+type CityTransportTipProps = {
+  day: ItineraryDayData;
+  destination?: string;
+  dayColor: string;
+};
+
+function CityTransportTip({
+  day,
+  destination,
+  dayColor,
+}: CityTransportTipProps) {
+  const insights = computeDayInsights(day.items, {
+    destination,
+    cityTransport: day.cityTransport,
+  });
+
+  return (
+    <div
+      className="mb-4 flex gap-3 rounded-xl border border-neutral-100 px-4 py-3"
+      style={{ background: `${dayColor}08` }}
+    >
+      <div
+        className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full"
+        style={{ backgroundColor: `${dayColor}20`, color: dayColor }}
+      >
+        <Bus className="h-4 w-4" />
+      </div>
+      <div className="min-w-0 flex-1">
+        <p className="text-xs font-semibold uppercase tracking-wide text-neutral-500">
+          Getting around
+        </p>
+        <p className="mt-0.5 text-sm leading-relaxed text-neutral-700">
+          {insights.cityTransport}
+        </p>
+      </div>
     </div>
   );
 }
@@ -437,6 +675,9 @@ type DayTimelineProps = {
   onSelectItem?: (itemId: string) => void;
   selectedDay?: number;
   readOnly?: boolean;
+  budgetPerPerson?: number;
+  budgetCurrency?: string;
+  destination?: string;
 };
 
 export function DayTimeline({
@@ -446,6 +687,9 @@ export function DayTimeline({
   onSelectItem,
   selectedDay,
   readOnly = false,
+  budgetPerPerson,
+  budgetCurrency = DEFAULT_BUDGET_CURRENCY,
+  destination,
 }: DayTimelineProps) {
   const mounted = useSyncExternalStore(
     () => () => {},
@@ -456,6 +700,9 @@ export function DayTimeline({
   const filteredDays = selectedDay
     ? days.filter((d) => d.dayNumber === selectedDay)
     : days;
+
+  const fallbackDailyBudget =
+    budgetPerPerson && days.length > 0 ? budgetPerPerson / days.length : null;
 
   if (days.length === 0) {
     return (
@@ -489,15 +736,48 @@ export function DayTimeline({
               {day.dayNumber}
             </div>
             <div className="flex-1 min-w-0">
-              <h3 className="font-semibold text-neutral-900 truncate">{day.title}</h3>
+              <h3 className="font-semibold text-neutral-900 truncate">
+                {day.title}
+              </h3>
               {day.summary && (
-                <p className="truncate text-xs text-neutral-500">{day.summary}</p>
+                <p className="truncate text-xs text-neutral-500">
+                  {day.summary}
+                </p>
               )}
             </div>
             <span className="shrink-0 text-xs font-medium text-neutral-400">
               {day.items.length} {day.items.length === 1 ? "stop" : "stops"}
             </span>
+            <DayAudioButton
+              tripId={tripId}
+              dayNumber={day.dayNumber}
+              contentKey={`${day.title}|${day.summary ?? ""}|${day.items.map((i) => i.id).join(",")}`}
+              color={getDayColor(day.dayNumber)}
+            />
           </div>
+
+          {(day.budgetTotal != null || fallbackDailyBudget != null) && (
+            <DayExpenseBreakdown
+              day={day}
+              fallbackDailyBudget={fallbackDailyBudget}
+              currencyCode={budgetCurrency}
+              dayColor={getDayColor(day.dayNumber)}
+            />
+          )}
+
+          {day.items.length > 0 && (
+            <>
+              <DayActivityInsight
+                day={day}
+                dayColor={getDayColor(day.dayNumber)}
+              />
+              <CityTransportTip
+                day={day}
+                destination={destination}
+                dayColor={getDayColor(day.dayNumber)}
+              />
+            </>
+          )}
 
           <DayItems
             day={day}

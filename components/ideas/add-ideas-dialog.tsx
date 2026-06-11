@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { Search, X } from "lucide-react";
+import { Plus, Search, X } from "lucide-react";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -10,8 +10,10 @@ import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Spinner } from "@/components/ui/spinner";
 import { PlaceSearchCard } from "@/components/ideas/place-search-card";
+import { ItemDetailDialog } from "@/components/itinerary/item-detail-dialog";
 import { ExploreFilters } from "@/components/explore/explore-filters";
 import { cn } from "@/lib/utils";
+import { placeToDetailItem } from "@/lib/itinerary/detail-item";
 import type { PlaceSearchResult } from "@/lib/places/google-places";
 import type { BudgetTier } from "@/lib/trips/intake";
 
@@ -50,16 +52,26 @@ export function AddIdeasDialog({
   const [customTitle, setCustomTitle] = useState("");
   const [customNotes, setCustomNotes] = useState("");
   const [savingCustom, setSavingCustom] = useState(false);
+  const [selectedPlace, setSelectedPlace] = useState<PlaceSearchResult | null>(
+    null,
+  );
+  const [addingFromDetail, setAddingFromDetail] = useState(false);
 
   const activeCategory = CATEGORIES.find((c) => c.id === category)!;
 
   const runSearch = useCallback(
-    async (query: string) => {
+    async (
+      query: string,
+      options?: { budget?: BudgetTier | null; categoryQuery?: string },
+    ) => {
       setLoading(true);
       try {
-        const q = query.trim() || activeCategory.query;
+        const categoryQuery = options?.categoryQuery ?? activeCategory.query;
+        const q = query.trim() || categoryQuery;
         const params = new URLSearchParams({ q, location: destination });
-        if (budget) params.set("budget", budget);
+        const effectiveBudget =
+          options?.budget !== undefined ? options.budget : budget;
+        if (effectiveBudget) params.set("budget", effectiveBudget);
         const res = await fetch(`/api/places/search?${params}`);
         if (res.ok) {
           const data = await res.json();
@@ -72,11 +84,27 @@ export function AddIdeasDialog({
     [destination, activeCategory.query, budget],
   );
 
-  useEffect(() => {
-    if (!open) return;
-    setAddedIds(new Set());
-    runSearch("");
-  }, [open, category, budget, runSearch]);
+  const handleOpenChange = useCallback(
+    (nextOpen: boolean) => {
+      if (nextOpen) {
+        setAddedIds(new Set());
+        setSelectedPlace(null);
+        void runSearch("");
+      }
+      onOpenChange(nextOpen);
+    },
+    [onOpenChange, runSearch],
+  );
+
+  const handleBudgetChange = useCallback(
+    (nextBudget: BudgetTier | null) => {
+      setAddedIds(new Set());
+      setSelectedPlace(null);
+      setBudget(nextBudget);
+      void runSearch("", { budget: nextBudget });
+    },
+    [runSearch],
+  );
 
   useEffect(() => {
     if (!open || tab !== "search") return;
@@ -88,7 +116,7 @@ export function AddIdeasDialog({
     return () => clearTimeout(timer);
   }, [searchQuery, open, tab, runSearch]);
 
-  async function handleAddPlace(place: PlaceSearchResult) {
+  async function addPlaceAsIdea(place: PlaceSearchResult) {
     const res = await fetch(`/api/trips/${tripId}/ideas`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -104,7 +132,26 @@ export function AddIdeasDialog({
       setAddedIds((prev) => new Set(prev).add(place.googlePlaceId));
       onIdeaAdded();
     }
+    return res.ok;
   }
+
+  async function handleAddPlace(place: PlaceSearchResult) {
+    await addPlaceAsIdea(place);
+  }
+
+  async function handleAddFromDetail() {
+    if (!selectedPlace) return;
+    setAddingFromDetail(true);
+    try {
+      await addPlaceAsIdea(selectedPlace);
+    } finally {
+      setAddingFromDetail(false);
+    }
+  }
+
+  const selectedPlaceAdded = selectedPlace
+    ? addedIds.has(selectedPlace.googlePlaceId)
+    : false;
 
   async function handleAddCustom(e: React.FormEvent) {
     e.preventDefault();
@@ -133,7 +180,38 @@ export function AddIdeasDialog({
   }
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <>
+      <ItemDetailDialog
+        item={selectedPlace ? placeToDetailItem(selectedPlace) : null}
+        destination={destination}
+        open={selectedPlace != null}
+        onOpenChange={(isOpen) => {
+          if (!isOpen) setSelectedPlace(null);
+        }}
+        headerActions={
+          selectedPlace ? (
+            <Button
+              size="sm"
+              disabled={addingFromDetail || selectedPlaceAdded}
+              onClick={handleAddFromDetail}
+              className="h-8 gap-1.5 text-xs"
+            >
+              {addingFromDetail ? (
+                <Spinner size="sm" className="text-white" />
+              ) : (
+                <Plus className="h-3.5 w-3.5" />
+              )}
+              {selectedPlaceAdded
+                ? "Added"
+                : addingFromDetail
+                  ? "Adding…"
+                  : "Add idea"}
+            </Button>
+          ) : null
+        }
+      />
+
+      <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent
         showClose={false}
         className="flex h-[min(90vh,800px)] max-w-2xl flex-col gap-0 overflow-hidden p-0 sm:rounded-2xl"
@@ -186,7 +264,10 @@ export function AddIdeasDialog({
                     className="h-11 rounded-xl border-neutral-200 bg-neutral-50 pl-9"
                   />
                 </div>
-                <ExploreFilters budget={budget} onBudgetChange={setBudget} />
+                <ExploreFilters
+                  budget={budget}
+                  onBudgetChange={handleBudgetChange}
+                />
               </div>
 
               <div className="flex gap-2 overflow-x-auto pb-1">
@@ -194,7 +275,12 @@ export function AddIdeasDialog({
                   <button
                     key={cat.id}
                     type="button"
-                    onClick={() => setCategory(cat.id)}
+                    onClick={() => {
+                      setAddedIds(new Set());
+                      setSelectedPlace(null);
+                      setCategory(cat.id);
+                      void runSearch("", { categoryQuery: cat.query });
+                    }}
                     className={cn(
                       "shrink-0 rounded-full px-3.5 py-1.5 text-xs font-medium transition-colors",
                       category === cat.id
@@ -217,7 +303,7 @@ export function AddIdeasDialog({
                 <div className="grid grid-cols-2 gap-4">
                   {Array.from({ length: 4 }).map((_, i) => (
                     <div key={i} className="space-y-2">
-                      <Skeleton className="aspect-[4/3] w-full rounded-2xl" />
+                      <Skeleton className="aspect-4/3 w-full rounded-2xl" />
                       <Skeleton className="h-4 w-3/4" />
                       <Skeleton className="h-3 w-1/2" />
                     </div>
@@ -235,6 +321,7 @@ export function AddIdeasDialog({
                       place={place}
                       destination={destination}
                       onAdd={handleAddPlace}
+                      onSelect={setSelectedPlace}
                       added={addedIds.has(place.googlePlaceId)}
                     />
                   ))}
@@ -292,5 +379,6 @@ export function AddIdeasDialog({
         )}
       </DialogContent>
     </Dialog>
+    </>
   );
 }

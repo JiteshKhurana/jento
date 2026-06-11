@@ -2,6 +2,7 @@ import type { ItemType } from "@/app/generated/prisma/client";
 import { prisma } from "@/lib/prisma";
 import { buildBookingUrl } from "@/lib/booking/links";
 import { getOrFetchPlaceCache } from "@/lib/places/google-places";
+import { suggestStartTimeForNewItem } from "@/lib/itinerary/item-times";
 import { toStoragePlaceId } from "@/lib/places/utils";
 
 export type CreateIdeaInput = {
@@ -115,6 +116,11 @@ export async function addIdeaToItinerary(
   });
   if (!day) return null;
 
+  const { startTime, duration } = suggestStartTimeForNewItem(day.items, {
+    type: idea.type,
+    title: idea.title,
+  });
+
   const bookingUrl = buildBookingUrl(idea.type, idea.title, {
     destination: tripContext.destination,
     startDate: tripContext.startDate,
@@ -130,6 +136,8 @@ export async function addIdeaToItinerary(
       type: idea.type,
       title: idea.title,
       description: idea.notes,
+      startTime,
+      duration,
       sortOrder: day.items.length,
       latitude: idea.latitude,
       longitude: idea.longitude,

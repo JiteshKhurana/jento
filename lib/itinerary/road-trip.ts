@@ -10,7 +10,9 @@ import {
 
 function isDriveTransportItem(item: ActivityItem | undefined): boolean {
   if (!item || item.type !== "transport") return false;
-  return /drive|road trip|driving/i.test(`${item.title} ${item.description ?? ""}`);
+  return /drive|road trip|driving/i.test(
+    `${item.title} ${item.description ?? ""}`,
+  );
 }
 
 function stripLeadingDriveItems(items: ActivityItem[]): ActivityItem[] {
@@ -58,7 +60,8 @@ async function buildDriveItem(
     type: "transport",
     title,
     description,
-    duration: route?.durationText,
+    startTime: label === "outbound" ? "8:00 AM" : "9:00 AM",
+    duration: route?.durationText ?? "2h",
     latitude: routeEnd?.lat,
     longitude: routeEnd?.lng,
   };

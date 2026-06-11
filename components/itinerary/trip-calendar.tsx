@@ -17,6 +17,7 @@ import type {
   ItineraryDayData,
   ItineraryItemData,
 } from "@/components/itinerary/day-timeline";
+import { resolveDayItemSchedules } from "@/lib/itinerary/item-times";
 
 // ── Layout constants ─────────────────────────────────────────────────────────
 
@@ -142,27 +143,15 @@ function parseDurationMinutes(duration: string | null | undefined): number {
   return mins || 60;
 }
 
-function isLodgingType(type: string): boolean {
-  const t = type.toLowerCase();
-  return (
-    t.includes("lodging") ||
-    t.includes("hotel") ||
-    t.includes("accommodation") ||
-    t.includes("hostel") ||
-    t.includes("airbnb") ||
-    t.includes("resort") ||
-    t.includes("hive")
-  );
-}
-
 // ── Component ─────────────────────────────────────────────────────────────────
 
 type CalEvent = {
   item: ItineraryItemData;
   colIdx: number;
-  startMins: number | null;
+  startMins: number;
   durMins: number;
-  isAllDay: boolean;
+  displayStartTime: string;
+  displayDuration: string;
 };
 
 type TripCalendarProps = {
@@ -220,22 +209,26 @@ export function TripCalendar({ days, tripStartDate }: TripCalendarProps) {
     );
   }
 
-  const allEvents: CalEvent[] = visible.flatMap((day, colIdx) =>
-    day.items.map((item) => {
-      const startMins = parseTimeMinutes(item.startTime);
-      const durMins = parseDurationMinutes(item.duration);
+  const allEvents: CalEvent[] = visible.flatMap((day, colIdx) => {
+    const schedules = resolveDayItemSchedules(day.items);
+
+    return day.items.map((item) => {
+      const schedule = schedules.get(item.id);
+      const displayStartTime = schedule?.startTime ?? item.startTime ?? "";
+      const displayDuration = schedule?.duration ?? item.duration ?? "";
+      const startMins = parseTimeMinutes(displayStartTime) ?? 9 * 60;
+      const durMins = parseDurationMinutes(displayDuration);
+
       return {
         item,
         colIdx,
         startMins,
         durMins,
-        isAllDay: isLodgingType(item.type) || startMins === null,
+        displayStartTime,
+        displayDuration,
       };
-    }),
-  );
-
-  const allDayEvents = allEvents.filter((e) => e.isAllDay);
-  const timedEvents = allEvents.filter((e) => !e.isAllDay);
+    });
+  });
 
   return (
     <div className="flex h-full flex-col overflow-hidden bg-white">
@@ -296,44 +289,6 @@ export function TripCalendar({ days, tripStartDate }: TripCalendarProps) {
         ))}
       </div>
 
-      {/* ── All-day events row ──────────────────────────────── */}
-      {allDayEvents.length > 0 && (
-        <div className="flex shrink-0 items-start border-b border-neutral-200 bg-neutral-50/50">
-          <div className="flex w-14 shrink-0 items-start justify-end pr-2 pt-1.5">
-            <span className="text-[9px] font-medium text-neutral-400">
-              all-day
-            </span>
-          </div>
-          {visible.map((day, colIdx) => {
-            const colEvents = allDayEvents.filter((e) => e.colIdx === colIdx);
-            return (
-              <div
-                key={day.id}
-                className="min-h-[30px] flex-1 space-y-0.5 border-l border-neutral-100 p-1"
-              >
-                {colEvents.map(({ item }) => {
-                  const { bg, border, text, Icon } = getEventStyle(item.type);
-                  return (
-                    <div
-                      key={item.id}
-                      className={cn(
-                        "flex items-center gap-1 truncate rounded border px-1.5 py-0.5 text-[11px] font-medium",
-                        bg,
-                        border,
-                        text,
-                      )}
-                    >
-                      <Icon className="h-3 w-3 shrink-0" />
-                      <span className="truncate">{item.title}</span>
-                    </div>
-                  );
-                })}
-              </div>
-            );
-          })}
-        </div>
-      )}
-
       {/* ── Scrollable time grid ────────────────────────────── */}
       <div className="min-h-0 flex-1 overflow-y-auto">
         <div
@@ -370,12 +325,9 @@ export function TripCalendar({ days, tripStartDate }: TripCalendarProps) {
                 />
               ))}
 
-              {/* Timed event blocks */}
-              {timedEvents
+              {allEvents
                 .filter((e) => e.colIdx === colIdx)
-                .map(({ item, startMins, durMins }) => {
-                  if (startMins === null) return null;
-
+                .map(({ item, startMins, durMins, displayStartTime, displayDuration }) => {
                   const clampedStart = Math.max(
                     startMins,
                     START_HOUR * 60,
@@ -411,10 +363,10 @@ export function TripCalendar({ days, tripStartDate }: TripCalendarProps) {
                           <p className="truncate text-[11px] font-semibold leading-tight">
                             {item.title}
                           </p>
-                          {heightPx >= 42 && item.startTime && (
+                          {heightPx >= 42 && displayStartTime && (
                             <p className="text-[10px] leading-tight opacity-60">
-                              {item.startTime}
-                              {item.duration && ` · ${item.duration}`}
+                              {displayStartTime}
+                              {displayDuration && ` · ${displayDuration}`}
                             </p>
                           )}
                         </div>

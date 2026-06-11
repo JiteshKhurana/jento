@@ -20,6 +20,37 @@ export const BUDGET_LABELS: Record<BudgetTier, string> = {
   luxury: "Luxury",
 };
 
+export type BudgetCurrency = {
+  code: string;
+  symbol: string;
+  label: string;
+};
+
+export const DEFAULT_BUDGET_CURRENCY = "INR";
+
+export const BUDGET_CURRENCIES: BudgetCurrency[] = [
+  { code: "INR", symbol: "₹", label: "INR" },
+  { code: "USD", symbol: "$", label: "USD" },
+  { code: "EUR", symbol: "€", label: "EUR" },
+  { code: "GBP", symbol: "£", label: "GBP" },
+  { code: "JPY", symbol: "¥", label: "JPY" },
+  { code: "AUD", symbol: "A$", label: "AUD" },
+  { code: "CAD", symbol: "C$", label: "CAD" },
+  { code: "SGD", symbol: "S$", label: "SGD" },
+];
+
+export function getCurrencySymbol(code: string): string {
+  return BUDGET_CURRENCIES.find((c) => c.code === code)?.symbol ?? code;
+}
+
+export function formatBudgetAmount(amount: number, currencyCode: string): string {
+  const symbol = getCurrencySymbol(currencyCode);
+  if (amount >= 1000) {
+    return `${symbol}${(amount / 1000).toFixed(amount % 1000 === 0 ? 0 : 1)}k`;
+  }
+  return `${symbol}${amount.toLocaleString()}`;
+}
+
 export type TripIntakeData = {
   location: SelectedLocation | null;
   timingMode: TimingMode;
@@ -27,7 +58,8 @@ export type TripIntakeData = {
   flexibleDays?: number;
   travelerType: TravelerType | null;
   travelerCount?: number;
-  budget: BudgetTier | null;
+  budgetPerPerson: number | null;
+  budgetCurrency: string;
 };
 
 export function formatTravelerSummary(
@@ -56,7 +88,7 @@ export function formatWhenSummary(data: TripIntakeData): string | null {
 }
 
 export function isTripIntakeComplete(data: TripIntakeData): boolean {
-  if (!data.location || !data.budget || !data.travelerType) return false;
+  if (!data.location || !data.budgetPerPerson || data.budgetPerPerson <= 0 || !data.travelerType) return false;
   if (
     (data.travelerType === "friends" || data.travelerType === "group") &&
     (!data.travelerCount || data.travelerCount < 2)
@@ -79,7 +111,8 @@ export function buildTripPreferences(data: TripIntakeData) {
           count: data.travelerCount ?? null,
         }
       : null,
-    budget: data.budget,
+    budgetPerPerson: data.budgetPerPerson ?? null,
+    budgetCurrency: data.budgetCurrency,
   };
 }
 
@@ -106,8 +139,9 @@ export function buildTripInitialMessage(data: TripIntakeData): string {
     );
   }
 
-  if (data.budget) {
-    parts.push(`${BUDGET_LABELS[data.budget]} budget.`);
+  if (data.budgetPerPerson && data.budgetPerPerson > 0) {
+    const symbol = getCurrencySymbol(data.budgetCurrency);
+    parts.push(`Budget of ${symbol}${data.budgetPerPerson.toLocaleString()} per person.`);
   }
 
   return parts.join(" ");

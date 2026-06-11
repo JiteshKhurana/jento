@@ -9,6 +9,7 @@ import {
 } from "@/lib/ai/schemas";
 import { enrichRoadTripItinerary } from "@/lib/itinerary/road-trip";
 import { enrichFlightItinerary } from "@/lib/itinerary/flight";
+import { normalizeDayItemTimes } from "@/lib/itinerary/item-times";
 
 export async function saveItineraryToDb(
   tripId: string,
@@ -29,7 +30,12 @@ export async function saveItineraryToDb(
     tripContext.preferences,
     tripContext.destination,
   );
-  const parsed = itineraryDraftSchema.parse(enrichedDraft);
+  const parsed = itineraryDraftSchema.parse({
+    days: enrichedDraft.days.map((day) => ({
+      ...day,
+      items: normalizeDayItemTimes(day.items),
+    })),
+  });
 
   const latest = await prisma.itinerary.findFirst({
     where: { tripId },
@@ -48,6 +54,14 @@ export async function saveItineraryToDb(
             date: day.date ? new Date(day.date) : null,
             title: day.title,
             summary: day.summary,
+            estimatedSteps: day.estimatedSteps ?? null,
+            fatigueLevel: day.fatigueLevel ?? null,
+            cityTransport: day.cityTransport ?? null,
+            budgetAccommodation: day.dailyBudgetEstimate?.accommodation ?? null,
+            budgetTransport: day.dailyBudgetEstimate?.transport ?? null,
+            budgetActivities: day.dailyBudgetEstimate?.activities ?? null,
+            budgetFood: day.dailyBudgetEstimate?.food ?? null,
+            budgetTotal: day.dailyBudgetEstimate?.total ?? null,
             items: {
               create: await Promise.all(
                 day.items.map(async (item, index) => {
@@ -56,7 +70,10 @@ export async function saveItineraryToDb(
                   const googlePlaceId = item.googlePlaceId;
 
                   if (googlePlaceId) {
-                    const cached = await getOrFetchPlaceCache(googlePlaceId, prisma);
+                    const cached = await getOrFetchPlaceCache(
+                      googlePlaceId,
+                      prisma,
+                    );
                     if (cached) {
                       latitude = cached.latitude ?? latitude;
                       longitude = cached.longitude ?? longitude;
@@ -137,6 +154,8 @@ export async function updateItineraryDayInDb(
   const existingDay = itinerary.days.find((d) => d.dayNumber === dayNumber);
 
   if (existingDay) {
+    const normalizedItems = normalizeDayItemTimes(dayPlan.items);
+
     await prisma.itineraryItem.deleteMany({ where: { dayId: existingDay.id } });
     await prisma.itineraryDay.update({
       where: { id: existingDay.id },
@@ -144,15 +163,26 @@ export async function updateItineraryDayInDb(
         title: dayPlan.title,
         summary: dayPlan.summary,
         date: dayPlan.date ? new Date(dayPlan.date) : null,
+        estimatedSteps: dayPlan.estimatedSteps ?? null,
+        fatigueLevel: dayPlan.fatigueLevel ?? null,
+        cityTransport: dayPlan.cityTransport ?? null,
+        budgetAccommodation: dayPlan.dailyBudgetEstimate?.accommodation ?? null,
+        budgetTransport: dayPlan.dailyBudgetEstimate?.transport ?? null,
+        budgetActivities: dayPlan.dailyBudgetEstimate?.activities ?? null,
+        budgetFood: dayPlan.dailyBudgetEstimate?.food ?? null,
+        budgetTotal: dayPlan.dailyBudgetEstimate?.total ?? null,
         items: {
           create: await Promise.all(
-            dayPlan.items.map(async (item, index) => {
+            normalizedItems.map(async (item, index) => {
               let latitude = item.latitude;
               let longitude = item.longitude;
               const googlePlaceId = item.googlePlaceId;
 
               if (googlePlaceId) {
-                const cached = await getOrFetchPlaceCache(googlePlaceId, prisma);
+                const cached = await getOrFetchPlaceCache(
+                  googlePlaceId,
+                  prisma,
+                );
                 if (cached) {
                   latitude = cached.latitude ?? latitude;
                   longitude = cached.longitude ?? longitude;
@@ -169,13 +199,17 @@ export async function updateItineraryDayInDb(
                 latitude,
                 longitude,
                 googlePlaceId,
-                bookingUrl: buildBookingUrl(itemTypeMap[item.type], item.title, {
-                  destination: tripContext.destination,
-                  startDate: tripContext.startDate,
-                  endDate: tripContext.endDate,
-                  latitude,
-                  longitude,
-                }),
+                bookingUrl: buildBookingUrl(
+                  itemTypeMap[item.type],
+                  item.title,
+                  {
+                    destination: tripContext.destination,
+                    startDate: tripContext.startDate,
+                    endDate: tripContext.endDate,
+                    latitude,
+                    longitude,
+                  },
+                ),
               };
             }),
           ),
@@ -189,7 +223,12 @@ export async function updateItineraryDayInDb(
     include: {
       days: {
         orderBy: { dayNumber: "asc" },
-        include: { items: { orderBy: { sortOrder: "asc" }, include: { placeCache: true } } },
+        include: {
+          items: {
+            orderBy: { sortOrder: "asc" },
+            include: { placeCache: true },
+          },
+        },
       },
     },
   });

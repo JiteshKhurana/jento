@@ -14,12 +14,12 @@ export function TripsEmptyState() {
         Your next adventure awaits
       </h2>
       <p className="relative mx-auto mt-3 max-w-md text-neutral-500">
-        Tell us where you want to go and we&apos;ll build a personalized day-by-day itinerary —
-        complete with maps, photos, and booking links.
+        Tell us where you want to go and we&apos;ll build a personalized
+        day-by-day itinerary
       </p>
 
       <div className="relative mt-8 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
-        <NewTripButton label="Plan your first trip" size="lg" />
+        <NewTripButton label="Plan your first trip" size="lg" className="cursor-pointer" />
       </div>
 
       <div className="relative mt-10 flex flex-wrap items-center justify-center gap-6 text-sm text-neutral-400">

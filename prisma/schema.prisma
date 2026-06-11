@@ -69,14 +69,22 @@ model Itinerary {
 }
 
 model ItineraryDay {
-  id          String          @id @default(cuid())
-  itineraryId String
-  itinerary   Itinerary       @relation(fields: [itineraryId], references: [id], onDelete: Cascade)
-  dayNumber   Int
-  date        DateTime?
-  title       String
-  summary     String?         @db.Text
-  items       ItineraryItem[]
+  id             String          @id @default(cuid())
+  itineraryId    String
+  itinerary      Itinerary       @relation(fields: [itineraryId], references: [id], onDelete: Cascade)
+  dayNumber      Int
+  date           DateTime?
+  title          String
+  summary        String?         @db.Text
+  estimatedSteps      Int?
+  fatigueLevel        String?
+  cityTransport       String?  @db.Text
+  budgetAccommodation Float?
+  budgetTransport     Float?
+  budgetActivities    Float?
+  budgetFood          Float?
+  budgetTotal         Float?
+  items               ItineraryItem[]
 
   @@unique([itineraryId, dayNumber])
 }

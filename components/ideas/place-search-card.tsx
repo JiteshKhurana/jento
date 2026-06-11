@@ -11,6 +11,7 @@ type PlaceSearchCardProps = {
   place: PlaceSearchResult;
   destination: string;
   onAdd: (place: PlaceSearchResult) => Promise<void>;
+  onSelect?: (place: PlaceSearchResult) => void;
   added?: boolean;
 };
 
@@ -25,6 +26,7 @@ export function PlaceSearchCard({
   place,
   destination,
   onAdd,
+  onSelect,
   added = false,
 }: PlaceSearchCardProps) {
   const [loading, setLoading] = useState(false);
@@ -42,18 +44,24 @@ export function PlaceSearchCard({
   const locationParts = place.address?.split(",").slice(-2).join(",").trim();
 
   return (
-    <article className="group">
+    <article
+      className="group cursor-pointer"
+      onClick={() => onSelect?.(place)}
+      onKeyDown={(e) => e.key === "Enter" && onSelect?.(place)}
+      role={onSelect ? "button" : undefined}
+      tabIndex={onSelect ? 0 : undefined}
+    >
       <div className="relative overflow-hidden rounded-2xl bg-neutral-100">
         {imageUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
             src={imageUrl}
             alt={place.name}
-            className="aspect-[4/3] w-full object-cover"
+            className="aspect-4/3 w-full object-cover"
             loading="lazy"
           />
         ) : (
-          <div className="flex aspect-[4/3] w-full items-center justify-center bg-linear-to-br from-neutral-100 to-neutral-200/60">
+          <div className="flex aspect-4/3 w-full items-center justify-center bg-linear-to-br from-neutral-100 to-neutral-200/60">
             <MapPin className="h-8 w-8 text-neutral-300" />
           </div>
         )}
@@ -62,7 +70,10 @@ export function PlaceSearchCard({
           size="sm"
           variant="secondary"
           disabled={loading || added}
-          onClick={handleAdd}
+          onClick={(e) => {
+            e.stopPropagation();
+            handleAdd();
+          }}
           className="absolute right-2 top-2 h-8 bg-white/95 px-3 text-xs shadow-sm hover:bg-white"
         >
           {loading ? (
@@ -75,6 +86,10 @@ export function PlaceSearchCard({
 
         <button
           type="button"
+          onClick={(e) => {
+            e.stopPropagation();
+            onSelect?.(place);
+          }}
           className="absolute bottom-2 right-2 flex h-7 w-7 items-center justify-center rounded-full bg-black/40 text-white backdrop-blur-sm"
           aria-label="Place info"
         >

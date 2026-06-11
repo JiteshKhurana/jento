@@ -2,10 +2,10 @@ import type {
   ItineraryDayData,
   ItineraryItemData,
 } from "@/components/itinerary/day-timeline";
+import { resolveDayItemSchedules } from "@/lib/itinerary/item-times";
 import {
   applyTimeToDate,
   resolveExportDayDate,
-  isLodgingType,
   parseDurationMinutes,
   parseTimeMinutes,
 } from "@/lib/itinerary/time-utils";
@@ -65,9 +65,9 @@ function buildEventLines(
   options: ExportIcsOptions,
 ): string[] {
   const dayDate = resolveExportDayDate(options.tripStartDate, day.dayNumber);
-  const startMins = parseTimeMinutes(item.startTime);
-  const durMins = parseDurationMinutes(item.duration);
-  const isAllDay = isLodgingType(item.type) || startMins === null;
+  const schedule = resolveDayItemSchedules(day.items).get(item.id);
+  const startMins = parseTimeMinutes(schedule?.startTime ?? item.startTime);
+  const durMins = parseDurationMinutes(schedule?.duration ?? item.duration);
 
   const lines = [
     "BEGIN:VEVENT",
@@ -76,12 +76,7 @@ function buildEventLines(
     `SUMMARY:${escapeIcsText(item.title)}`,
   ];
 
-  if (isAllDay) {
-    const endDate = new Date(dayDate);
-    endDate.setDate(endDate.getDate() + 1);
-    lines.push(`DTSTART;VALUE=DATE:${formatIcsDate(dayDate)}`);
-    lines.push(`DTEND;VALUE=DATE:${formatIcsDate(endDate)}`);
-  } else if (startMins !== null) {
+  if (startMins !== null) {
     const start = applyTimeToDate(dayDate, startMins);
     const end = applyTimeToDate(dayDate, startMins + durMins);
     lines.push(`DTSTART:${formatIcsLocalDateTime(start)}`);
@@ -98,8 +93,12 @@ function buildEventLines(
 
   const descriptionParts = [
     item.description?.trim(),
-    item.startTime ? `Time: ${item.startTime}` : null,
-    item.duration ? `Duration: ${item.duration}` : null,
+    schedule?.startTime ?? item.startTime
+      ? `Time: ${schedule?.startTime ?? item.startTime}`
+      : null,
+    schedule?.duration ?? item.duration
+      ? `Duration: ${schedule?.duration ?? item.duration}`
+      : null,
     day.title ? `Day ${day.dayNumber}: ${day.title}` : `Day ${day.dayNumber}`,
   ].filter(Boolean);
 

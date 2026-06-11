@@ -1,0 +1,6 @@
+-- AlterTable
+ALTER TABLE "ItineraryDay" ADD COLUMN "budgetAccommodation" DOUBLE PRECISION,
+ADD COLUMN "budgetTransport" DOUBLE PRECISION,
+ADD COLUMN "budgetActivities" DOUBLE PRECISION,
+ADD COLUMN "budgetFood" DOUBLE PRECISION,
+ADD COLUMN "budgetTotal" DOUBLE PRECISION;

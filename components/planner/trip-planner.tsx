@@ -3,7 +3,7 @@
 import dynamic from "next/dynamic";
 import { useCallback, useEffect, useState } from "react";
 import { format } from "date-fns";
-import { Calendar, MapPin, Ticket } from "lucide-react";
+import { Calendar, MapPin } from "lucide-react";
 import { AppShell } from "@/components/layout/app-shell";
 import { ChatPanel } from "@/components/chat/chat-panel";
 import { IdeasPanel } from "@/components/ideas/ideas-panel";
@@ -12,6 +12,7 @@ import {
   DayTimeline,
   type ItineraryDayData,
 } from "@/components/itinerary/day-timeline";
+import { ItemDetailDialog } from "@/components/itinerary/item-detail-dialog";
 import { TripCalendar } from "@/components/itinerary/trip-calendar";
 import { TripExportMenu } from "@/components/itinerary/trip-export-menu";
 import { TripTitleEditor } from "@/components/trips/trip-title-editor";
@@ -20,6 +21,7 @@ import { LoadingState } from "@/components/ui/spinner";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 import { getCurrentLocation } from "@/lib/locations/get-current-location";
+import { DEFAULT_BUDGET_CURRENCY } from "@/lib/trips/intake";
 import {
   getStartingLocation,
   isRoadTrip,
@@ -82,10 +84,10 @@ export function TripPlanner({
 }: TripPlannerProps) {
   const [trip, setTrip] = useState(initialTrip);
   const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
-  const [chatInitialQuery, setChatInitialQuery] = useState<string | null>(null);
-  const [leftView, setLeftView] = useState<"chat" | "itinerary" | "ideas" | "bookings">(
-    isOwner ? "chat" : "itinerary",
-  );
+  const [detailItemId, setDetailItemId] = useState<string | null>(null);
+  const [leftView, setLeftView] = useState<
+    "chat" | "itinerary" | "ideas" | "bookings"
+  >(isOwner ? "chat" : "itinerary");
   const [rightView, setRightView] = useState<"map" | "calendar">("map");
   const [selectedDay, setSelectedDay] = useState<number | undefined>(
     () => initialTrip.itineraries[0]?.days[0]?.dayNumber,
@@ -96,26 +98,24 @@ export function TripPlanner({
   const days = trip.itineraries[0]?.days ?? [];
   const filteredMessages = trip.messages.filter((m) => m.role !== "SYSTEM");
 
+  const needsLocationEnrichment =
+    isOwner &&
+    Boolean(initialQuery) &&
+    isRoadTrip(trip.preferences) &&
+    !getStartingLocation(trip.preferences);
+
+  const [enrichedQuery, setEnrichedQuery] = useState<{
+    source: string;
+    query: string;
+  } | null>(null);
+
   useEffect(() => {
-    if (!isOwner) {
-      setChatInitialQuery(null);
-      return;
-    }
-
-    if (!initialQuery) {
-      setChatInitialQuery(null);
-      return;
-    }
-
-    if (
-      !isRoadTrip(trip.preferences) ||
-      getStartingLocation(trip.preferences)
-    ) {
-      setChatInitialQuery(initialQuery);
+    if (!needsLocationEnrichment || !initialQuery) {
       return;
     }
 
     let cancelled = false;
+    const sourceQuery = initialQuery;
 
     getCurrentLocation().then(async (startingLocation) => {
       if (cancelled) return;
@@ -143,17 +143,28 @@ export function TripPlanner({
       const startingNote = startingLocation
         ? ` Starting from ${startingLocation.label || startingLocation.name}.`
         : "";
-      setChatInitialQuery(
-        initialQuery.includes("Starting from")
-          ? initialQuery
-          : `${initialQuery}${startingNote}`,
-      );
+      const query = sourceQuery.includes("Starting from")
+        ? sourceQuery
+        : `${sourceQuery}${startingNote}`;
+
+      if (!cancelled) {
+        setEnrichedQuery({ source: sourceQuery, query });
+      }
     });
 
     return () => {
       cancelled = true;
     };
-  }, [isOwner, initialQuery, trip.id, trip.preferences]);
+  }, [needsLocationEnrichment, initialQuery, trip.id, trip.preferences]);
+
+  const chatInitialQuery =
+    !isOwner || !initialQuery
+      ? null
+      : needsLocationEnrichment
+        ? enrichedQuery?.source === initialQuery
+          ? enrichedQuery.query
+          : null
+        : initialQuery;
 
   const refreshItinerary = useCallback(async () => {
     setRefreshing(true);
@@ -184,6 +195,7 @@ export function TripPlanner({
 
   function handleSelectItem(itemId: string) {
     setSelectedItemId(itemId);
+    setDetailItemId(itemId);
     setLeftView("itinerary");
     setTimeout(() => {
       document
@@ -191,6 +203,12 @@ export function TripPlanner({
         ?.scrollIntoView({ behavior: "smooth", block: "center" });
     }, 100);
   }
+
+  const detailItem =
+    detailItemId != null
+      ? (days.flatMap((d) => d.items).find((i) => i.id === detailItemId) ??
+        null)
+      : null;
 
   const chatPanel = (
     <ChatPanel
@@ -212,9 +230,7 @@ export function TripPlanner({
     />
   );
 
-  const bookingsPanel = (
-    <BookingsPanel tripId={trip.id} readOnly={!isOwner} />
-  );
+  const bookingsPanel = <BookingsPanel tripId={trip.id} readOnly={!isOwner} />;
 
   const itineraryPanel = (
     <div className="relative min-h-full">
@@ -249,6 +265,11 @@ export function TripPlanner({
         onSelectItem={handleSelectItem}
         selectedDay={selectedDay}
         readOnly={!isOwner}
+        budgetPerPerson={trip.preferences?.budgetPerPerson}
+        budgetCurrency={
+          trip.preferences?.budgetCurrency ?? DEFAULT_BUDGET_CURRENCY
+        }
+        destination={trip.destination}
       />
     </div>
   );
@@ -257,6 +278,14 @@ export function TripPlanner({
 
   return (
     <AppShell fullHeight className="overflow-hidden bg-neutral-50">
+      <ItemDetailDialog
+        item={detailItem}
+        destination={trip.destination}
+        open={detailItemId != null}
+        onOpenChange={(open) => {
+          if (!open) setDetailItemId(null);
+        }}
+      />
 
       {!isOwner && (
         <div className="shrink-0 border-b border-amber-200/80 bg-amber-50 px-4 py-2 text-center text-sm text-amber-800 md:px-6">
@@ -317,38 +346,39 @@ export function TripPlanner({
             {/* Pill-style tab switcher */}
             <div className="shrink-0 border-b border-neutral-100 bg-white px-4 py-3">
               <div className="flex rounded-xl bg-neutral-100 p-1">
-                {(["chat", "itinerary", "ideas", "bookings"] as const).map((view) => (
-                  <button
-                    key={view}
-                    type="button"
-                    onClick={() => setLeftView(view)}
-                    className={cn(
-                      "flex-1 rounded-lg px-3 py-2 text-sm font-medium transition-all",
-                      leftView === view
-                        ? "bg-white text-neutral-900 shadow-sm"
-                        : "text-neutral-500 hover:text-neutral-700",
-                    )}
-                  >
-                    {view === "chat" && "Chat"}
-                    {view === "itinerary" && (
-                      <>
-                        Itinerary
-                        {totalItems > 0 && (
-                          <span className="ml-1.5 rounded-full bg-neutral-100 px-1.5 py-0.5 text-[10px] font-semibold text-neutral-700">
-                            {totalItems}
-                          </span>
-                        )}
-                      </>
-                    )}
-                    {view === "ideas" && "Ideas"}
-                    {view === "bookings" && (
-                      <span className="flex items-center justify-center gap-1">
-                        <Ticket className="h-3.5 w-3.5" />
-                        Bookings
-                      </span>
-                    )}
-                  </button>
-                ))}
+                {(["chat", "itinerary", "ideas", "bookings"] as const).map(
+                  (view) => (
+                    <button
+                      key={view}
+                      type="button"
+                      onClick={() => setLeftView(view)}
+                      className={cn(
+                        "flex-1 rounded-lg px-3 py-2 text-sm font-medium transition-all",
+                        leftView === view
+                          ? "bg-white text-neutral-900 shadow-sm"
+                          : "text-neutral-500 hover:text-neutral-700",
+                      )}
+                    >
+                      {view === "chat" && "Chat"}
+                      {view === "itinerary" && (
+                        <>
+                          Itinerary
+                          {totalItems > 0 && (
+                            <span className="ml-1.5 rounded-full bg-neutral-100 px-1.5 py-0.5 text-[10px] font-semibold text-neutral-700">
+                              {totalItems}
+                            </span>
+                          )}
+                        </>
+                      )}
+                      {view === "ideas" && "Ideas"}
+                      {view === "bookings" && (
+                        <span className="flex items-center justify-center gap-1">
+                          Bookings
+                        </span>
+                      )}
+                    </button>
+                  ),
+                )}
               </div>
             </div>
 

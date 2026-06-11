@@ -4,6 +4,7 @@ import {
   getLocationCoords,
   getStartingLocation,
   getTripLocations,
+  isLocalTrip,
   isRoadTrip,
 } from "@/lib/trips/preferences";
 import { lookupIATAByAirportName } from "@/lib/airports/lookup";
@@ -81,6 +82,15 @@ function stripTrailingFlightItems(items: ActivityItem[]): ActivityItem[] {
   return next;
 }
 
+function stripFlightItemsFromDraft(draft: ItineraryDraft): ItineraryDraft {
+  return {
+    days: draft.days.map((day) => ({
+      ...day,
+      items: day.items.filter((item) => !isFlightTransportItem(item)),
+    })),
+  };
+}
+
 function buildFlightItem(
   originLabel: string,
   destinationLabel: string,
@@ -95,6 +105,8 @@ function buildFlightItem(
     type: "transport",
     title,
     description: "Flight · Check airlines for schedules and prices",
+    startTime: label === "outbound" ? "7:00 AM" : "2:00 PM",
+    duration: "3h",
   };
 }
 
@@ -107,6 +119,10 @@ export async function enrichFlightItinerary(
 
   const startingLocation = getStartingLocation(preferences);
   if (!startingLocation || draft.days.length === 0) return draft;
+
+  if (isLocalTrip(preferences, destination)) {
+    return stripFlightItemsFromDraft(draft);
+  }
 
   // Origin airport — nearest to the user's current location
   const originCoords = getLocationCoords(startingLocation);
@@ -123,6 +139,14 @@ export async function enrichFlightItinerary(
     ? await findNearestAirport(destCoords.lat, destCoords.lng)
     : await findAirportByDestination(destination);
   const destLabel = formatAirportLabel(destAirport, destination);
+
+  if (
+    originAirport?.iataCode &&
+    destAirport?.iataCode &&
+    originAirport.iataCode === destAirport.iataCode
+  ) {
+    return stripFlightItemsFromDraft(draft);
+  }
 
   const days = draft.days
     .map((day) => ({ ...day, items: [...day.items] }))

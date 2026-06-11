@@ -14,12 +14,13 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import {
-  BUDGET_LABELS,
+  BUDGET_CURRENCIES,
+  DEFAULT_BUDGET_CURRENCY,
   TRAVELER_LABELS,
+  formatBudgetAmount,
   formatTravelerSummary,
   formatWhenSummary,
   isTripIntakeComplete,
-  type BudgetTier,
   type TimingMode,
   type TravelerType,
   type TripIntakeData,
@@ -42,8 +43,6 @@ const TRAVELER_TYPES: TravelerType[] = [
   "family",
   "group",
 ];
-
-const BUDGET_TIERS: BudgetTier[] = ["budget", "moderate", "upscale", "luxury"];
 
 function Segment({ label, value }: { label: string; value: string | null }) {
   if (value) {
@@ -70,7 +69,8 @@ export function TripIntakeBar({ onSubmit, loading, className, initialDestination
   const [flexibleDays, setFlexibleDays] = useState("");
   const [travelerType, setTravelerType] = useState<TravelerType | null>(null);
   const [travelerCount, setTravelerCount] = useState("");
-  const [budget, setBudget] = useState<BudgetTier | null>(null);
+  const [budgetAmount, setBudgetAmount] = useState("");
+  const [budgetCurrency, setBudgetCurrency] = useState(DEFAULT_BUDGET_CURRENCY);
 
   const intake: TripIntakeData = {
     location,
@@ -81,7 +81,8 @@ export function TripIntakeBar({ onSubmit, loading, className, initialDestination
     flexibleDays: flexibleDays ? Number(flexibleDays) : undefined,
     travelerType,
     travelerCount: travelerCount ? Number(travelerCount) : undefined,
-    budget,
+    budgetPerPerson: budgetAmount ? Number(budgetAmount) : null,
+    budgetCurrency,
   };
 
   const whereSummary = location
@@ -94,7 +95,10 @@ export function TripIntakeBar({ onSubmit, loading, className, initialDestination
         travelerCount ? Number(travelerCount) : undefined,
       )
     : null;
-  const budgetSummary = budget ? BUDGET_LABELS[budget] : null;
+  const budgetSummary =
+    budgetAmount && Number(budgetAmount) > 0
+      ? `${formatBudgetAmount(Number(budgetAmount), budgetCurrency)}/person`
+      : null;
 
   function handleLocationSelect(selected: SelectedLocation) {
     setLocation(selected);
@@ -108,11 +112,6 @@ export function TripIntakeBar({ onSubmit, loading, className, initialDestination
       setTravelerCount("");
       setOpenField("budget");
     }
-  }
-
-  function handleBudgetSelect(tier: BudgetTier) {
-    setBudget(tier);
-    setOpenField(null);
   }
 
   function handleSubmit(e: React.FormEvent) {
@@ -301,24 +300,41 @@ export function TripIntakeBar({ onSubmit, loading, className, initialDestination
 
                 {segment.id === "budget" && (
                   <div className="space-y-3">
-                    <Label>Budget</Label>
-                    <div className="grid grid-cols-2 gap-2">
-                      {BUDGET_TIERS.map((tier) => (
-                        <button
-                          key={tier}
-                          type="button"
-                          onClick={() => handleBudgetSelect(tier)}
-                          className={cn(
-                            "rounded-xl border px-3 py-2 text-sm font-medium transition-colors",
-                            budget === tier
-                              ? "border-neutral-900 bg-neutral-900 text-white"
-                              : "border-neutral-200 text-neutral-700 hover:border-neutral-300",
-                          )}
-                        >
-                          {BUDGET_LABELS[tier]}
-                        </button>
-                      ))}
+                    <Label>Budget per person</Label>
+                    <div className="flex gap-2">
+                      <select
+                        value={budgetCurrency}
+                        onChange={(e) => setBudgetCurrency(e.target.value)}
+                        className="shrink-0 rounded-lg border border-neutral-200 bg-white px-2.5 py-2 text-sm font-medium text-neutral-700 focus:outline-none focus:ring-2 focus:ring-neutral-900/20"
+                      >
+                        {BUDGET_CURRENCIES.map((c) => (
+                          <option key={c.code} value={c.code}>
+                            {c.symbol} {c.code}
+                          </option>
+                        ))}
+                      </select>
+                      <Input
+                        type="number"
+                        min={1}
+                        placeholder="e.g. 1500"
+                        value={budgetAmount}
+                        onChange={(e) => setBudgetAmount(e.target.value)}
+                        autoFocus
+                        className="flex-1"
+                      />
                     </div>
+                    <p className="text-xs text-neutral-400">
+                      Total spend for the whole trip, per person
+                    </p>
+                    <Button
+                      type="button"
+                      size="sm"
+                      className="w-full"
+                      onClick={() => setOpenField(null)}
+                      disabled={!budgetAmount || Number(budgetAmount) <= 0}
+                    >
+                      Done
+                    </Button>
                   </div>
                 )}
               </PopoverContent>

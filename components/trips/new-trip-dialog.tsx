@@ -29,10 +29,10 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Spinner } from "@/components/ui/spinner";
 import { cn } from "@/lib/utils";
 import {
-  BUDGET_LABELS,
+  BUDGET_CURRENCIES,
+  DEFAULT_BUDGET_CURRENCY,
   TRAVELER_LABELS,
   formatTravelerSummary,
-  type BudgetTier,
   type TravelerType,
 } from "@/lib/trips/intake";
 import { getCurrentLocation } from "@/lib/locations/get-current-location";
@@ -81,7 +81,8 @@ export function NewTripDialog({ open, onOpenChange }: NewTripDialogProps) {
   const [preferences, setPreferences] = useState("");
   const [travelerType, setTravelerType] = useState<TravelerType | null>(null);
   const [travelerCount, setTravelerCount] = useState("");
-  const [budget, setBudget] = useState<BudgetTier | null>(null);
+  const [budgetAmount, setBudgetAmount] = useState("");
+  const [budgetCurrency, setBudgetCurrency] = useState(DEFAULT_BUDGET_CURRENCY);
   const [loading, setLoading] = useState(false);
   const [heroImage, setHeroImage] = useState<HeroImage>(FALLBACK_HERO_IMAGE);
   const [heroImageLoading, setHeroImageLoading] = useState(false);
@@ -122,7 +123,8 @@ export function NewTripDialog({ open, onOpenChange }: NewTripDialogProps) {
       setPreferences("");
       setTravelerType(null);
       setTravelerCount("");
-      setBudget(null);
+      setBudgetAmount("");
+      setBudgetCurrency(DEFAULT_BUDGET_CURRENCY);
       setLoading(false);
       setHeroImage(FALLBACK_HERO_IMAGE);
       setHeroImageLoading(false);
@@ -187,7 +189,8 @@ export function NewTripDialog({ open, onOpenChange }: NewTripDialogProps) {
               count: travelerCount ? Number(travelerCount) : null,
             }
           : null,
-        budget,
+        budgetPerPerson: budgetAmount ? Number(budgetAmount) : null,
+        budgetCurrency,
         notes: preferences.trim() || null,
       };
 
@@ -203,8 +206,9 @@ export function NewTripDialog({ open, onOpenChange }: NewTripDialogProps) {
           `Traveling as ${formatTravelerSummary(travelerType, travelerCount ? Number(travelerCount) : undefined).toLowerCase()}.`,
         );
       }
-      if (budget) {
-        initialParts.push(`${BUDGET_LABELS[budget]} budget.`);
+      if (budgetAmount && Number(budgetAmount) > 0) {
+        const symbol = BUDGET_CURRENCIES.find((c) => c.code === budgetCurrency)?.symbol ?? budgetCurrency;
+        initialParts.push(`Budget of ${symbol}${Number(budgetAmount).toLocaleString()} per person.`);
       }
       if (preferences.trim()) initialParts.push(preferences.trim());
 
@@ -235,7 +239,8 @@ export function NewTripDialog({ open, onOpenChange }: NewTripDialogProps) {
   const canCreate =
     locations.length > 0 &&
     travelerType !== null &&
-    budget !== null &&
+    budgetAmount.trim() !== "" &&
+    Number(budgetAmount) > 0 &&
     !loading &&
     (travelerType === "friends" || travelerType === "group"
       ? travelerCount.trim() !== ""
@@ -453,26 +458,31 @@ export function NewTripDialog({ open, onOpenChange }: NewTripDialogProps) {
               </div>
 
               <div className="space-y-3">
-                <Label>Budget</Label>
-                <div className="flex flex-wrap gap-2">
-                  {(["budget", "moderate", "upscale", "luxury"] as const).map(
-                    (tier) => (
-                      <button
-                        key={tier}
-                        type="button"
-                        onClick={() => setBudget(tier)}
-                        className={cn(
-                          "rounded-full border px-4 py-2 text-sm font-medium transition-colors",
-                          budget === tier
-                            ? "border-neutral-900 bg-neutral-900 text-white"
-                            : "border-neutral-200 text-neutral-600 hover:border-neutral-300",
-                        )}
-                      >
-                        {BUDGET_LABELS[tier]}
-                      </button>
-                    ),
-                  )}
+                <Label>Budget per person</Label>
+                <div className="flex gap-2">
+                  <select
+                    value={budgetCurrency}
+                    onChange={(e) => setBudgetCurrency(e.target.value)}
+                    className="shrink-0 rounded-lg border border-neutral-200 bg-white px-2.5 py-2 text-sm font-medium text-neutral-700 focus:outline-none focus:ring-2 focus:ring-neutral-900/20"
+                  >
+                    {BUDGET_CURRENCIES.map((c) => (
+                      <option key={c.code} value={c.code}>
+                        {c.symbol} {c.code}
+                      </option>
+                    ))}
+                  </select>
+                  <Input
+                    type="number"
+                    min={1}
+                    placeholder="e.g. 1500"
+                    value={budgetAmount}
+                    onChange={(e) => setBudgetAmount(e.target.value)}
+                    className="flex-1"
+                  />
                 </div>
+                <p className="text-xs text-neutral-400">
+                  Total spend for the whole trip, per person
+                </p>
               </div>
 
               <div className="space-y-3">

@@ -9,6 +9,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { cn } from "@/lib/utils";
 import { getPlacePhotoUrl } from "@/lib/places/utils";
 import type { ItineraryDayData } from "@/components/itinerary/day-timeline";
 
@@ -37,6 +38,8 @@ type IdeaCardProps = {
   days: ItineraryDayData[];
   onDelete: (ideaId: string) => Promise<void>;
   onAddToItinerary: (ideaId: string, dayId: string) => Promise<void>;
+  onSelect?: (ideaId: string) => void;
+  added?: boolean;
   readOnly?: boolean;
 };
 
@@ -49,6 +52,8 @@ export function IdeaCard({
   days,
   onDelete,
   onAddToItinerary,
+  onSelect,
+  added = false,
   readOnly = false,
 }: IdeaCardProps) {
   const [deleting, setDeleting] = useState(false);
@@ -68,17 +73,26 @@ export function IdeaCard({
   }
 
   async function handleAddToDay(dayId: string) {
+    setDayPickerOpen(false);
     setAdding(true);
     try {
       await onAddToItinerary(idea.id, dayId);
-      setDayPickerOpen(false);
     } finally {
       setAdding(false);
     }
   }
 
   return (
-    <article className="overflow-hidden rounded-2xl border border-neutral-200/80 bg-white">
+    <article
+      className={cn(
+        "overflow-hidden rounded-2xl border border-neutral-200/80 bg-white transition-all",
+        onSelect && "cursor-pointer hover:border-neutral-300 hover:shadow-md",
+      )}
+      onClick={() => onSelect?.(idea.id)}
+      onKeyDown={(e) => e.key === "Enter" && onSelect?.(idea.id)}
+      role={onSelect ? "button" : undefined}
+      tabIndex={onSelect ? 0 : undefined}
+    >
       {imageUrl ? (
         <div className="relative h-36 w-full bg-neutral-100">
           {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -118,11 +132,30 @@ export function IdeaCard({
         )}
 
         {!readOnly && (
-        <div className="mt-3 flex items-center gap-2">
+        <div
+          className="mt-3 flex items-center gap-2"
+          onClick={(e) => e.stopPropagation()}
+          onPointerDown={(e) => e.stopPropagation()}
+        >
           {days.length > 0 ? (
+            added ? (
+              <Button
+                size="sm"
+                variant="outline"
+                disabled
+                className="h-8 text-xs text-neutral-500"
+              >
+                Added
+              </Button>
+            ) : (
             <Popover open={dayPickerOpen} onOpenChange={setDayPickerOpen}>
               <PopoverTrigger asChild>
-                <Button size="sm" variant="outline" disabled={adding} className="h-8 text-xs">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  disabled={adding}
+                  className="h-8 text-xs"
+                >
                   {adding ? (
                     <Spinner size="sm" />
                   ) : (
@@ -140,7 +173,11 @@ export function IdeaCard({
                     <button
                       key={day.id}
                       type="button"
-                      onClick={() => handleAddToDay(day.id)}
+                      onMouseDown={(e) => e.preventDefault()}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleAddToDay(day.id);
+                      }}
                       disabled={adding}
                       className="w-full rounded-lg px-2 py-1.5 text-left text-sm hover:bg-neutral-100"
                     >
@@ -150,6 +187,7 @@ export function IdeaCard({
                 </div>
               </PopoverContent>
             </Popover>
+            )
           ) : (
             <span className="text-xs text-neutral-400">
               Generate an itinerary to add this
@@ -160,7 +198,10 @@ export function IdeaCard({
             size="sm"
             variant="ghost"
             disabled={deleting}
-            onClick={handleDelete}
+            onClick={(e) => {
+              e.stopPropagation();
+              handleDelete();
+            }}
             className="ml-auto h-8 w-8 p-0 text-neutral-400 hover:text-red-600"
             aria-label={deleting ? "Removing idea…" : "Remove idea"}
           >

@@ -1,6 +1,8 @@
 import { addDays, parseISO } from "date-fns";
 
-export function parseTimeMinutes(timeStr: string | null | undefined): number | null {
+export function parseTimeMinutes(
+  timeStr: string | null | undefined,
+): number | null {
   if (!timeStr) return null;
   const ampm = timeStr.match(/(\d{1,2}):(\d{2})\s*(am|pm)/i);
   if (ampm) {
@@ -15,7 +17,9 @@ export function parseTimeMinutes(timeStr: string | null | undefined): number | n
   return null;
 }
 
-export function parseDurationMinutes(duration: string | null | undefined): number {
+export function parseDurationMinutes(
+  duration: string | null | undefined,
+): number {
   if (!duration) return 60;
   let mins = 0;
   const h = duration.match(/([\d.]+)\s*h(?:our)?/i);
@@ -59,6 +63,11 @@ export function resolveExportDayDate(
 
 export function applyTimeToDate(date: Date, minutesFromMidnight: number): Date {
   const result = new Date(date);
-  result.setHours(Math.floor(minutesFromMidnight / 60), minutesFromMidnight % 60, 0, 0);
+  result.setHours(
+    Math.floor(minutesFromMidnight / 60),
+    minutesFromMidnight % 60,
+    0,
+    0,
+  );
   return result;
 }
