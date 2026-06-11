@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { Loader2, Square, Volume2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -33,16 +33,14 @@ export function DayAudioButton({
   color = "#171717",
 }: DayAudioButtonProps) {
   const [state, setState] = useState<AudioState>("idle");
-  const [supported, setSupported] = useState(false);
+  const supported = useSyncExternalStore(
+    () => () => {},
+    () => typeof window !== "undefined" && "speechSynthesis" in window,
+    () => false,
+  );
   const cacheRef = useRef<{ key: string | undefined; narration: string } | null>(
     null,
   );
-
-  useEffect(() => {
-    setSupported(
-      typeof window !== "undefined" && "speechSynthesis" in window,
-    );
-  }, []);
 
   // Stop any speech from this button when it unmounts (e.g. switching days).
   useEffect(() => {
@@ -67,10 +65,9 @@ export function DayAudioButton({
 
     setState("loading");
     try {
+      const cached = cacheRef.current;
       let narration =
-        cacheRef.current?.key === contentKey
-          ? cacheRef.current.narration
-          : null;
+        cached != null && cached.key === contentKey ? cached.narration : null;
 
       if (!narration) {
         const res = await fetch(
