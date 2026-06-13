@@ -1,12 +1,31 @@
 export type FatigueLevel = "easy" | "moderate" | "tiring" | "exhausting";
 
+export type TransportMode = "walk" | "metro" | "bus" | "taxi" | "bike";
+
 export type DayInsights = {
   estimatedSteps: number;
   walkingDistanceKm: number;
   fatigueLevel: FatigueLevel;
   fatigueLabel: string;
   fatigueDescription: string;
-  cityTransport: string;
+  cityTransportModes: TransportMode[];
+};
+
+export const TRANSPORT_MODE_META: Record<
+  TransportMode,
+  { label: string; keywords: string[] }
+> = {
+  walk: { label: "Walk", keywords: ["walk", "on foot", "foot"] },
+  metro: {
+    label: "Metro",
+    keywords: ["metro", "subway", "underground", "tube", "mrt", "tram"],
+  },
+  bus: { label: "Bus", keywords: ["bus", "shuttle"] },
+  taxi: {
+    label: "Car",
+    keywords: ["taxi", "cab", "rideshare", "uber", "lyft", "grab", "car", "drive"],
+  },
+  bike: { label: "Bike", keywords: ["bike", "bicycle", "cycle", "scooter"] },
 };
 
 type InsightItem = {
@@ -127,36 +146,55 @@ function resolveFatigueLevel(
   return "easy";
 }
 
-function buildCityTransportRecommendation(
+const TRANSPORT_MODE_ORDER: TransportMode[] = [
+  "walk",
+  "metro",
+  "bus",
+  "taxi",
+  "bike",
+];
+
+export function parseTransportModes(text: string | null | undefined): TransportMode[] {
+  if (!text?.trim()) return [];
+
+  const normalized = text.toLowerCase();
+  const matched = TRANSPORT_MODE_ORDER.filter((mode) =>
+    TRANSPORT_MODE_META[mode].keywords.some((keyword) =>
+      normalized.includes(keyword),
+    ),
+  );
+
+  return matched.length > 0 ? matched : ["taxi"];
+}
+
+function buildCityTransportModes(
   walkingDistanceKm: number,
   stopCount: number,
-  destination?: string,
   storedRecommendation?: string | null,
-): string {
-  if (storedRecommendation?.trim()) return storedRecommendation.trim();
-
-  const dest = destination?.split(",")[0]?.trim();
-  const destPrefix = dest ? `In ${dest}, ` : "";
+): TransportMode[] {
+  if (storedRecommendation?.trim()) {
+    return parseTransportModes(storedRecommendation);
+  }
 
   if (stopCount <= 1) {
-    return `${destPrefix}one main stop — walking or a short taxi ride should be enough.`;
+    return ["walk", "taxi"];
   }
 
   const avgLegKm = walkingDistanceKm / Math.max(1, stopCount - 1);
 
   if (avgLegKm <= 0.8 && walkingDistanceKm <= 4) {
-    return `${destPrefix}stops are close together — walking is ideal. Grab a taxi only if you're tired.`;
+    return ["walk", "taxi"];
   }
 
   if (avgLegKm <= 2 && walkingDistanceKm <= 8) {
-    return `${destPrefix}mix walking with metro, bus, or rideshare between neighborhoods — a day pass often pays off.`;
+    return ["walk", "metro", "bus", "taxi"];
   }
 
   if (walkingDistanceKm > 8 || avgLegKm > 2.5) {
-    return `${destPrefix}stops are spread out — use metro, bus, or rideshare between areas and save walking for each stop.`;
+    return ["metro", "bus", "taxi"];
   }
 
-  return `${destPrefix}combine walking with local transit or rideshare when legs are more than ~15 minutes apart.`;
+  return ["walk", "metro", "bus", "taxi"];
 }
 
 export function computeDayInsights(
@@ -202,10 +240,9 @@ export function computeDayInsights(
   );
   const fatigue = FATIGUE_META[fatigueLevel];
 
-  const cityTransport = buildCityTransportRecommendation(
+  const cityTransportModes = buildCityTransportModes(
     walkingDistanceKm,
     coords.length,
-    options?.destination,
     options?.cityTransport,
   );
 
@@ -215,7 +252,7 @@ export function computeDayInsights(
     fatigueLevel,
     fatigueLabel: fatigue.label,
     fatigueDescription: fatigue.description,
-    cityTransport,
+    cityTransportModes,
   };
 }
 

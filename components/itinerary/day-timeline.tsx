@@ -31,6 +31,9 @@ import {
   Bus,
   Footprints,
   Gauge,
+  Car,
+  TrainFront,
+  Bike,
 } from "lucide-react";
 import { DEFAULT_BUDGET_CURRENCY, getCurrencySymbol } from "@/lib/trips/intake";
 import {
@@ -39,6 +42,8 @@ import {
   getFatigueColor,
   getFatigueDescription,
   getFatigueLabel,
+  TRANSPORT_MODE_META,
+  type TransportMode,
 } from "@/lib/itinerary/day-insights";
 import { Spinner } from "@/components/ui/spinner";
 import { cn } from "@/lib/utils";
@@ -102,6 +107,38 @@ export function getDayColor(dayNumber: number) {
 }
 
 // Map item type → CSS class from globals.css + label
+function getCategoryDotColor(type: string): string {
+  const t = type.toLowerCase();
+  if (
+    t.includes("restaurant") ||
+    t.includes("food") ||
+    t.includes("cafe") ||
+    t.includes("bar")
+  ) {
+    return "#404040";
+  }
+  if (
+    t.includes("hotel") ||
+    t.includes("accommodation") ||
+    t.includes("lodging") ||
+    t.includes("hostel")
+  ) {
+    return "#7e22ce";
+  }
+  if (
+    t.includes("transport") ||
+    t.includes("flight") ||
+    t.includes("train") ||
+    t.includes("transit")
+  ) {
+    return "#0369a1";
+  }
+  if (t.includes("activity") || t.includes("tour") || t.includes("adventure")) {
+    return "#15803d";
+  }
+  return "#1d4ed8";
+}
+
 function getCategoryStyle(type: string): { className: string; label: string } {
   const t = type.toLowerCase();
   if (
@@ -472,13 +509,30 @@ function DayExpenseBreakdown({
   );
 }
 
+const TRANSPORT_ICONS: Record<
+  TransportMode,
+  React.ComponentType<{ className?: string }>
+> = {
+  walk: Footprints,
+  metro: TrainFront,
+  bus: Bus,
+  taxi: Car,
+  bike: Bike,
+};
+
 type DayActivityInsightProps = {
   day: ItineraryDayData;
+  destination?: string;
   dayColor: string;
 };
 
-function DayActivityInsight({ day, dayColor }: DayActivityInsightProps) {
+function DayActivityInsight({
+  day,
+  destination,
+  dayColor,
+}: DayActivityInsightProps) {
   const insights = computeDayInsights(day.items, {
+    destination,
     cityTransport: day.cityTransport,
   });
 
@@ -501,64 +555,49 @@ function DayActivityInsight({ day, dayColor }: DayActivityInsightProps) {
           {formatStepCount(insights.estimatedSteps)} steps
         </span>
       </div>
-      <div className="flex flex-col gap-1 bg-white px-4 py-3">
-        <div className="flex items-center gap-1.5">
-          <Gauge
-            className="h-3.5 w-3.5 shrink-0"
+      <div className="flex flex-col gap-3 bg-white px-4 py-3">
+        <div>
+          <div className="flex items-center gap-1.5">
+            <Gauge
+              className="h-3.5 w-3.5 shrink-0"
+              style={{ color: fatigueColor }}
+            />
+            <span className="text-[10px] font-medium uppercase tracking-wide text-neutral-500">
+              How tiring
+            </span>
+          </div>
+          <span
+            className="mt-0.5 block text-sm font-semibold"
             style={{ color: fatigueColor }}
-          />
-          <span className="text-[10px] font-medium uppercase tracking-wide text-neutral-500">
-            How tiring
+          >
+            {getFatigueLabel(insights.fatigueLevel)}
           </span>
+          <p className="text-[11px] leading-relaxed text-neutral-500">
+            {getFatigueDescription(insights.fatigueLevel)}
+          </p>
         </div>
-        <span
-          className="text-sm font-semibold"
-          style={{ color: fatigueColor }}
-        >
-          {getFatigueLabel(insights.fatigueLevel)}
-        </span>
-        <p className="text-[11px] leading-relaxed text-neutral-500">
-          {getFatigueDescription(insights.fatigueLevel)}
-        </p>
-      </div>
-    </div>
-  );
-}
 
-type CityTransportTipProps = {
-  day: ItineraryDayData;
-  destination?: string;
-  dayColor: string;
-};
-
-function CityTransportTip({
-  day,
-  destination,
-  dayColor,
-}: CityTransportTipProps) {
-  const insights = computeDayInsights(day.items, {
-    destination,
-    cityTransport: day.cityTransport,
-  });
-
-  return (
-    <div
-      className="mb-4 flex gap-3 rounded-xl border border-neutral-100 px-4 py-3"
-      style={{ background: `${dayColor}08` }}
-    >
-      <div
-        className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full"
-        style={{ backgroundColor: `${dayColor}20`, color: dayColor }}
-      >
-        <Bus className="h-4 w-4" />
-      </div>
-      <div className="min-w-0 flex-1">
-        <p className="text-xs font-semibold uppercase tracking-wide text-neutral-500">
-          Getting around
-        </p>
-        <p className="mt-0.5 text-sm leading-relaxed text-neutral-700">
-          {insights.cityTransport}
-        </p>
+        {insights.cityTransportModes.length > 0 && (
+          <div className="border-t border-neutral-100 pt-3">
+            <p className="text-sm font-semibold text-neutral-900">Transport</p>
+            <div className="mt-2 flex flex-wrap gap-2">
+              {insights.cityTransportModes.map((mode) => {
+                const Icon = TRANSPORT_ICONS[mode];
+                const { label } = TRANSPORT_MODE_META[mode];
+                return (
+                  <span
+                    key={mode}
+                    title={label}
+                    className="inline-flex items-center gap-1.5 rounded-full border border-neutral-200 bg-neutral-50 px-2.5 py-1 text-xs font-medium text-neutral-700"
+                  >
+                    <Icon className="h-3.5 w-3.5 shrink-0" />
+                    {label}
+                  </span>
+                );
+              })}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
@@ -567,6 +606,7 @@ function CityTransportTip({
 type DayItemsProps = {
   day: ItineraryDayData;
   tripId: string;
+  dayColor: string;
   onUpdate?: () => void;
   onSelectItem?: (itemId: string) => void;
   sortable: boolean;
@@ -576,6 +616,7 @@ type DayItemsProps = {
 function DayItems({
   day,
   tripId,
+  dayColor,
   onUpdate,
   onSelectItem,
   sortable,
@@ -618,34 +659,92 @@ function DayItems({
     }
   }
 
+  const showTimeRail = day.items.some((item) => item.startTime);
+  const itemCount = day.items.length;
+  // w-12 time column + gap-3 + half of w-5 dot column
+  const timelineAxisLeft = showTimeRail
+    ? "calc(3rem + 0.75rem + 0.625rem)"
+    : "0.625rem";
+
   const list = (
-    <div className="relative flex flex-col gap-3">
+    <div className="relative">
       {reordering && (
         <div className="absolute inset-0 z-10 flex items-center justify-center rounded-lg bg-white/70">
           <Spinner size="sm" />
         </div>
       )}
-      {day.items.map((item) => (
-        <div key={item.id} id={`item-${item.id}`}>
-          {sortable ? (
-            <SortableItem
-              item={item}
-              tripId={tripId}
-              onUpdate={onUpdate}
-              onSelectItem={onSelectItem}
-              readOnly={readOnly}
-            />
-          ) : (
-            <ItemBlock
-              item={item}
-              tripId={tripId}
-              onUpdate={onUpdate}
-              onSelectItem={onSelectItem}
-              readOnly={readOnly}
-            />
-          )}
-        </div>
-      ))}
+
+      {itemCount > 1 && (
+        <div
+          className="pointer-events-none absolute top-8 bottom-8 w-px -translate-x-1/2 rounded-full"
+          style={{
+            left: timelineAxisLeft,
+            background: `linear-gradient(to bottom, ${dayColor}40, ${dayColor}, ${dayColor}40)`,
+          }}
+          aria-hidden
+        />
+      )}
+
+      <div className="flex flex-col">
+        {day.items.map((item, index) => {
+          const dotColor = getCategoryDotColor(item.type);
+          const isLast = index === itemCount - 1;
+
+          return (
+            <div
+              key={item.id}
+              id={`item-${item.id}`}
+              className={cn("relative flex gap-3", !isLast && "pb-1")}
+            >
+              {showTimeRail && (
+                <div className="w-12 shrink-0 pt-6 text-right">
+                  {item.startTime ? (
+                    <span className="block text-[11px] font-bold tabular-nums leading-none text-neutral-600">
+                      {item.startTime}
+                    </span>
+                  ) : (
+                    <span className="block text-[11px] text-neutral-300">—</span>
+                  )}
+                  {item.duration && (
+                    <span className="mt-1 block text-[10px] tabular-nums text-neutral-400">
+                      {item.duration}
+                    </span>
+                  )}
+                </div>
+              )}
+
+              <div className="relative w-5 shrink-0">
+                <div className="flex justify-center pt-6">
+                  <div
+                    className="relative z-10 box-content h-2.5 w-2.5 shrink-0 rounded-full border-[3px] border-white shadow-sm"
+                    style={{ backgroundColor: dotColor }}
+                  />
+                </div>
+              </div>
+
+              <div className="min-w-0 flex-1 pb-4">
+                {sortable ? (
+                  <SortableItem
+                    item={item}
+                    tripId={tripId}
+                    onUpdate={onUpdate}
+                    onSelectItem={onSelectItem}
+                    readOnly={readOnly}
+                  />
+                ) : (
+                  <ItemBlock
+                    item={item}
+                    tripId={tripId}
+                    onUpdate={onUpdate}
+                    onSelectItem={onSelectItem}
+                    readOnly={readOnly}
+                  />
+                )}
+              </div>
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 
@@ -769,10 +868,6 @@ export function DayTimeline({
             <>
               <DayActivityInsight
                 day={day}
-                dayColor={getDayColor(day.dayNumber)}
-              />
-              <CityTransportTip
-                day={day}
                 destination={destination}
                 dayColor={getDayColor(day.dayNumber)}
               />
@@ -782,6 +877,7 @@ export function DayTimeline({
           <DayItems
             day={day}
             tripId={tripId}
+            dayColor={getDayColor(day.dayNumber)}
             onUpdate={onUpdate}
             onSelectItem={onSelectItem}
             sortable={mounted && !readOnly}

@@ -1,7 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { format } from "date-fns";
 import { Calendar, MapPin } from "lucide-react";
 import { AppShell } from "@/components/layout/app-shell";
@@ -94,6 +94,11 @@ export function TripPlanner({
   );
   const [refreshing, setRefreshing] = useState(false);
   const isDesktop = useIsDesktop();
+  const itineraryScrollRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    itineraryScrollRef.current?.scrollTo({ top: 0 });
+  }, [selectedDay]);
 
   const days = trip.itineraries[0]?.days ?? [];
   const filteredMessages = trip.messages.filter((m) => m.role !== "SYSTEM");
@@ -392,6 +397,7 @@ export function TripPlanner({
                 {chatPanel}
               </div>
               <div
+                ref={itineraryScrollRef}
                 className={cn(
                   "absolute inset-0 overflow-y-auto",
                   leftView !== "itinerary" && "pointer-events-none invisible",
@@ -475,7 +481,7 @@ export function TripPlanner({
                   Chat
                 </TabsTrigger>
                 <TabsTrigger value="itinerary" className="rounded-lg text-xs">
-                  Plan
+                  Itinerary
                   {totalItems > 0 && (
                     <span className="ml-1 rounded-full bg-neutral-100 px-1 py-0 text-[10px] font-bold text-neutral-700">
                       {totalItems}
@@ -486,7 +492,7 @@ export function TripPlanner({
                   Ideas
                 </TabsTrigger>
                 <TabsTrigger value="bookings" className="rounded-lg text-xs">
-                  Docs
+                  Bookings
                 </TabsTrigger>
                 <TabsTrigger value="calendar" className="rounded-lg text-xs">
                   Cal
@@ -502,7 +508,11 @@ export function TripPlanner({
             >
               {chatPanel}
             </TabsContent>
-            <TabsContent value="itinerary" className="flex-1 overflow-auto">
+            <TabsContent
+              ref={itineraryScrollRef}
+              value="itinerary"
+              className="flex-1 overflow-auto"
+            >
               {itineraryPanel}
             </TabsContent>
             <TabsContent value="ideas" className="flex-1 overflow-auto">

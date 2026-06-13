@@ -65,7 +65,9 @@ export default async function TripsPage() {
                 : "Your adventures, all in one place."}
             </p>
           </div>
-          {trips.length > 0 && <NewTripButton size="lg" />}
+          {trips.length > 0 && (
+            <NewTripButton size="lg" className="cursor-pointer" />
+          )}
         </div>
 
         {trips.length === 0 ? (
