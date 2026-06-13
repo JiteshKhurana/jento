@@ -7,7 +7,6 @@ type RouteParams = { params: Promise<{ tripId: string }> };
 
 export async function GET(_req: Request, { params }: RouteParams) {
   try {
-    await requireCurrentDbUser();
     const { tripId } = await params;
     const trip = await getTripMetaById(tripId);
     if (!trip) {

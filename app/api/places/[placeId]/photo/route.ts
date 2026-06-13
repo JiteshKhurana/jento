@@ -1,5 +1,4 @@
 import { NextResponse } from "next/server";
-import { requireCurrentDbUser } from "@/lib/auth";
 import {
   buildStaticMapUrl,
   fetchPlacePhoto,
@@ -13,7 +12,6 @@ type RouteParams = { params: Promise<{ placeId: string }> };
 
 export async function GET(req: Request, { params }: RouteParams) {
   try {
-    await requireCurrentDbUser();
     const { placeId: rawPlaceId } = await params;
     const placeId = toStoragePlaceId(rawPlaceId);
     const { searchParams } = new URL(req.url);

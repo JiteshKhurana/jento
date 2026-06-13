@@ -20,7 +20,11 @@ type Props = {
   signedIn: boolean;
 };
 
-export function InspireView({ destinationPhotos, templatePhotos, signedIn }: Props) {
+export function InspireView({
+  destinationPhotos,
+  templatePhotos,
+  signedIn,
+}: Props) {
   const router = useRouter();
   const [activeCategory, setActiveCategory] = useState<TravelCategory>("all");
   const [creating, setCreating] = useState<string | null>(null);
@@ -28,12 +32,16 @@ export function InspireView({ destinationPhotos, templatePhotos, signedIn }: Pro
   const filteredDestinations =
     activeCategory === "all"
       ? FEATURED_DESTINATIONS
-      : FEATURED_DESTINATIONS.filter((d) => d.categories.includes(activeCategory));
+      : FEATURED_DESTINATIONS.filter((d) =>
+          d.categories.includes(activeCategory),
+        );
 
   const filteredTemplates =
     activeCategory === "all"
       ? ITINERARY_TEMPLATES
-      : ITINERARY_TEMPLATES.filter((t) => t.categories.includes(activeCategory));
+      : ITINERARY_TEMPLATES.filter((t) =>
+          t.categories.includes(activeCategory),
+        );
 
   async function handlePlanTrip(message: string, destinationName: string) {
     if (!signedIn) {
@@ -78,7 +86,8 @@ export function InspireView({ destinationPhotos, templatePhotos, signedIn }: Pro
             Get <span className="text-gradient-warm">inspired.</span>
           </h1>
           <p className="mt-4 text-lg text-neutral-500">
-            Explore popular destinations and ready-made itineraries. One click to start planning.
+            Explore popular destinations and ready-made itineraries. One click
+            to start planning.
           </p>
         </div>
 
@@ -91,7 +100,9 @@ export function InspireView({ destinationPhotos, templatePhotos, signedIn }: Pro
               onClick={() => setActiveCategory(cat.id)}
               className={cn(
                 "tag-pill",
-                activeCategory === cat.id ? "tag-pill-active" : "tag-pill-inactive",
+                activeCategory === cat.id
+                  ? "tag-pill-active"
+                  : "tag-pill-inactive",
               )}
             >
               <span>{cat.emoji}</span>
@@ -105,7 +116,9 @@ export function InspireView({ destinationPhotos, templatePhotos, signedIn }: Pro
       {creating && (
         <div className="fixed inset-0 z-50 flex flex-col items-center justify-center gap-3 bg-white/90 backdrop-blur-sm">
           <div className="h-8 w-8 animate-spin rounded-full border-2 border-neutral-200 border-t-neutral-900" />
-          <p className="font-medium text-neutral-700">Creating your {creating} trip…</p>
+          <p className="font-medium text-neutral-700">
+            Creating your {creating} trip…
+          </p>
         </div>
       )}
 
@@ -113,7 +126,9 @@ export function InspireView({ destinationPhotos, templatePhotos, signedIn }: Pro
       <section className="px-6 py-14 md:px-12">
         <div className="mx-auto max-w-7xl">
           <h2 className="mb-8 text-2xl font-bold text-neutral-900">
-            {activeCategory === "all" ? "Popular destinations" : `${TRAVEL_CATEGORIES.find(c => c.id === activeCategory)?.emoji} ${TRAVEL_CATEGORIES.find(c => c.id === activeCategory)?.label} destinations`}
+            {activeCategory === "all"
+              ? "Popular destinations"
+              : `${TRAVEL_CATEGORIES.find((c) => c.id === activeCategory)?.emoji} ${TRAVEL_CATEGORIES.find((c) => c.id === activeCategory)?.label} destinations`}
           </h2>
 
           {filteredDestinations.length === 0 ? (
@@ -137,10 +152,15 @@ export function InspireView({ destinationPhotos, templatePhotos, signedIn }: Pro
 
       {/* Itinerary Templates */}
       {filteredTemplates.length > 0 && (
-        <section className="px-6 pb-20 md:px-12" style={{ backgroundColor: "var(--surface)" }}>
+        <section
+          className="px-6 pb-20 md:px-12"
+          style={{ backgroundColor: "var(--surface)" }}
+        >
           <div className="mx-auto max-w-7xl pt-14">
             <div className="mb-8">
-              <h2 className="text-2xl font-bold text-neutral-900">Popular itineraries</h2>
+              <h2 className="text-2xl font-bold text-neutral-900">
+                Popular itineraries
+              </h2>
               <p className="mt-1 text-sm text-neutral-500">
                 Ready-made itineraries you can customize instantly
               </p>

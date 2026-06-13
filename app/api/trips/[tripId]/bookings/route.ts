@@ -1,22 +1,20 @@
 import { NextResponse } from "next/server";
-import { requireCurrentDbUser, requireTripForUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { getTripMetaById } from "@/lib/trips/queries";
 
 type RouteParams = { params: Promise<{ tripId: string }> };
 
 export async function GET(_req: Request, { params }: RouteParams) {
-  try {
-    const user = await requireCurrentDbUser();
-    const { tripId } = await params;
-    await requireTripForUser(tripId, user.id);
-
-    const bookings = await prisma.tripBooking.findMany({
-      where: { tripId },
-      orderBy: { createdAt: "desc" },
-    });
-
-    return NextResponse.json(bookings);
-  } catch {
+  const { tripId } = await params;
+  const trip = await getTripMetaById(tripId);
+  if (!trip) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
+
+  const bookings = await prisma.tripBooking.findMany({
+    where: { tripId },
+    orderBy: { createdAt: "desc" },
+  });
+
+  return NextResponse.json(bookings);
 }

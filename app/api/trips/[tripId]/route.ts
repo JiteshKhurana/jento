@@ -6,23 +6,10 @@ import { getTripMetaById } from "@/lib/trips/queries";
 type RouteParams = { params: Promise<{ tripId: string }> };
 
 export async function GET(req: Request, { params }: RouteParams) {
-  try {
-    const user = await requireCurrentDbUser();
-    const { tripId } = await params;
-    const { searchParams } = new URL(req.url);
-
-    if (searchParams.get("view") === "meta") {
-      const trip = await getTripMetaById(tripId);
-      if (!trip) return NextResponse.json({ error: "Not found" }, { status: 404 });
-      return NextResponse.json(trip);
-    }
-
-    const trip = await getTripMetaById(tripId);
-    if (!trip) return NextResponse.json({ error: "Not found" }, { status: 404 });
-    return NextResponse.json(trip);
-  } catch {
-    return NextResponse.json({ error: "Not found" }, { status: 404 });
-  }
+  const { tripId } = await params;
+  const trip = await getTripMetaById(tripId);
+  if (!trip) return NextResponse.json({ error: "Not found" }, { status: 404 });
+  return NextResponse.json(trip);
 }
 
 export async function PATCH(req: Request, { params }: RouteParams) {

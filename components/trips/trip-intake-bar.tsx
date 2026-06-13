@@ -14,6 +14,13 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
   BUDGET_CURRENCIES,
   DEFAULT_BUDGET_CURRENCY,
   TRAVELER_LABELS,
@@ -302,17 +309,18 @@ export function TripIntakeBar({ onSubmit, loading, className, initialDestination
                   <div className="space-y-3">
                     <Label>Budget per person</Label>
                     <div className="flex gap-2">
-                      <select
-                        value={budgetCurrency}
-                        onChange={(e) => setBudgetCurrency(e.target.value)}
-                        className="shrink-0 rounded-lg border border-neutral-200 bg-white px-2.5 py-2 text-sm font-medium text-neutral-700 focus:outline-none focus:ring-2 focus:ring-neutral-900/20"
-                      >
-                        {BUDGET_CURRENCIES.map((c) => (
-                          <option key={c.code} value={c.code}>
-                            {c.symbol} {c.code}
-                          </option>
-                        ))}
-                      </select>
+                      <Select value={budgetCurrency} onValueChange={setBudgetCurrency}>
+                        <SelectTrigger className="h-11 w-auto shrink-0 px-3">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {BUDGET_CURRENCIES.map((c) => (
+                            <SelectItem key={c.code} value={c.code}>
+                              {c.symbol} {c.code}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                       <Input
                         type="number"
                         min={1}

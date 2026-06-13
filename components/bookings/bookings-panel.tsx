@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   FileText,
   Image as ImageIcon,
@@ -15,14 +15,19 @@ import {
   Upload,
   Trash2,
   ExternalLink,
-  ChevronDown,
   X,
   Loader2,
   FolderOpen,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
@@ -112,14 +117,6 @@ function formatBytes(bytes: number | null): string {
   if (bytes < 1024) return `${bytes} B`;
   if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
-}
-
-function isPdf(booking: TripBookingData) {
-  return (
-    booking.resourceType === "raw" ||
-    booking.fileFormat === "pdf" ||
-    booking.cloudinaryUrl.toLowerCase().includes(".pdf")
-  );
 }
 
 // ─── Upload Drop Zone ─────────────────────────────────────────────────────────
@@ -277,25 +274,29 @@ function UploadZone({ tripId, onUploaded }: UploadZoneProps) {
           />
 
           {/* Category */}
-          <div className="relative">
-            <select
-              value={form.category}
-              onChange={(e) =>
-                setForm((p) => ({
-                  ...p,
-                  category: e.target.value as BookingCategory,
-                }))
-              }
-              className="w-full appearance-none rounded-lg border border-neutral-200 bg-white py-2 pl-3 pr-8 text-sm text-neutral-800 outline-none focus:border-neutral-400"
-            >
-              {CATEGORIES.map(([value, { label }]) => (
-                <option key={value} value={value}>
-                  {label}
-                </option>
+          <Select
+            value={form.category}
+            onValueChange={(value) =>
+              setForm((p) => ({
+                ...p,
+                category: value as BookingCategory,
+              }))
+            }
+          >
+            <SelectTrigger className="h-10 rounded-lg">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {CATEGORIES.map(([value, { label, icon }]) => (
+                <SelectItem key={value} value={value}>
+                  <span className="flex items-center gap-2">
+                    {icon}
+                    {label}
+                  </span>
+                </SelectItem>
               ))}
-            </select>
-            <ChevronDown className="pointer-events-none absolute right-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-neutral-400" />
-          </div>
+            </SelectContent>
+          </Select>
 
           {/* Notes */}
           <textarea
@@ -445,22 +446,21 @@ export function BookingsPanel({ tripId, readOnly = false }: BookingsPanelProps) 
   const [loading, setLoading] = useState(true);
   const [filterCategory, setFilterCategory] = useState<BookingCategory | "ALL">("ALL");
 
-  const fetchBookings = useCallback(async () => {
-    setLoading(true);
-    try {
-      const res = await fetch(`/api/trips/${tripId}/bookings`);
-      if (res.ok) {
-        const data = await res.json();
-        setBookings(Array.isArray(data) ? data : []);
-      }
-    } finally {
-      setLoading(false);
-    }
-  }, [tripId]);
-
   useEffect(() => {
-    fetchBookings();
-  }, [fetchBookings]);
+    let cancelled = false;
+
+    fetch(`/api/trips/${tripId}/bookings`)
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (cancelled) return;
+        setBookings(Array.isArray(data) ? data : []);
+        setLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [tripId]);
 
   async function handleDelete(bookingId: string) {
     // Optimistic removal

@@ -23,6 +23,14 @@ export function isRoadTrip(preferences: unknown): boolean {
   return parseTripPreferences(preferences).isRoadTrip === true;
 }
 
+export function formatTripLocationLabel(
+  location: TripLocationPreference,
+): string {
+  return (
+    location.label.split(",").slice(0, 2).join(",").trim() || location.name
+  );
+}
+
 export function getTripLocations(
   preferences: unknown,
 ): TripLocationPreference[] {

@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import { requireCurrentDbUser, getTripById, isTripOwner } from "@/lib/auth";
+import { getCurrentDbUser, getTripById, isTripOwner } from "@/lib/auth";
 import { TripPlanner } from "@/components/planner/trip-planner";
 import { parseTripPreferences } from "@/lib/trips/preferences";
 
@@ -11,15 +11,13 @@ type PageProps = {
 };
 
 export default async function TripPage({ params, searchParams }: PageProps) {
-  const user = await requireCurrentDbUser().catch(() => null);
-  if (!user) notFound();
-
   const { tripId } = await params;
   const { q } = await searchParams;
   const trip = await getTripById(tripId);
   if (!trip) notFound();
 
-  const owner = isTripOwner(trip, user.id);
+  const user = await getCurrentDbUser();
+  const owner = user ? isTripOwner(trip, user.id) : false;
 
   return (
     <TripPlanner

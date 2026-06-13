@@ -8,7 +8,9 @@ import { Spinner } from "@/components/ui/spinner";
 import { Input } from "@/components/ui/input";
 
 function extractDestination(prompt: string): string {
-  const inMatch = prompt.match(/\b(?:in|to)\s+([A-Za-z][A-Za-z\s,]{2,40}?)(?:\s+(?:for|with|focusing|on|and)|[,.]|$)/i);
+  const inMatch = prompt.match(
+    /\b(?:in|to)\s+([A-Za-z][A-Za-z\s,]{2,40}?)(?:\s+(?:for|with|focusing|on|and)|[,.]|$)/i,
+  );
   if (inMatch?.[1]) return inMatch[1].trim();
   return prompt.slice(0, 40).trim() || "New trip";
 }
@@ -46,7 +48,9 @@ export function NewTripForm() {
       if (!res.ok) throw new Error("Failed to create trip");
 
       const trip = await res.json();
-      const q = data.initialMessage ? `?q=${encodeURIComponent(data.initialMessage)}` : "";
+      const q = data.initialMessage
+        ? `?q=${encodeURIComponent(data.initialMessage)}`
+        : "";
       router.push(`/trips/${trip.id}${q}`);
     } catch (err) {
       console.error(err);
@@ -83,7 +87,8 @@ export function NewTripForm() {
           Where to next?
         </h1>
         <p className="mt-3 text-neutral-500">
-          Start chatting — tell us where you want to go and we&apos;ll take it from there.
+          Start chatting — tell us where you want to go and we&apos;ll take it
+          from there.
         </p>
       </div>
 
@@ -123,9 +128,14 @@ export function NewTripForm() {
       </form>
 
       {showDetails && (
-        <form onSubmit={handleDetailedSubmit} className="mt-6 space-y-4 rounded-2xl border border-neutral-200 bg-white p-5">
+        <form
+          onSubmit={handleDetailedSubmit}
+          className="mt-6 space-y-4 rounded-2xl border border-neutral-200 bg-white p-5"
+        >
           <div>
-            <label className="mb-1.5 block text-sm font-medium text-neutral-700">Destination</label>
+            <label className="mb-1.5 block text-sm font-medium text-neutral-700">
+              Destination
+            </label>
             <Input
               required={showDetails}
               placeholder="Barcelona, Spain"
@@ -135,7 +145,8 @@ export function NewTripForm() {
           </div>
           <div>
             <label className="mb-1.5 block text-sm font-medium text-neutral-700">
-              Trip name <span className="font-normal text-neutral-400">(optional)</span>
+              Trip name{" "}
+              <span className="font-normal text-neutral-400">(optional)</span>
             </label>
             <Input
               placeholder="Art & food in Barcelona"
@@ -145,15 +156,31 @@ export function NewTripForm() {
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="mb-1.5 block text-sm font-medium text-neutral-700">Start</label>
-              <Input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} />
+              <label className="mb-1.5 block text-sm font-medium text-neutral-700">
+                Start
+              </label>
+              <Input
+                type="date"
+                value={startDate}
+                onChange={(e) => setStartDate(e.target.value)}
+              />
             </div>
             <div>
-              <label className="mb-1.5 block text-sm font-medium text-neutral-700">End</label>
-              <Input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} />
+              <label className="mb-1.5 block text-sm font-medium text-neutral-700">
+                End
+              </label>
+              <Input
+                type="date"
+                value={endDate}
+                onChange={(e) => setEndDate(e.target.value)}
+              />
             </div>
           </div>
-          <Button type="submit" className="w-full" disabled={loading || !destination}>
+          <Button
+            type="submit"
+            className="w-full"
+            disabled={loading || !destination}
+          >
             {loading ? (
               <>
                 <Spinner size="sm" className="text-white" />

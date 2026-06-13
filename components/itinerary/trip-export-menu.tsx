@@ -20,6 +20,8 @@ type TripExportMenuProps = {
   tripStartDate: string | null;
   tripEndDate: string | null;
   days: ItineraryDayData[];
+  budgetPerPerson?: number | null;
+  budgetCurrency?: string;
 };
 
 export function TripExportMenu({
@@ -29,6 +31,8 @@ export function TripExportMenu({
   tripStartDate,
   tripEndDate,
   days,
+  budgetPerPerson,
+  budgetCurrency,
 }: TripExportMenuProps) {
   const [open, setOpen] = useState(false);
   const [exporting, setExporting] = useState<"pdf" | "ics" | null>(null);
@@ -66,6 +70,8 @@ export function TripExportMenu({
         tripStartDate,
         tripEndDate,
         days,
+        budgetPerPerson,
+        budgetCurrency,
       });
       downloadBlob(
         new Blob([Uint8Array.from(bytes)], { type: "application/pdf" }),

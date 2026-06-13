@@ -27,6 +27,13 @@ import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Spinner } from "@/components/ui/spinner";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import {
   BUDGET_CURRENCIES,
@@ -50,8 +57,7 @@ const FALLBACK_HERO_IMAGE: HeroImage = {
   url: "https://images.unsplash.com/photo-1564507592333-c60657eea523?auto=format&fit=crop&w=800&q=80",
   alt: "Travel destination",
   photographer: "Unsplash",
-  photographerUrl:
-    "https://unsplash.com?utm_source=jento&utm_medium=referral",
+  photographerUrl: "https://unsplash.com?utm_source=jento&utm_medium=referral",
 };
 
 type NewTripDialogProps = {
@@ -90,7 +96,8 @@ export function NewTripDialog({ open, onOpenChange }: NewTripDialogProps) {
   useEffect(() => {
     if (!open) return;
 
-    const query = locations[0]?.name ?? "";
+    const latestLocation = locations.at(-1);
+    const query = latestLocation?.name ?? "";
     const controller = new AbortController();
 
     // Defer state updates to avoid synchronous setState inside effect
@@ -207,8 +214,12 @@ export function NewTripDialog({ open, onOpenChange }: NewTripDialogProps) {
         );
       }
       if (budgetAmount && Number(budgetAmount) > 0) {
-        const symbol = BUDGET_CURRENCIES.find((c) => c.code === budgetCurrency)?.symbol ?? budgetCurrency;
-        initialParts.push(`Budget of ${symbol}${Number(budgetAmount).toLocaleString()} per person.`);
+        const symbol =
+          BUDGET_CURRENCIES.find((c) => c.code === budgetCurrency)?.symbol ??
+          budgetCurrency;
+        initialParts.push(
+          `Budget of ${symbol}${Number(budgetAmount).toLocaleString()} per person.`,
+        );
       }
       if (preferences.trim()) initialParts.push(preferences.trim());
 
@@ -460,17 +471,21 @@ export function NewTripDialog({ open, onOpenChange }: NewTripDialogProps) {
               <div className="space-y-3">
                 <Label>Budget per person</Label>
                 <div className="flex gap-2">
-                  <select
+                  <Select
                     value={budgetCurrency}
-                    onChange={(e) => setBudgetCurrency(e.target.value)}
-                    className="shrink-0 rounded-lg border border-neutral-200 bg-white px-2.5 py-2 text-sm font-medium text-neutral-700 focus:outline-none focus:ring-2 focus:ring-neutral-900/20"
+                    onValueChange={setBudgetCurrency}
                   >
-                    {BUDGET_CURRENCIES.map((c) => (
-                      <option key={c.code} value={c.code}>
-                        {c.symbol} {c.code}
-                      </option>
-                    ))}
-                  </select>
+                    <SelectTrigger className="h-11 w-auto shrink-0 px-3">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {BUDGET_CURRENCIES.map((c) => (
+                        <SelectItem key={c.code} value={c.code}>
+                          {c.symbol} {c.code}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                   <Input
                     type="number"
                     min={1}

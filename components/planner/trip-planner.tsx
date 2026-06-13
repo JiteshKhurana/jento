@@ -20,6 +20,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { LoadingState } from "@/components/ui/spinner";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
+import { getDayDate } from "@/lib/itinerary/time-utils";
 import { getCurrentLocation } from "@/lib/locations/get-current-location";
 import { DEFAULT_BUDGET_CURRENCY } from "@/lib/trips/intake";
 import {
@@ -246,7 +247,10 @@ export function TripPlanner({
       )}
       {days.length > 1 && (
         <div className="sticky top-0 z-10 flex gap-1.5 overflow-x-auto border-b border-neutral-100 bg-white px-4 py-3">
-          {days.map((day) => (
+          {days.map((day) => {
+            const dayDate = getDayDate(trip.startDate, day.dayNumber);
+
+            return (
             <button
               key={day.id}
               type="button"
@@ -259,13 +263,27 @@ export function TripPlanner({
               )}
             >
               Day {day.dayNumber}
+              {dayDate && (
+                <span
+                  className={cn(
+                    "ml-1 font-medium",
+                    selectedDay === day.dayNumber
+                      ? "text-neutral-300"
+                      : "text-neutral-400",
+                  )}
+                >
+                  · {format(dayDate, "MMM d")}
+                </span>
+              )}
             </button>
-          ))}
+            );
+          })}
         </div>
       )}
       <DayTimeline
         tripId={trip.id}
         days={days}
+        tripStartDate={trip.startDate}
         onUpdate={isOwner ? refreshItinerary : undefined}
         onSelectItem={handleSelectItem}
         selectedDay={selectedDay}
@@ -330,6 +348,10 @@ export function TripPlanner({
             tripStartDate={trip.startDate}
             tripEndDate={trip.endDate}
             days={days}
+            budgetPerPerson={trip.preferences?.budgetPerPerson}
+            budgetCurrency={
+              trip.preferences?.budgetCurrency ?? DEFAULT_BUDGET_CURRENCY
+            }
           />
         </div>
       </div>

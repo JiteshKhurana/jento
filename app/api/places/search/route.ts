@@ -1,5 +1,4 @@
 import { NextResponse } from "next/server";
-import { requireCurrentDbUser } from "@/lib/auth";
 import { searchPlaces } from "@/lib/places/google-places";
 import type { BudgetTier } from "@/lib/trips/intake";
 
@@ -7,7 +6,6 @@ const BUDGET_TIERS = new Set<BudgetTier>(["budget", "moderate", "upscale", "luxu
 
 export async function GET(req: Request) {
   try {
-    await requireCurrentDbUser();
     const { searchParams } = new URL(req.url);
     const q = searchParams.get("q");
     const location = searchParams.get("location") ?? undefined;

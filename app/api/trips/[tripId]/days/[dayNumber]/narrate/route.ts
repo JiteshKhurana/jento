@@ -1,7 +1,6 @@
 import { google } from "@ai-sdk/google";
 import { generateText } from "ai";
 import { NextResponse } from "next/server";
-import { requireCurrentDbUser } from "@/lib/auth";
 import { getGeminiApiKey } from "@/lib/env";
 import { getTripMetaById, getTripItineraryById } from "@/lib/trips/queries";
 
@@ -47,7 +46,6 @@ function buildFallbackNarration(
 
 export async function GET(_req: Request, { params }: RouteParams) {
   try {
-    await requireCurrentDbUser();
     const { tripId, dayNumber } = await params;
 
     const trip = await getTripMetaById(tripId);

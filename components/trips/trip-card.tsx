@@ -22,6 +22,10 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import {
+  formatTripLocationLabel,
+  getTripLocations,
+} from "@/lib/trips/preferences";
 import { cn } from "@/lib/utils";
 
 const COVER_GRADIENTS = [
@@ -51,10 +55,38 @@ type TripCardProps = {
     startDate: string | Date | null;
     endDate: string | Date | null;
     updatedAt: string | Date;
+    preferences?: unknown;
     itineraries?: Array<{ days: Array<{ items: unknown[] }> }>;
   };
   coverPhoto?: { url: string; alt: string } | null;
 };
+
+function TripDestinationBadge({
+  destination,
+  preferences,
+}: {
+  destination: string;
+  preferences?: unknown;
+}) {
+  const locations = getTripLocations(preferences);
+
+  if (locations.length <= 1) {
+    return <span>{destination}</span>;
+  }
+
+  return (
+    <span className="flex max-w-full flex-wrap items-center gap-x-1 gap-y-0.5">
+      {locations.map((location, index) => (
+        <span key={`${location.name}-${index}`} className="inline-flex items-center gap-1">
+          {index > 0 && (
+            <ArrowRight className="h-3 w-3 shrink-0 opacity-80" aria-hidden />
+          )}
+          <span>{formatTripLocationLabel(location)}</span>
+        </span>
+      ))}
+    </span>
+  );
+}
 
 export function TripCard({ trip, coverPhoto }: TripCardProps) {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -162,12 +194,15 @@ export function TripCard({ trip, coverPhoto }: TripCardProps) {
 
             <div className="absolute inset-0 bg-linear-to-t from-black/70 via-black/20 to-black/5" />
 
-            <div className="absolute left-4 top-4">
+            <div className="absolute left-4 top-4 max-w-[calc(100%-3.5rem)]">
               <Badge
                 variant="outline"
-                className="border-white/20 bg-white/15 text-white backdrop-blur-sm"
+                className="max-w-full border-white/20 bg-white/15 text-white backdrop-blur-sm"
               >
-                {trip.destination}
+                <TripDestinationBadge
+                  destination={trip.destination}
+                  preferences={trip.preferences}
+                />
               </Badge>
             </div>
 

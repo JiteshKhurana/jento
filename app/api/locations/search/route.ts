@@ -1,10 +1,8 @@
 import { NextResponse } from "next/server";
-import { requireCurrentDbUser } from "@/lib/auth";
 import { searchLocations } from "@/lib/locations/search";
 
 export async function GET(req: Request) {
   try {
-    await requireCurrentDbUser();
     const { searchParams } = new URL(req.url);
     const q = searchParams.get("q")?.trim() ?? "";
 

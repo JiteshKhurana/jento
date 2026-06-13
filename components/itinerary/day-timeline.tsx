@@ -35,7 +35,9 @@ import {
   TrainFront,
   Bike,
 } from "lucide-react";
+import { format } from "date-fns";
 import { DEFAULT_BUDGET_CURRENCY, getCurrencySymbol } from "@/lib/trips/intake";
+import { getDayDate } from "@/lib/itinerary/time-utils";
 import {
   computeDayInsights,
   formatStepCount,
@@ -770,6 +772,7 @@ function DayItems({
 type DayTimelineProps = {
   tripId: string;
   days: ItineraryDayData[];
+  tripStartDate?: string | null;
   onUpdate?: () => void;
   onSelectItem?: (itemId: string) => void;
   selectedDay?: number;
@@ -782,6 +785,7 @@ type DayTimelineProps = {
 export function DayTimeline({
   tripId,
   days,
+  tripStartDate = null,
   onUpdate,
   onSelectItem,
   selectedDay,
@@ -821,7 +825,10 @@ export function DayTimeline({
 
   return (
     <div className="space-y-8 p-4">
-      {filteredDays.map((day) => (
+      {filteredDays.map((day) => {
+        const dayDate = getDayDate(tripStartDate, day.dayNumber);
+
+        return (
         <section key={day.id} id={`day-${day.dayNumber}`}>
           {/* Day header banner */}
           <div
@@ -838,6 +845,11 @@ export function DayTimeline({
               <h3 className="font-semibold text-neutral-900 truncate">
                 {day.title}
               </h3>
+              {dayDate && (
+                <p className="truncate text-xs font-medium text-neutral-500">
+                  {format(dayDate, "EEEE, MMM d")}
+                </p>
+              )}
               {day.summary && (
                 <p className="truncate text-xs text-neutral-500">
                   {day.summary}
@@ -884,7 +896,8 @@ export function DayTimeline({
             readOnly={readOnly}
           />
         </section>
-      ))}
+        );
+      })}
     </div>
   );
 }
