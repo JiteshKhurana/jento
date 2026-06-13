@@ -663,10 +663,6 @@ function DayItems({
 
   const showTimeRail = day.items.some((item) => item.startTime);
   const itemCount = day.items.length;
-  // w-12 time column + gap-3 + half of w-5 dot column
-  const timelineAxisLeft = showTimeRail
-    ? "calc(3rem + 0.75rem + 0.625rem)"
-    : "0.625rem";
 
   const list = (
     <div className="relative">
@@ -674,17 +670,6 @@ function DayItems({
         <div className="absolute inset-0 z-10 flex items-center justify-center rounded-lg bg-white/70">
           <Spinner size="sm" />
         </div>
-      )}
-
-      {itemCount > 1 && (
-        <div
-          className="pointer-events-none absolute top-8 bottom-8 w-px -translate-x-1/2 rounded-full"
-          style={{
-            left: timelineAxisLeft,
-            background: `linear-gradient(to bottom, ${dayColor}40, ${dayColor}, ${dayColor}40)`,
-          }}
-          aria-hidden
-        />
       )}
 
       <div className="flex flex-col">
@@ -722,6 +707,16 @@ function DayItems({
                     style={{ backgroundColor: dotColor }}
                   />
                 </div>
+                {!isLast && (
+                  <div
+                    className="pointer-events-none absolute left-1/2 top-10 w-px -translate-x-1/2 rounded-full"
+                    style={{
+                      height: "calc(100% - 2.5rem + 2rem)",
+                      backgroundColor: dayColor,
+                    }}
+                    aria-hidden
+                  />
+                )}
               </div>
 
               <div className="min-w-0 flex-1 pb-4">

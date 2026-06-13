@@ -371,7 +371,7 @@ export function NewTripDialog({ open, onOpenChange }: NewTripDialogProps) {
               <div className="space-y-3">
                 <Label>Timing</Label>
                 <div className="flex gap-2">
-                  {(["flexible", "dates"] as const).map((mode) => (
+                  {(["dates", "flexible"] as const).map((mode) => (
                     <button
                       key={mode}
                       type="button"
@@ -379,8 +379,8 @@ export function NewTripDialog({ open, onOpenChange }: NewTripDialogProps) {
                       className={cn(
                         "rounded-full border px-4 py-2 text-sm font-medium transition-colors",
                         timingMode === mode
-                          ? "border-neutral-900 bg-white text-neutral-900"
-                          : "border-neutral-200 bg-white text-neutral-600 hover:border-neutral-300",
+                          ? "border-neutral-900 bg-neutral-900 text-white"
+                          : "border-neutral-200 text-neutral-600 hover:border-neutral-300",
                       )}
                     >
                       {mode === "flexible" ? "Flexible" : "Select dates"}
