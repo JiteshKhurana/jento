@@ -11,7 +11,7 @@ import type { UnsplashPhoto } from "@/lib/unsplash/photos";
 export const revalidate = 86400;
 
 export const metadata = {
-  title: "Inspiration — Tripzy",
+  title: "Inspiration — Jento",
   description:
     "Browse popular destinations and ready-made itineraries. One click to start planning your next adventure.",
 };

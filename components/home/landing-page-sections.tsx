@@ -280,7 +280,7 @@ function HowItWorksSection() {
           <SectionLabel>How it works</SectionLabel>
           <SectionHeading>Plan your next adventure in minutes</SectionHeading>
           <p className="mx-auto mt-4 max-w-xl text-neutral-500">
-            From first idea to full itinerary — Tripzy handles the heavy
+            From first idea to full itinerary — Jento handles the heavy
             lifting so you can focus on the excitement.
           </p>
         </motion.div>
@@ -360,7 +360,7 @@ function CtaSection({ userId }: { userId: string | null }) {
           <span className="text-gradient-warm">starts here.</span>
         </h2>
         <p className="mx-auto mt-5 max-w-lg text-neutral-400">
-          Join thousands of travellers who plan smarter with Tripzy. Free to
+          Join thousands of travellers who plan smarter with Jento. Free to
           start, no credit card required.
         </p>
         <div className="mt-10 flex flex-wrap items-center justify-center gap-3">

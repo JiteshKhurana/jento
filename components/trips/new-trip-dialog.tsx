@@ -51,7 +51,7 @@ const FALLBACK_HERO_IMAGE: HeroImage = {
   alt: "Travel destination",
   photographer: "Unsplash",
   photographerUrl:
-    "https://unsplash.com?utm_source=tripzy&utm_medium=referral",
+    "https://unsplash.com?utm_source=jento&utm_medium=referral",
 };
 
 type NewTripDialogProps = {

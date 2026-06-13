@@ -146,7 +146,7 @@ export function LandingHero({
           variants={fadeUp}
           className="mx-auto mt-7 max-w-lg text-lg leading-relaxed text-neutral-500 md:text-xl"
         >
-          Tripzy brings the world to you and empowers you to experience it{" "}
+          Jento brings the world to you and empowers you to experience it{" "}
           <strong className="font-semibold text-neutral-700">your</strong> way.
         </motion.p>
 

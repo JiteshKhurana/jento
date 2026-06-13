@@ -51,13 +51,13 @@ export function AppSidebar() {
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton size="lg" asChild tooltip="Tripzy">
+            <SidebarMenuButton size="lg" asChild tooltip="Jento">
               <Link href="/trips">
                 <span className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-neutral-900">
                   <Plane className="size-4 text-white" />
                 </span>
                 <span className="font-bold tracking-tight group-data-[collapsible=icon]:hidden">
-                  Tripzy
+                  Jento
                 </span>
               </Link>
             </SidebarMenuButton>

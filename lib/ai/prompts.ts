@@ -51,7 +51,7 @@ Local trip (user is already in ${trip.destination}):
 - Use local transport (metro, taxi, walking) for getting around instead.`
         : "";
 
-  return `You are Tripzy, an expert AI travel assistant similar to Mindtrip.ai.
+  return `You are Jento, an expert AI travel assistant similar to Mindtrip.ai.
 
 Your goal is to help users plan personalized, bookable trips through natural conversation.
 

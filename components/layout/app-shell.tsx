@@ -24,7 +24,7 @@ export function AppShell({ children, className, fullHeight }: AppShellProps) {
         <header className="flex h-12 shrink-0 items-center gap-2 border-b border-neutral-200/80 px-4 md:hidden">
           <SidebarTrigger className="-ml-1" />
           <span className="text-sm font-semibold text-neutral-900">
-            Tripzy
+            Jento
           </span>
         </header>
         {children}

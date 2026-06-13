@@ -59,13 +59,13 @@ export async function POST(req: Request, { params }: RouteParams) {
 
     const isPdf = file.type === "application/pdf";
     const resourceType = isPdf ? "raw" : "image";
-    const folderName = `tripzy/bookings/${tripId}`;
+    const folderName = `jento/bookings/${tripId}`;
 
     const uploadResult = await cloudinary.uploader.upload(dataUri, {
       folder: folderName,
       resource_type: resourceType,
       // Auto-tag for easier searching
-      tags: ["tripzy", "booking", tripId],
+      tags: ["jento", "booking", tripId],
       // Keep original filename as context
       context: {
         original_filename: file.name,

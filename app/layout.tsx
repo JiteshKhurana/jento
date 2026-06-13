@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Tripzy — Travel better.",
+  title: "Jento — Travel better.",
   description: "AI-powered travel planning with personalized itineraries, maps, and booking links",
 };
 

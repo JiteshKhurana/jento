@@ -27,7 +27,7 @@ function toPhoto(photo: UnsplashApiPhoto): UnsplashPhoto {
     url: url.toString(),
     alt: photo.alt_description ?? photo.description ?? "Travel destination",
     photographer: photo.user.name,
-    photographerUrl: `${photo.user.links.html}?utm_source=tripzy&utm_medium=referral`,
+    photographerUrl: `${photo.user.links.html}?utm_source=jento&utm_medium=referral`,
   };
 }
 

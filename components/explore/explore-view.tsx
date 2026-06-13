@@ -40,7 +40,7 @@ const ExploreMap = dynamic(
   },
 );
 
-const LOCATION_STORAGE_KEY = "tripzy-explore-location";
+const LOCATION_STORAGE_KEY = "jento-explore-location";
 
 type ExploreLocation = {
   name: string;

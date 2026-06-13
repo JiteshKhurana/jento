@@ -28,7 +28,7 @@ function getMessageText(message: { parts?: Array<{ type: string; text?: string }
 }
 
 function getInitialQueryStorageKey(tripId: string) {
-  return `tripzy-initial-query-sent:${tripId}`;
+  return `jento-initial-query-sent:${tripId}`;
 }
 
 export function ChatPanel({
@@ -190,7 +190,7 @@ export function ChatPanel({
             <textarea
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              placeholder="Message Tripzy…"
+              placeholder="Message Jento…"
               className="max-h-32 min-h-[44px] flex-1 resize-none border-0 bg-transparent px-3 py-2.5 text-[15px] placeholder:text-neutral-400 focus:outline-none"
               rows={1}
               onKeyDown={(e) => {

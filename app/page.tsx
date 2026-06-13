@@ -26,7 +26,7 @@ export default async function HomePage() {
           <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-neutral-900">
             <Plane className="h-4 w-4 text-white" />
           </span>
-          Tripzy
+          Jento
         </Link>
 
         <nav className="hidden items-center gap-8 text-sm font-medium text-neutral-600 md:flex">
@@ -103,7 +103,7 @@ export default async function HomePage() {
             <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-neutral-900">
               <Plane className="h-3 w-3 text-white" />
             </span>
-            Tripzy
+            Jento
           </Link>
           <div className="flex gap-6 text-xs">
             <Link href="/inspire" className="hover:text-neutral-700">
@@ -119,7 +119,7 @@ export default async function HomePage() {
               {userId ? "My trips" : "Sign up"}
             </Link>
           </div>
-          <p>© {new Date().getFullYear()} Tripzy. Plan smarter. Travel better.</p>
+          <p>© {new Date().getFullYear()} Jento. Plan smarter. Travel better.</p>
         </div>
       </footer>
     </div>

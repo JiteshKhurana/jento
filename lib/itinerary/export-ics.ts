@@ -122,7 +122,7 @@ export function buildItineraryIcs(options: ExportIcsOptions): string {
   const lines = [
     "BEGIN:VCALENDAR",
     "VERSION:2.0",
-    "PRODID:-//Tripzy//Itinerary//EN",
+    "PRODID:-//Jento//Itinerary//EN",
     "CALSCALE:GREGORIAN",
     "METHOD:PUBLISH",
     `X-WR-CALNAME:${escapeIcsText(options.tripTitle)}`,
