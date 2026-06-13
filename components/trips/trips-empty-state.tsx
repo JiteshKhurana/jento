@@ -19,7 +19,12 @@ export function TripsEmptyState() {
       </p>
 
       <div className="relative mt-8 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
-        <NewTripButton label="Plan your first trip" size="lg" className="cursor-pointer" />
+        <NewTripButton
+          label="Plan your first trip"
+          size="lg"
+          className="cursor-pointer"
+          showIcon={false}
+        />
       </div>
 
       <div className="relative mt-10 flex flex-wrap items-center justify-center gap-6 text-sm text-neutral-400">

@@ -97,7 +97,6 @@ export function buildBookingUrl(
       if (ctx.latitude && ctx.longitude) {
         return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(title)}&query_place_id=`;
       }
-      return `https://www.opentable.com/s?term=${query}`;
     case "ACTIVITY":
     case "activity":
       return `https://www.getyourguide.com/s/?q=${query}`;

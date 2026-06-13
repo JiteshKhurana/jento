@@ -9,6 +9,7 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { ChatMarkdown } from "@/components/chat/chat-markdown";
 import { SuggestedPrompts } from "@/components/chat/suggested-prompts";
+import { MAX_CHATS_PER_TRIP, getChatLimitMessage } from "@/lib/chat/limits";
 
 type ChatPanelProps = {
   tripId: string;
@@ -81,9 +82,16 @@ export function ChatPanel({
   });
 
   const isLoading = status === "streaming" || status === "submitted";
+  const userMessageCount = messages.filter((m) => m.role === "user").length;
+  const chatLimitReached = userMessageCount >= MAX_CHATS_PER_TRIP;
 
   useEffect(() => {
-    if (!initialQuery || sentInitialQuery.current || status !== "ready") {
+    if (
+      !initialQuery ||
+      sentInitialQuery.current ||
+      status !== "ready" ||
+      chatLimitReached
+    ) {
       return;
     }
 
@@ -98,7 +106,7 @@ export function ChatPanel({
     sessionStorage.setItem(storageKey, initialQuery);
     router.replace(`/trips/${tripId}`, { scroll: false });
     sendMessage({ text: initialQuery });
-  }, [initialQuery, sendMessage, status, tripId, router]);
+  }, [chatLimitReached, initialQuery, sendMessage, status, tripId, router]);
 
   useEffect(() => {
     const el = scrollContainerRef.current;
@@ -109,14 +117,14 @@ export function ChatPanel({
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!input.trim() || isLoading) return;
+    if (!input.trim() || isLoading || chatLimitReached) return;
     setError(null);
     sendMessage({ text: input.trim() });
     setInput("");
   }
 
   function handlePromptSelect(prompt: string) {
-    if (isLoading) return;
+    if (isLoading || chatLimitReached) return;
     setError(null);
     sendMessage({ text: prompt });
   }
@@ -136,7 +144,10 @@ export function ChatPanel({
                   I&apos;ll build a personalized day-by-day plan.
                 </p>
               </div>
-              <SuggestedPrompts onSelect={handlePromptSelect} disabled={isLoading} />
+              <SuggestedPrompts
+                onSelect={handlePromptSelect}
+                disabled={isLoading || chatLimitReached}
+              />
             </div>
           )}
 
@@ -168,6 +179,12 @@ export function ChatPanel({
             </div>
           )}
 
+          {chatLimitReached && (
+            <div className="rounded-xl border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800">
+              {getChatLimitMessage()}
+            </div>
+          )}
+
           {error && (
             <div className="flex items-start gap-2 rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-700">
               <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
@@ -180,6 +197,10 @@ export function ChatPanel({
       {readOnly ? (
         <div className="shrink-0 border-t border-neutral-100 bg-neutral-50 px-4 py-3 text-center text-sm text-neutral-500">
           Chat is read-only on shared trips.
+        </div>
+      ) : chatLimitReached ? (
+        <div className="shrink-0 border-t border-neutral-100 bg-neutral-50 px-4 py-3 text-center text-sm text-neutral-500">
+          {getChatLimitMessage()}
         </div>
       ) : (
         <form

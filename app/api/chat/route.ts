@@ -11,6 +11,8 @@ import { NextResponse } from "next/server";
 import { requireCurrentDbUser, requireTripForUser } from "@/lib/auth";
 import { buildSystemPrompt } from "@/lib/ai/prompts";
 import { dayPlanSchema, itineraryDraftSchema } from "@/lib/ai/schemas";
+import { getChatLimitMessage } from "@/lib/chat/limits";
+import { isChatLimitReached } from "@/lib/chat/limits-server";
 import {
   getAssistantTextFromFinish,
   saveAssistantMessageIfNew,
@@ -60,6 +62,12 @@ export async function POST(req: Request) {
           .join("") ?? "";
 
       if (text) {
+        if (await isChatLimitReached(tripId)) {
+          return NextResponse.json(
+            { error: getChatLimitMessage() },
+            { status: 429 },
+          );
+        }
         await saveUserMessageIfNew(tripId, text);
       }
     }
