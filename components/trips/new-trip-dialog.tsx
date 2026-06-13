@@ -5,7 +5,7 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useUser } from "@clerk/nextjs";
 import { format } from "date-fns";
-import { CalendarDays, Info, Mic, X } from "lucide-react";
+import { CalendarDays, Info, X } from "lucide-react";
 import type { DateRange } from "react-day-picker";
 import {
   AddLocationButton,
@@ -502,21 +502,18 @@ export function NewTripDialog({ open, onOpenChange }: NewTripDialogProps) {
 
               <div className="space-y-3">
                 <Label htmlFor="trip-preferences">Anything else?</Label>
-                <div className="relative">
-                  <Textarea
-                    id="trip-preferences"
-                    placeholder="Must-dos, pace, dietary needs, vibe…"
-                    value={preferences}
-                    onChange={(e) =>
-                      setPreferences(e.target.value.slice(0, 2000))
-                    }
-                    rows={4}
-                    className="resize-none pb-10"
-                  />
-                  <Mic className="pointer-events-none absolute bottom-3 right-3 h-4 w-4 text-neutral-300" />
-                </div>
+                <Textarea
+                  id="trip-preferences"
+                  placeholder="Must-dos, pace, dietary needs, vibe…"
+                  value={preferences}
+                  onChange={(e) =>
+                    setPreferences(e.target.value.slice(0, 1000))
+                  }
+                  rows={4}
+                  className="resize-none"
+                />
                 <p className="text-right text-xs text-neutral-400">
-                  {preferences.length}/2000 characters
+                  {preferences.length}/1000 characters
                 </p>
               </div>
             </div>
