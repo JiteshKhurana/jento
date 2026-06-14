@@ -10,7 +10,6 @@ import { Button } from "@/components/ui/button";
 import { ChatMarkdown } from "@/components/chat/chat-markdown";
 import { ThinkingIndicator } from "@/components/chat/thinking-indicator";
 import { FollowUpPrompts } from "@/components/chat/follow-up-prompts";
-import { SuggestedPrompts } from "@/components/chat/suggested-prompts";
 import { getAvailableFollowUpPrompts } from "@/lib/chat/follow-up-prompts";
 import { MAX_CHATS_PER_TRIP, getChatLimitMessage } from "@/lib/chat/limits";
 
@@ -23,7 +22,9 @@ type ChatPanelProps = {
   readOnly?: boolean;
 };
 
-function getMessageText(message: { parts?: Array<{ type: string; text?: string }> }): string {
+function getMessageText(message: {
+  parts?: Array<{ type: string; text?: string }>;
+}): string {
   return (
     message.parts
       ?.filter((p) => p.type === "text")
@@ -91,9 +92,7 @@ export function ChatPanel({
   const chatLimitReached = userMessageCount >= MAX_CHATS_PER_TRIP;
   const usedUserMessages = useMemo(
     () =>
-      messages
-        .filter((m) => m.role === "user")
-        .map((m) => getMessageText(m)),
+      messages.filter((m) => m.role === "user").map((m) => getMessageText(m)),
     [messages],
   );
   const followUpPrompts = useMemo(
@@ -156,7 +155,10 @@ export function ChatPanel({
 
   return (
     <div className="flex h-full min-h-0 flex-col bg-white">
-      <div ref={scrollContainerRef} className="min-h-0 flex-1 overflow-y-auto px-5 py-6">
+      <div
+        ref={scrollContainerRef}
+        className="min-h-0 flex-1 overflow-y-auto px-5 py-6"
+      >
         <div className="mx-auto max-w-lg space-y-6">
           {messages.length === 0 && !isLoading && (
             <div className="space-y-6 pt-8 text-center">
@@ -165,14 +167,10 @@ export function ChatPanel({
                   Where would you like to go?
                 </h2>
                 <p className="mt-2 text-sm leading-relaxed text-neutral-500">
-                  Tell me about your dream trip — destination, dates, vibe, budget.
-                  I&apos;ll build a personalized day-by-day plan.
+                  Tell me about your dream trip — destination, dates, vibe,
+                  budget. I&apos;ll build a personalized day-by-day plan.
                 </p>
               </div>
-              <SuggestedPrompts
-                onSelect={handlePromptSelect}
-                disabled={isLoading || chatLimitReached}
-              />
             </div>
           )}
 
@@ -191,7 +189,9 @@ export function ChatPanel({
                 {message.role === "assistant" ? (
                   <ChatMarkdown content={getMessageText(message)} />
                 ) : (
-                  <p className="whitespace-pre-wrap">{getMessageText(message)}</p>
+                  <p className="whitespace-pre-wrap">
+                    {getMessageText(message)}
+                  </p>
                 )}
               </div>
             </div>
