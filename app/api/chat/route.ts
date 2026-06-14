@@ -135,7 +135,7 @@ export async function POST(req: Request) {
         }),
         saveItinerary: tool({
           description:
-            "Save a complete day-by-day itinerary. Every activity, food, and lodging item must include googlePlaceId from google_maps grounding.",
+            "Save a complete day-by-day itinerary. Every activity, food, and lodging item must include googlePlaceId copied exactly from google_maps grounding metadata (maps.placeId) — never invented or modified.",
           inputSchema: itineraryDraftSchema,
           execute: async (draft) => {
             try {
@@ -162,7 +162,7 @@ export async function POST(req: Request) {
         }),
         updateItineraryDay: tool({
           description:
-            "Update or regenerate a specific day. Every activity, food, and lodging item must include googlePlaceId from google_maps grounding.",
+            "Update or regenerate a specific day. Every activity, food, and lodging item must include googlePlaceId copied exactly from google_maps grounding metadata (maps.placeId) — never invented or modified.",
           inputSchema: z.object({
             dayNumber: z.number().int().min(1),
             day: dayPlanSchema,

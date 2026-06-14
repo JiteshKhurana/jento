@@ -184,6 +184,64 @@ export async function fetchPlacePhoto(
 
 const CACHE_TTL_MS = 7 * 24 * 60 * 60 * 1000;
 
+function isStubPlaceCache(cached: {
+  photos: unknown;
+  address: string | null;
+  rating: number | null;
+}): boolean {
+  return (
+    !placeHasPhotos(cached.photos) &&
+    !cached.address &&
+    cached.rating == null
+  );
+}
+
+export type ResolvePlaceFallback = {
+  title: string;
+  destination?: string;
+  latitude?: number;
+  longitude?: number;
+};
+
+/** Resolve a place for itinerary items — validates grounding IDs and falls back to text search. */
+export async function resolvePlaceCache(
+  placeId: string | undefined | null,
+  fallback: ResolvePlaceFallback,
+  prisma: import("@/app/generated/prisma/client").PrismaClient,
+) {
+  if (placeId) {
+    const cached = await getOrFetchPlaceCache(placeId, prisma);
+    if (cached && !isStubPlaceCache(cached)) {
+      return cached;
+    }
+  }
+
+  const searchQuery = fallback.destination
+    ? `${fallback.title} ${fallback.destination}`
+    : fallback.title;
+  const hasCoords =
+    fallback.latitude != null && fallback.longitude != null;
+  const results = await searchPlaces(
+    searchQuery,
+    hasCoords
+      ? {
+          latitude: fallback.latitude,
+          longitude: fallback.longitude,
+          pageSize: 3,
+        }
+      : { pageSize: 3 },
+  );
+
+  for (const result of results) {
+    const resolved = await getOrFetchPlaceCache(result.googlePlaceId, prisma);
+    if (resolved && !isStubPlaceCache(resolved)) {
+      return resolved;
+    }
+  }
+
+  return null;
+}
+
 export async function getOrFetchPlaceCache(
   placeId: string,
   prisma: import("@/app/generated/prisma/client").PrismaClient,
@@ -194,17 +252,11 @@ export async function getOrFetchPlaceCache(
     where: { googlePlaceId: storageId },
   });
 
-  const isStubCache =
-    cached &&
-    !placeHasPhotos(cached.photos) &&
-    !cached.address &&
-    cached.rating == null;
-
   const cacheIsFresh =
     cached &&
     Date.now() - cached.lastFetchedAt.getTime() < CACHE_TTL_MS &&
     cached.name !== "Unknown" &&
-    !isStubCache;
+    !isStubPlaceCache(cached);
 
   if (cacheIsFresh) {
     return cached;

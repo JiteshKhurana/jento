@@ -16,7 +16,7 @@ export const activityItemSchema = z.object({
     .string()
     .optional()
     .describe(
-      "Required for activity, food, and lodging items — copy placeId from google_maps grounding",
+      "Required for activity, food, and lodging — copy maps.placeId exactly from google_maps grounding metadata (e.g. ChIJ0-zA1vBZwokRon0fGj-6z7U). Never invent or modify IDs.",
     ),
   latitude: z.number().optional(),
   longitude: z.number().optional(),

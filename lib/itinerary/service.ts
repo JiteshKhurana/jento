@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { buildBookingUrl } from "@/lib/booking/links";
-import { getOrFetchPlaceCache } from "@/lib/places/google-places";
+import { resolvePlaceCache } from "@/lib/places/google-places";
 import {
   itineraryDraftSchema,
   itemTypeMap,
@@ -65,20 +65,19 @@ export async function saveItineraryToDb(
             items: {
               create: await Promise.all(
                 day.items.map(async (item, index) => {
-                  let latitude = item.latitude;
-                  let longitude = item.longitude;
-                  const googlePlaceId = item.googlePlaceId;
-
-                  if (googlePlaceId) {
-                    const cached = await getOrFetchPlaceCache(
-                      googlePlaceId,
-                      prisma,
-                    );
-                    if (cached) {
-                      latitude = cached.latitude ?? latitude;
-                      longitude = cached.longitude ?? longitude;
-                    }
-                  }
+                  const resolved = await resolvePlaceCache(
+                    item.googlePlaceId,
+                    {
+                      title: item.title,
+                      destination: tripContext.destination,
+                      latitude: item.latitude,
+                      longitude: item.longitude,
+                    },
+                    prisma,
+                  );
+                  const latitude = resolved?.latitude ?? item.latitude;
+                  const longitude = resolved?.longitude ?? item.longitude;
+                  const googlePlaceId = resolved?.googlePlaceId ?? null;
 
                   const bookingUrl = buildBookingUrl(
                     itemTypeMap[item.type],
@@ -174,20 +173,19 @@ export async function updateItineraryDayInDb(
         items: {
           create: await Promise.all(
             normalizedItems.map(async (item, index) => {
-              let latitude = item.latitude;
-              let longitude = item.longitude;
-              const googlePlaceId = item.googlePlaceId;
-
-              if (googlePlaceId) {
-                const cached = await getOrFetchPlaceCache(
-                  googlePlaceId,
-                  prisma,
-                );
-                if (cached) {
-                  latitude = cached.latitude ?? latitude;
-                  longitude = cached.longitude ?? longitude;
-                }
-              }
+              const resolved = await resolvePlaceCache(
+                item.googlePlaceId,
+                {
+                  title: item.title,
+                  destination: tripContext.destination,
+                  latitude: item.latitude,
+                  longitude: item.longitude,
+                },
+                prisma,
+              );
+              const latitude = resolved?.latitude ?? item.latitude;
+              const longitude = resolved?.longitude ?? item.longitude;
+              const googlePlaceId = resolved?.googlePlaceId ?? null;
 
               return {
                 type: itemTypeMap[item.type],
