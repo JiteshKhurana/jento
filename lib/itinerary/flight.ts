@@ -7,7 +7,7 @@ import {
   isLocalTrip,
   isRoadTrip,
 } from "@/lib/trips/preferences";
-import { lookupIATAByAirportName } from "@/lib/airports/lookup";
+import { lookupIATA } from "@/lib/airports/lookup";
 
 type AirportResult = {
   name: string;
@@ -25,8 +25,11 @@ async function findNearestAirport(
       pageSize: 1,
     });
     if (results.length === 0) return null;
-    const { name } = results[0];
-    return { name, iataCode: lookupIATAByAirportName(name) };
+    const { name, latitude, longitude } = results[0];
+    return {
+      name,
+      iataCode: lookupIATA({ name, latitude, longitude }),
+    };
   } catch {
     return null;
   }
@@ -38,8 +41,11 @@ async function findAirportByDestination(
   try {
     const results = await searchPlaces("airport", destination, 1);
     if (results.length === 0) return null;
-    const { name } = results[0];
-    return { name, iataCode: lookupIATAByAirportName(name) };
+    const { name, latitude, longitude } = results[0];
+    return {
+      name,
+      iataCode: lookupIATA({ name, latitude, longitude }),
+    };
   } catch {
     return null;
   }

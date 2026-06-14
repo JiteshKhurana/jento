@@ -1,304 +1,145 @@
-/**
- * Keyword → IATA lookup.
- * Each entry is a distinctive lowercase substring of the airport's official name
- * as returned by the Google Places API.
- */
-const KEYWORD_TO_IATA: Array<[string, string]> = [
-  // India
-  ["rajiv gandhi international", "HYD"],
-  ["kempegowda international", "BLR"],
-  ["chhatrapati shivaji", "BOM"],
-  ["indira gandhi international", "DEL"],
-  ["netaji subhas chandra bose", "CCU"],
-  ["sardar vallabhbhai patel", "AMD"],
-  ["lohegaon", "PNQ"],
-  ["dabolim", "GOI"],
-  ["manohar international", "GOX"],
-  ["cochin international", "COK"],
-  ["trivandrum international", "TRV"],
-  ["jaipur international", "JAI"],
-  ["sanganer airport", "JAI"],
-  ["chaudhary charan singh", "LKO"],
-  ["biju patnaik", "BBI"],
-  ["lokpriya gopinath bordoloi", "GAU"],
-  ["chandigarh international", "IXC"],
-  ["dr. babasaheb ambedkar", "NAG"],
-  ["babasaheb ambedkar international", "NAG"],
-  ["lal bahadur shastri", "VNS"],
-  ["guru ram dass jee", "ATQ"],
-  ["jay prakash narayan international", "PAT"],
-  ["sheikh ul-alam", "SXR"],
-  ["bagdogra", "IXB"],
-  ["madurai airport", "IXM"],
-  ["veer savarkar international", "IXZ"],
-  ["birsa munda", "IXR"],
-  ["devi ahilya bai holkar", "IDR"],
-  ["visakhapatnam airport", "VTZ"],
-  ["coimbatore international", "CJB"],
-  ["tiruchirappalli", "TRZ"],
-  ["swami vivekananda airport", "RPR"],
-  ["mangalore international", "IXE"],
-  ["jammu airport", "IXJ"],
-  ["maharana pratap airport", "UDR"],
-  ["jodhpur airport", "JDH"],
-  ["gaggal airport", "DHM"],
-  ["kushok bakula rimpochhe", "IXL"],
-  ["raja bhoj airport", "BHO"],
-  ["allahabad airport", "IXD"],
-  ["prayagraj airport", "IXD"],
-  ["gwalior airport", "GWL"],
-  ["hubli airport", "HBX"],
-  ["srinagar international", "SXR"],
-  ["surat airport", "STV"],
-  ["vadodara airport", "BDQ"],
-  ["rajkot airport", "RAJ"],
-  // USA
-  ["john f. kennedy", "JFK"],
-  ["los angeles international", "LAX"],
-  ["o'hare international", "ORD"],
-  ["dallas/fort worth", "DFW"],
-  ["denver international", "DEN"],
-  ["hartsfield-jackson", "ATL"],
-  ["san francisco international", "SFO"],
-  ["seattle-tacoma", "SEA"],
-  ["miami international", "MIA"],
-  ["logan international", "BOS"],
-  ["laguardia", "LGA"],
-  ["newark liberty", "EWR"],
-  ["george bush intercontinental", "IAH"],
-  ["orlando international", "MCO"],
-  ["sky harbor", "PHX"],
-  ["harry reid international", "LAS"],
-  ["mccarran international", "LAS"],
-  ["minneapolis–saint paul", "MSP"],
-  ["minneapolis-saint paul", "MSP"],
-  ["detroit metropolitan", "DTW"],
-  ["philadelphia international", "PHL"],
-  ["charlotte douglas", "CLT"],
-  ["salt lake city international", "SLC"],
-  ["washington dulles", "IAD"],
-  ["dulles international", "IAD"],
-  ["reagan national", "DCA"],
-  ["ronald reagan washington", "DCA"],
-  ["baltimore/washington international", "BWI"],
-  ["san diego international", "SAN"],
-  ["portland international", "PDX"],
-  ["austin-bergstrom", "AUS"],
-  ["tampa international", "TPA"],
-  ["nashville international", "BNA"],
-  ["kansas city international", "MCI"],
-  ["lambert international", "STL"],
-  ["louis armstrong new orleans", "MSY"],
-  ["raleigh-durham", "RDU"],
-  ["daniel k. inouye", "HNL"],
-  ["honolulu international", "HNL"],
-  ["ted stevens anchorage", "ANC"],
-  // UK
-  ["heathrow airport", "LHR"],
-  ["gatwick airport", "LGW"],
-  ["stansted airport", "STN"],
-  ["luton airport", "LTN"],
-  ["manchester airport", "MAN"],
-  ["birmingham airport", "BHX"],
-  ["edinburgh airport", "EDI"],
-  ["glasgow airport", "GLA"],
-  ["bristol airport", "BRS"],
-  // Europe
-  ["charles de gaulle", "CDG"],
-  ["paris-orly", "ORY"],
-  ["paris orly", "ORY"],
-  ["frankfurt airport", "FRA"],
-  ["munich airport", "MUC"],
-  ["münchen flughafen", "MUC"],
-  ["berlin brandenburg", "BER"],
-  ["amsterdam airport schiphol", "AMS"],
-  ["schiphol", "AMS"],
-  ["adolfo suárez madrid", "MAD"],
-  ["barajas airport", "MAD"],
-  ["barcelona–el prat", "BCN"],
-  ["el prat airport", "BCN"],
-  ["fiumicino", "FCO"],
-  ["malpensa", "MXP"],
-  ["milan linate", "LIN"],
-  ["zurich airport", "ZRH"],
-  ["geneva airport", "GVA"],
-  ["cointrin", "GVA"],
-  ["vienna international", "VIE"],
-  ["schwechat", "VIE"],
-  ["brussels airport", "BRU"],
-  ["zaventem", "BRU"],
-  ["copenhagen airport", "CPH"],
-  ["kastrup", "CPH"],
-  ["stockholm arlanda", "ARN"],
-  ["oslo gardermoen", "OSL"],
-  ["helsinki-vantaa", "HEL"],
-  ["humberto delgado", "LIS"],
-  ["francisco sá carneiro", "OPO"],
-  ["eleftherios venizelos", "ATH"],
-  ["warsaw chopin", "WAW"],
-  ["václav havel", "PRG"],
-  ["vaclav havel", "PRG"],
-  ["budapest ferenc liszt", "BUD"],
-  ["ferihegy", "BUD"],
-  // Middle East
-  ["dubai international", "DXB"],
-  ["abu dhabi international", "AUH"],
-  ["hamad international", "DOH"],
-  ["king khalid international", "RUH"],
-  ["king abdulaziz international", "JED"],
-  ["kuwait international", "KWI"],
-  ["bahrain international", "BAH"],
-  ["muscat international", "MCT"],
-  ["ben gurion", "TLV"],
-  // South Asia
-  ["bandaranaike international", "CMB"],
-  ["tribhuvan international", "KTM"],
-  ["hazrat shahjalal", "DAC"],
-  ["jinnah international", "KHI"],
-  ["allama iqbal international", "LHE"],
-  ["islamabad international", "ISB"],
-  ["velana international", "MLE"],
-  ["ibrahim nasir international", "MLE"],
-  // Southeast Asia
-  ["changi airport", "SIN"],
-  ["suvarnabhumi", "BKK"],
-  ["don mueang", "DMK"],
-  ["kuala lumpur international", "KUL"],
-  ["soekarno-hatta", "CGK"],
-  ["soekarno–hatta", "CGK"],
-  ["ninoy aquino", "MNL"],
-  ["tan son nhat", "SGN"],
-  ["noi bai international", "HAN"],
-  ["yangon international", "RGN"],
-  ["da nang international", "DAD"],
-  // East Asia
-  ["beijing capital international", "PEK"],
-  ["beijing daxing", "PKX"],
-  ["shanghai pudong", "PVG"],
-  ["hongqiao international", "SHA"],
-  ["guangzhou baiyun", "CAN"],
-  ["chengdu tianfu", "CTU"],
-  ["hong kong international", "HKG"],
-  ["chek lap kok", "HKG"],
-  ["narita international", "NRT"],
-  ["haneda airport", "HND"],
-  ["kansai international", "KIX"],
-  ["osaka itami", "ITM"],
-  ["incheon international", "ICN"],
-  ["gimpo international", "GMP"],
-  ["taiwan taoyuan", "TPE"],
-  ["taoyuan international", "TPE"],
-  // Australia / NZ
-  ["sydney kingsford smith", "SYD"],
-  ["kingsford smith airport", "SYD"],
-  ["melbourne airport", "MEL"],
-  ["tullamarine", "MEL"],
-  ["brisbane airport", "BNE"],
-  ["perth airport", "PER"],
-  ["adelaide airport", "ADL"],
-  ["auckland airport", "AKL"],
-  ["christchurch airport", "CHC"],
-  // Canada
-  ["toronto pearson", "YYZ"],
-  ["lester b. pearson", "YYZ"],
-  ["vancouver international", "YVR"],
-  ["montréal-trudeau", "YUL"],
-  ["pierre elliott trudeau", "YUL"],
-  ["calgary international", "YYC"],
-  ["macdonald-cartier", "YOW"],
-  ["edmonton international", "YEG"],
-  // Africa
-  ["o.r. tambo", "JNB"],
-  ["or tambo international", "JNB"],
-  ["cape town international", "CPT"],
-  ["cairo international", "CAI"],
-  ["mohammed v international", "CMN"],
-  ["jomo kenyatta", "NBO"],
-  ["bole international", "ADD"],
-  ["murtala muhammed", "LOS"],
-  ["kotoka international", "ACC"],
-  // Latin America
-  ["guarulhos", "GRU"],
-  ["congonhas airport", "CGH"],
-  ["galeão international", "GIG"],
-  ["galeao international", "GIG"],
-  ["ezeiza international", "EZE"],
-  ["arturo merino benítez", "SCL"],
-  ["arturo merino benitez", "SCL"],
-  ["el dorado international", "BOG"],
-  ["jorge chávez international", "LIM"],
-  ["jorge chavez international", "LIM"],
-  ["benito juárez international", "MEX"],
-  ["benito juarez international", "MEX"],
-  ["cancún international", "CUN"],
-  ["cancun international", "CUN"],
-];
+import airports from "./airports.json";
 
-/** Country code (ISO 3166-1 alpha-2) keyed by IATA code */
-const IATA_TO_COUNTRY: Record<string, string> = {
-  // India
-  DEL: "IN", BOM: "IN", BLR: "IN", HYD: "IN", MAA: "IN", CCU: "IN",
-  AMD: "IN", PNQ: "IN", GOI: "IN", GOX: "IN", COK: "IN", TRV: "IN",
-  JAI: "IN", LKO: "IN", BBI: "IN", GAU: "IN", IXC: "IN", NAG: "IN",
-  VNS: "IN", ATQ: "IN", PAT: "IN", SXR: "IN", IXB: "IN", IXM: "IN",
-  IXZ: "IN", STV: "IN", IXR: "IN", IDR: "IN", VTZ: "IN", CJB: "IN",
-  TRZ: "IN", RPR: "IN", HBX: "IN", IXE: "IN", IXJ: "IN", AGR: "IN",
-  BDQ: "IN", RAJ: "IN", UDR: "IN", JDH: "IN", JSA: "IN", DHM: "IN",
-  IXL: "IN", IXD: "IN", GWL: "IN", BHO: "IN",
-  // USA
-  JFK: "US", LAX: "US", ORD: "US", DFW: "US", DEN: "US", ATL: "US",
-  SFO: "US", SEA: "US", MIA: "US", BOS: "US", LGA: "US", EWR: "US",
-  IAH: "US", MCO: "US", PHX: "US", LAS: "US", MSP: "US", DTW: "US",
-  PHL: "US", CLT: "US", SLC: "US", IAD: "US", DCA: "US", BWI: "US",
-  SAN: "US", PDX: "US", AUS: "US", TPA: "US", BNA: "US", MCI: "US",
-  STL: "US", MSY: "US", RDU: "US", HNL: "US", ANC: "US",
-  // UK
-  LHR: "GB", LGW: "GB", STN: "GB", LTN: "GB", MAN: "GB",
-  BHX: "GB", EDI: "GB", GLA: "GB", BRS: "GB",
-  // Europe
-  CDG: "FR", ORY: "FR", FRA: "DE", MUC: "DE", BER: "DE",
-  AMS: "NL", MAD: "ES", BCN: "ES", FCO: "IT", MXP: "IT", LIN: "IT",
-  ZRH: "CH", GVA: "CH", VIE: "AT", BRU: "BE", CPH: "DK", ARN: "SE",
-  OSL: "NO", HEL: "FI", LIS: "PT", OPO: "PT", ATH: "GR",
-  WAW: "PL", PRG: "CZ", BUD: "HU",
-  // Middle East
-  DXB: "AE", AUH: "AE", DOH: "QA", RUH: "SA", JED: "SA",
-  KWI: "KW", BAH: "BH", MCT: "OM", TLV: "IL",
-  // South / Southeast Asia
-  SIN: "SG", BKK: "TH", DMK: "TH", KUL: "MY", CGK: "ID",
-  MNL: "PH", SGN: "VN", HAN: "VN", RGN: "MM", DAD: "VN",
-  CMB: "LK", KTM: "NP", DAC: "BD", KHI: "PK", LHE: "PK",
-  ISB: "PK", MLE: "MV",
-  // East Asia
-  PEK: "CN", PKX: "CN", PVG: "CN", SHA: "CN", CAN: "CN", CTU: "CN",
-  HKG: "HK", NRT: "JP", HND: "JP", KIX: "JP", ITM: "JP",
-  ICN: "KR", GMP: "KR", TPE: "TW",
-  // Australia / NZ
-  SYD: "AU", MEL: "AU", BNE: "AU", PER: "AU", ADL: "AU",
-  AKL: "NZ", CHC: "NZ",
-  // Canada
-  YYZ: "CA", YVR: "CA", YUL: "CA", YYC: "CA", YOW: "CA", YEG: "CA",
-  // Africa
-  JNB: "ZA", CPT: "ZA", CAI: "EG", CMN: "MA",
-  NBO: "KE", ADD: "ET", LOS: "NG", ACC: "GH",
-  // Latin America
-  GRU: "BR", CGH: "BR", GIG: "BR", EZE: "AR", SCL: "CL",
-  BOG: "CO", LIM: "PE", MEX: "MX", CUN: "MX",
+type Airport = {
+  iata: string;
+  name: string;
+  lat: number;
+  lng: number;
+  country: string;
+  keywords?: string;
+  type: string;
 };
+
+const AIRPORTS = airports as Airport[];
+
+const TYPE_PRIORITY: Record<string, number> = {
+  large_airport: 3,
+  medium_airport: 2,
+  small_airport: 1,
+};
+
+const IATA_TO_COUNTRY = new Map<string, string>(
+  AIRPORTS.map((a) => [a.iata, a.country]),
+);
+
+const EARTH_RADIUS_KM = 6371;
+const MAX_COORD_DISTANCE_KM = 25;
+const MIN_NAME_MATCH_LENGTH = 4;
+
+function haversineKm(
+  lat1: number,
+  lng1: number,
+  lat2: number,
+  lng2: number,
+): number {
+  const toRad = (deg: number) => (deg * Math.PI) / 180;
+  const dLat = toRad(lat2 - lat1);
+  const dLng = toRad(lng2 - lng1);
+  const a =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLng / 2) ** 2;
+  return EARTH_RADIUS_KM * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+}
+
+function normalizeName(name: string): string {
+  return name
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9\s]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function nameMatchScore(query: string, candidate: string): number {
+  if (candidate.length < MIN_NAME_MATCH_LENGTH) return 0;
+  if (query.includes(candidate) || candidate.includes(query)) {
+    return candidate.length;
+  }
+  return 0;
+}
+
+function lookupIATAByCoordinates(
+  latitude: number,
+  longitude: number,
+): string | null {
+  let best: { iata: string; distance: number; priority: number } | null = null;
+
+  for (const airport of AIRPORTS) {
+    const distance = haversineKm(
+      latitude,
+      longitude,
+      airport.lat,
+      airport.lng,
+    );
+    if (distance > MAX_COORD_DISTANCE_KM) continue;
+
+    const priority = TYPE_PRIORITY[airport.type] ?? 0;
+    if (
+      !best ||
+      priority > best.priority ||
+      (priority === best.priority && distance < best.distance)
+    ) {
+      best = { iata: airport.iata, distance, priority };
+    }
+  }
+
+  return best?.iata ?? null;
+}
 
 /**
  * Returns the IATA code for a given airport display name, or null if unknown.
- * Matches the first keyword substring found (longest/most-specific listed first).
+ * Matches against official airport names and keywords from the OurAirports dataset.
  */
 export function lookupIATAByAirportName(airportName: string): string | null {
-  const lower = airportName.toLowerCase();
-  for (const [keyword, iata] of KEYWORD_TO_IATA) {
-    if (lower.includes(keyword)) return iata;
+  const normalized = normalizeName(airportName);
+  if (!normalized) return null;
+
+  let best: { iata: string; score: number } | null = null;
+
+  for (const airport of AIRPORTS) {
+    let score = nameMatchScore(normalized, normalizeName(airport.name));
+
+    if (score === 0 && airport.keywords) {
+      for (const keyword of airport.keywords.split(",")) {
+        score = Math.max(
+          score,
+          nameMatchScore(normalized, normalizeName(keyword)),
+        );
+      }
+    }
+
+    if (score > 0 && (!best || score > best.score)) {
+      best = { iata: airport.iata, score };
+    }
   }
-  return null;
+
+  return best?.iata ?? null;
+}
+
+export type LookupIATAOptions = {
+  name: string;
+  latitude?: number | null;
+  longitude?: number | null;
+};
+
+/**
+ * Resolves an IATA code from Google Places airport data.
+ * Prefers coordinate matching, then falls back to name/keyword matching.
+ */
+export function lookupIATA({
+  name,
+  latitude,
+  longitude,
+}: LookupIATAOptions): string | null {
+  if (latitude != null && longitude != null) {
+    const byCoords = lookupIATAByCoordinates(latitude, longitude);
+    if (byCoords) return byCoords;
+  }
+  return lookupIATAByAirportName(name);
 }
 
 /** Returns the ISO 3166-1 alpha-2 country code for an IATA code, or null if unknown. */
 export function getCountryByIATA(iata: string): string | null {
-  return IATA_TO_COUNTRY[iata.toUpperCase()] ?? null;
+  return IATA_TO_COUNTRY.get(iata.toUpperCase()) ?? null;
 }
