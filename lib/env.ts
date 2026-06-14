@@ -8,7 +8,6 @@ const serverSchema = z.object({
   GOOGLE_PLACES_API_KEY: z.string().optional(),
   GOOGLE_GENERATIVE_AI_API_KEY: z.string().optional(),
   GEMINI_API_KEY: z.string().optional(),
-  CSC_API_KEY: z.string().optional(),
   UNSPLASH_ACCESS_KEY: z.string().optional(),
   CLOUDINARY_CLOUD_NAME: z.string().optional(),
   CLOUDINARY_API_KEY: z.string().optional(),

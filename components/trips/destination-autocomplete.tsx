@@ -33,7 +33,7 @@ export function DestinationAutocomplete({
   value,
   onChange,
   onSelect,
-  placeholder = "Search cities, states, or countries…",
+  placeholder = "Where are you headed?",
   autoFocus,
   className,
 }: DestinationAutocompleteProps) {
@@ -43,10 +43,18 @@ export function DestinationAutocomplete({
   const [activeIndex, setActiveIndex] = useState(0);
   const containerRef = useRef<HTMLDivElement>(null);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const requestIdRef = useRef(0);
+
+  const query = value.trim();
+  const isSearchable = query.length >= 2;
+  const visibleSuggestions = isSearchable ? suggestions : [];
 
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
-      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+      if (
+        containerRef.current &&
+        !containerRef.current.contains(e.target as Node)
+      ) {
         setOpen(false);
       }
     }
@@ -55,35 +63,37 @@ export function DestinationAutocomplete({
   }, []);
 
   useEffect(() => {
-    if (debounceRef.current) clearTimeout(debounceRef.current);
+    if (!isSearchable) return;
 
-    if (value.trim().length < 2) {
-      setSuggestions([]);
-      setOpen(false);
-      return;
-    }
+    const requestId = ++requestIdRef.current;
+
+    if (debounceRef.current) clearTimeout(debounceRef.current);
 
     debounceRef.current = setTimeout(async () => {
       setLoading(true);
       try {
-        const res = await fetch(`/api/locations/search?q=${encodeURIComponent(value.trim())}`);
+        const res = await fetch(
+          `/api/locations/search?q=${encodeURIComponent(query)}`,
+        );
         if (!res.ok) throw new Error("Search failed");
         const data = (await res.json()) as Suggestion[];
+        if (requestId !== requestIdRef.current) return;
         setSuggestions(data);
         setOpen(data.length > 0);
         setActiveIndex(0);
       } catch {
+        if (requestId !== requestIdRef.current) return;
         setSuggestions([]);
         setOpen(false);
       } finally {
-        setLoading(false);
+        if (requestId === requestIdRef.current) setLoading(false);
       }
     }, 250);
 
     return () => {
       if (debounceRef.current) clearTimeout(debounceRef.current);
     };
-  }, [value]);
+  }, [isSearchable, query]);
 
   function pick(suggestion: Suggestion) {
     onSelect({
@@ -101,17 +111,19 @@ export function DestinationAutocomplete({
   }
 
   function handleKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
-    if (!open || suggestions.length === 0) return;
+    if (!open || visibleSuggestions.length === 0) return;
 
     if (e.key === "ArrowDown") {
       e.preventDefault();
-      setActiveIndex((i) => (i + 1) % suggestions.length);
+      setActiveIndex((i) => (i + 1) % visibleSuggestions.length);
     } else if (e.key === "ArrowUp") {
       e.preventDefault();
-      setActiveIndex((i) => (i - 1 + suggestions.length) % suggestions.length);
-    } else if (e.key === "Enter" && suggestions[activeIndex]) {
+      setActiveIndex(
+        (i) => (i - 1 + visibleSuggestions.length) % visibleSuggestions.length,
+      );
+    } else if (e.key === "Enter" && visibleSuggestions[activeIndex]) {
       e.preventDefault();
-      pick(suggestions[activeIndex]);
+      pick(visibleSuggestions[activeIndex]);
     } else if (e.key === "Escape") {
       setOpen(false);
     }
@@ -124,20 +136,20 @@ export function DestinationAutocomplete({
         <Input
           value={value}
           onChange={(e) => onChange(e.target.value)}
-          onFocus={() => suggestions.length > 0 && setOpen(true)}
+          onFocus={() => visibleSuggestions.length > 0 && setOpen(true)}
           onKeyDown={handleKeyDown}
           placeholder={placeholder}
           autoFocus={autoFocus}
           className="pl-9 pr-9"
         />
-        {loading && (
+        {isSearchable && loading && (
           <Spinner className="absolute right-3 top-1/2 -translate-y-1/2" />
         )}
       </div>
 
-      {open && suggestions.length > 0 && (
+      {open && visibleSuggestions.length > 0 && (
         <ul className="absolute z-50 mt-1 max-h-56 w-full overflow-auto rounded-xl border border-neutral-200 bg-white py-1 shadow-lg">
-          {suggestions.map((suggestion, index) => (
+          {visibleSuggestions.map((suggestion, index) => (
             <li key={suggestion.id}>
               <button
                 type="button"
@@ -150,9 +162,13 @@ export function DestinationAutocomplete({
               >
                 <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-neutral-400" />
                 <span>
-                  <span className="font-medium text-neutral-900">{suggestion.name}</span>
+                  <span className="font-medium text-neutral-900">
+                    {suggestion.name}
+                  </span>
                   {suggestion.label !== suggestion.name && (
-                    <span className="block text-xs text-neutral-500">{suggestion.label}</span>
+                    <span className="block text-xs text-neutral-500">
+                      {suggestion.label}
+                    </span>
                   )}
                 </span>
               </button>
@@ -176,7 +192,9 @@ export function LocationChip({ location, onRemove }: LocationChipProps) {
         <MapPin className="h-4 w-4 text-neutral-600" />
       </div>
       <div className="min-w-0 flex-1">
-        <p className="truncate text-sm font-medium text-neutral-900">{location.name}</p>
+        <p className="truncate text-sm font-medium text-neutral-900">
+          {location.name}
+        </p>
         {location.label !== location.name && (
           <p className="truncate text-xs text-neutral-500">{location.label}</p>
         )}

@@ -10,7 +10,7 @@ export async function GET(req: Request) {
       return NextResponse.json([]);
     }
 
-    const results = searchLocations(q, 10);
+    const results = await searchLocations(q, 10);
     return NextResponse.json(results);
   } catch {
     return NextResponse.json({ error: "Search failed" }, { status: 500 });

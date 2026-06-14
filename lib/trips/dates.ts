@@ -1,5 +1,7 @@
 import { differenceInCalendarDays, format, startOfDay } from "date-fns";
 
+export const MAX_TRIP_DAYS = 20;
+
 /** Serialize a local calendar date as UTC midnight (YYYY-MM-DDT00:00:00.000Z). */
 export function toCalendarDateISO(date: Date): string {
   const y = date.getFullYear();

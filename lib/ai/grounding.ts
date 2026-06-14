@@ -45,7 +45,8 @@ export async function resolveTripGroundingLatLng(trip: {
     if (coords) return { latitude: coords.lat, longitude: coords.lng };
   }
 
-  for (const result of searchLocations(trip.destination, 5)) {
+  const locationResults = await searchLocations(trip.destination, 5);
+  for (const result of locationResults) {
     if (!result.latitude || !result.longitude) continue;
     const lat = Number.parseFloat(result.latitude);
     const lng = Number.parseFloat(result.longitude);

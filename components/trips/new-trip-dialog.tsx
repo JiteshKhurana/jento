@@ -4,8 +4,13 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useUser } from "@clerk/nextjs";
-import { format } from "date-fns";
-import { CalendarDays, Info, X } from "lucide-react";
+import {
+  addDays,
+  differenceInCalendarDays,
+  format,
+  startOfDay,
+} from "date-fns";
+import { CalendarDays, X } from "lucide-react";
 import type { DateRange } from "react-day-picker";
 import {
   AddLocationButton,
@@ -27,7 +32,7 @@ import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Spinner } from "@/components/ui/spinner";
-import { toCalendarDateISO } from "@/lib/trips/dates";
+import { MAX_TRIP_DAYS, toCalendarDateISO } from "@/lib/trips/dates";
 import {
   Select,
   SelectContent,
@@ -88,9 +93,10 @@ export function NewTripDialog({ open, onOpenChange }: NewTripDialogProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [showSearch, setShowSearch] = useState(true);
   const [isRoadTrip, setIsRoadTrip] = useState(false);
-  const [timingMode, setTimingMode] = useState<TimingMode>("dates");
+  const [timingMode, setTimingMode] = useState<TimingMode | null>(null);
   const [flexibleDays, setFlexibleDays] = useState("");
   const [dateRange, setDateRange] = useState<DateRange | undefined>();
+  const [datePickerOpen, setDatePickerOpen] = useState(false);
   const [preferences, setPreferences] = useState("");
   const [travelerType, setTravelerType] = useState<TravelerType | null>(null);
   const [travelerCount, setTravelerCount] = useState("");
@@ -133,9 +139,10 @@ export function NewTripDialog({ open, onOpenChange }: NewTripDialogProps) {
       setSearchQuery("");
       setShowSearch(true);
       setIsRoadTrip(false);
-      setTimingMode("dates");
+      setTimingMode(null);
       setFlexibleDays("");
       setDateRange(undefined);
+      setDatePickerOpen(false);
       setPreferences("");
       setTravelerType(null);
       setTravelerCount("");
@@ -164,6 +171,33 @@ export function NewTripDialog({ open, onOpenChange }: NewTripDialogProps) {
       if (next.length === 0) setShowSearch(true);
       return next;
     });
+  }
+
+  function handleDateRangeSelect(range: DateRange | undefined) {
+    if (range?.from && range?.to) {
+      const days =
+        differenceInCalendarDays(startOfDay(range.to), startOfDay(range.from)) +
+        1;
+      if (days > MAX_TRIP_DAYS) {
+        setDateRange({
+          from: range.from,
+          to: addDays(range.from, MAX_TRIP_DAYS - 1),
+        });
+        return;
+      }
+    }
+    setDateRange(range);
+  }
+
+  function isDateDisabled(date: Date) {
+    const day = startOfDay(date);
+    const today = startOfDay(new Date());
+    if (day < today) return true;
+    if (dateRange?.from) {
+      const maxEnd = addDays(startOfDay(dateRange.from), MAX_TRIP_DAYS - 1);
+      if (day > maxEnd) return true;
+    }
+    return false;
   }
 
   async function handleCreate() {
@@ -281,8 +315,11 @@ export function NewTripDialog({ open, onOpenChange }: NewTripDialogProps) {
     (travelerType === "friends" || travelerType === "group"
       ? travelerCount.trim() !== ""
       : true) &&
+    timingMode !== null &&
     (timingMode === "flexible"
-      ? flexibleDays.trim() !== ""
+      ? flexibleDays.trim() !== "" &&
+        Number(flexibleDays) > 0 &&
+        Number(flexibleDays) <= MAX_TRIP_DAYS
       : !!dateRange?.from);
 
   const dateLabel = dateRange?.from
@@ -322,16 +359,6 @@ export function NewTripDialog({ open, onOpenChange }: NewTripDialogProps) {
             >
               <X className="h-4 w-4" />
             </button>
-            <a
-              href={heroImage.photographerUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="absolute bottom-4 right-4 flex h-8 w-8 items-center justify-center rounded-full bg-white/90 text-neutral-600 shadow-sm transition-colors hover:bg-white"
-              title={`Photo by ${heroImage.photographer} on Unsplash`}
-              aria-label={`Photo by ${heroImage.photographer} on Unsplash`}
-            >
-              <Info className="h-4 w-4" />
-            </a>
           </div>
 
           <div className="flex flex-col bg-white p-6 md:overflow-y-auto md:p-8">
@@ -400,7 +427,14 @@ export function NewTripDialog({ open, onOpenChange }: NewTripDialogProps) {
                     <button
                       key={mode}
                       type="button"
-                      onClick={() => setTimingMode(mode)}
+                      onClick={() => {
+                        setTimingMode(mode);
+                        if (mode === "dates") {
+                          setDatePickerOpen(true);
+                        } else {
+                          setDatePickerOpen(false);
+                        }
+                      }}
                       className={cn(
                         "rounded-full border px-4 py-2 text-sm font-medium transition-colors",
                         timingMode === mode
@@ -425,15 +459,18 @@ export function NewTripDialog({ open, onOpenChange }: NewTripDialogProps) {
                       id="flexible-days"
                       type="number"
                       min={1}
-                      max={365}
+                      max={MAX_TRIP_DAYS}
                       placeholder="e.g. 7"
                       value={flexibleDays}
                       onChange={(e) => setFlexibleDays(e.target.value)}
                       className="max-w-[140px]"
                     />
                   </div>
-                ) : (
-                  <Popover>
+                ) : timingMode === "dates" ? (
+                  <Popover
+                    open={datePickerOpen}
+                    onOpenChange={setDatePickerOpen}
+                  >
                     <PopoverTrigger asChild>
                       <Button
                         variant="outline"
@@ -450,13 +487,16 @@ export function NewTripDialog({ open, onOpenChange }: NewTripDialogProps) {
                       <Calendar
                         mode="range"
                         selected={dateRange}
-                        onSelect={setDateRange}
-                        numberOfMonths={1}
-                        disabled={{ before: new Date() }}
+                        onSelect={handleDateRangeSelect}
+                        numberOfMonths={2}
+                        disabled={isDateDisabled}
                       />
+                      <p className="border-t px-3 py-2 text-xs text-neutral-500">
+                        Trips can be up to {MAX_TRIP_DAYS} days.
+                      </p>
                     </PopoverContent>
                   </Popover>
-                )}
+                ) : null}
               </div>
 
               <div className="space-y-3">
@@ -598,7 +638,7 @@ export function NewTripDialog({ open, onOpenChange }: NewTripDialogProps) {
               type="button"
               onClick={handleCreate}
               disabled={!canCreate}
-              className="mt-8 mb-2 h-14 w-full px-10 py-2 text-base"
+              className="mt-8 mb-2 h-14 w-full px-10 py-2 text-base cursor-pointer"
               size="lg"
             >
               {loading ? (
