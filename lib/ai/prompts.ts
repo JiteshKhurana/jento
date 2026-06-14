@@ -1,3 +1,7 @@
+import {
+  formatTripDateRange,
+  getExpectedTripDayCount,
+} from "@/lib/trips/dates";
 import { getStartingLocation, isLocalTrip } from "@/lib/trips/preferences";
 
 export function buildSystemPrompt(trip: {
@@ -6,10 +10,17 @@ export function buildSystemPrompt(trip: {
   endDate?: Date | null;
   preferences?: unknown;
 }) {
+  const expectedDays = getExpectedTripDayCount(
+    trip.startDate,
+    trip.endDate,
+    trip.preferences,
+  );
   const dateRange =
     trip.startDate && trip.endDate
-      ? `from ${trip.startDate.toISOString().split("T")[0]} to ${trip.endDate.toISOString().split("T")[0]}`
-      : "dates to be determined";
+      ? `${formatTripDateRange(trip.startDate, trip.endDate)} (${expectedDays} days — count both start and end dates as full travel days)`
+      : expectedDays
+        ? `about ${expectedDays} days (flexible dates)`
+        : "dates to be determined";
 
   const preferences = trip.preferences as
     | {
@@ -64,7 +75,7 @@ Guidelines:
 1. Use the trip context (destination, dates, travelers, budget) already provided — do not re-ask for information the user has already given unless something is missing or unclear.
 2. Ask clarifying questions only about pace, interests, dietary needs, and travel style before generating a full itinerary.
 3. Prefer authentic local experiences over tourist traps when the user asks for it.
-4. When you have enough information, use the saveItinerary tool to create a structured day-by-day plan.
+4. When you have enough information, use the saveItinerary tool to create a structured day-by-day plan.${expectedDays ? ` The itinerary must contain exactly ${expectedDays} days (dayNumber 1 through ${expectedDays}), one for each calendar day in the trip range — the end date is a full day, not checkout-only.` : ""}
 5. Use google_maps grounding to discover real venues at the destination. Ground venues before calling saveItinerary or updateItineraryDay — never invent place names without Maps data.
 6. Place IDs (critical — never invent or modify):
    - Every activity, food, and lodging item MUST include googlePlaceId copied character-for-character from the google_maps grounding metadata (groundingChunks → maps.placeId). Transport items do not need googlePlaceId.

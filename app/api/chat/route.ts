@@ -25,6 +25,7 @@ import {
 } from "@/lib/itinerary/service";
 import { getDrivingDuration } from "@/lib/places/directions";
 import { getStartingLocation } from "@/lib/trips/preferences";
+import { getExpectedTripDayCount } from "@/lib/trips/dates";
 
 export const maxDuration = 60;
 
@@ -134,8 +135,18 @@ export async function POST(req: Request) {
           },
         }),
         saveItinerary: tool({
-          description:
-            "Save a complete day-by-day itinerary. Every activity, food, and lodging item must include googlePlaceId copied exactly from google_maps grounding metadata (maps.placeId) — never invented or modified.",
+          description: (() => {
+            const expectedDays = getExpectedTripDayCount(
+              trip.startDate,
+              trip.endDate,
+              trip.preferences,
+            );
+            const dayRequirement =
+              expectedDays !== null
+                ? ` Must include exactly ${expectedDays} days (dayNumber 1–${expectedDays}), one per calendar day from start to end date inclusive.`
+                : "";
+            return `Save a complete day-by-day itinerary.${dayRequirement} Every activity, food, and lodging item must include googlePlaceId copied exactly from google_maps grounding metadata (maps.placeId) — never invented or modified.`;
+          })(),
           inputSchema: itineraryDraftSchema,
           execute: async (draft) => {
             try {

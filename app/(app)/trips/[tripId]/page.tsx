@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { getCurrentDbUser, getTripById, isTripOwner } from "@/lib/auth";
 import { TripPlanner } from "@/components/planner/trip-planner";
 import { parseTripPreferences } from "@/lib/trips/preferences";
+import { parseTripDate } from "@/lib/trips/dates";
 
 export const dynamic = "force-dynamic";
 
@@ -26,8 +27,12 @@ export default async function TripPage({ params, searchParams }: PageProps) {
       trip={{
         ...trip,
         preferences: parseTripPreferences(trip.preferences),
-        startDate: trip.startDate?.toISOString() ?? null,
-        endDate: trip.endDate?.toISOString() ?? null,
+        startDate: trip.startDate
+          ? (parseTripDate(trip.startDate)?.toISOString() ?? null)
+          : null,
+        endDate: trip.endDate
+          ? (parseTripDate(trip.endDate)?.toISOString() ?? null)
+          : null,
         messages: trip.messages.map((m) => ({
           role: m.role.toLowerCase(),
           content: m.content,

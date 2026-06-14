@@ -1,5 +1,6 @@
 import { format } from "date-fns";
 import type { SelectedLocation } from "@/components/trips/destination-autocomplete";
+import { toCalendarDateISO } from "@/lib/trips/dates";
 
 export type TravelerType = "solo" | "couple" | "friends" | "family" | "group";
 export type BudgetTier = "budget" | "moderate" | "upscale" | "luxury";
@@ -157,8 +158,8 @@ export function buildTripPayload(data: TripIntakeData) {
   let endDate: string | null = null;
 
   if (data.timingMode === "dates" && data.dateRange?.from) {
-    startDate = data.dateRange.from.toISOString();
-    endDate = (data.dateRange.to ?? data.dateRange.from).toISOString();
+    startDate = toCalendarDateISO(data.dateRange.from);
+    endDate = toCalendarDateISO(data.dateRange.to ?? data.dateRange.from);
   }
 
   return {

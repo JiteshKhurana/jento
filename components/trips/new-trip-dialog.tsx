@@ -27,6 +27,7 @@ import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Spinner } from "@/components/ui/spinner";
+import { toCalendarDateISO } from "@/lib/trips/dates";
 import {
   Select,
   SelectContent,
@@ -165,8 +166,8 @@ export function NewTripDialog({ open, onOpenChange }: NewTripDialogProps) {
     let endDate: string | null = null;
 
     if (timingMode === "dates" && dateRange?.from) {
-      startDate = dateRange.from.toISOString();
-      endDate = (dateRange.to ?? dateRange.from).toISOString();
+      startDate = toCalendarDateISO(dateRange.from);
+      endDate = toCalendarDateISO(dateRange.to ?? dateRange.from);
     }
 
     const initialParts: string[] = [`Plan a trip to ${destination}.`];

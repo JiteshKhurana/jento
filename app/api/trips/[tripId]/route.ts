@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { requireCurrentDbUser, requireTripForUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { getTripMetaById } from "@/lib/trips/queries";
+import { parseTripDate } from "@/lib/trips/dates";
 
 type RouteParams = { params: Promise<{ tripId: string }> };
 
@@ -27,10 +28,10 @@ export async function PATCH(req: Request, { params }: RouteParams) {
         ...(title !== undefined && { title }),
         ...(destination !== undefined && { destination }),
         ...(startDate !== undefined && {
-          startDate: startDate ? new Date(startDate) : null,
+          startDate: parseTripDate(startDate),
         }),
         ...(endDate !== undefined && {
-          endDate: endDate ? new Date(endDate) : null,
+          endDate: parseTripDate(endDate),
         }),
         ...(preferences !== undefined && { preferences }),
       },

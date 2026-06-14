@@ -1,6 +1,7 @@
 import { auth, currentUser } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { parseTripDate } from "@/lib/trips/dates";
 
 async function ensureUser() {
   const { userId: clerkId } = await auth();
@@ -64,8 +65,8 @@ export async function POST(req: Request) {
       userId: user.id,
       title,
       destination,
-      startDate: startDate ? new Date(startDate) : null,
-      endDate: endDate ? new Date(endDate) : null,
+      startDate: parseTripDate(startDate),
+      endDate: parseTripDate(endDate),
       preferences: preferences ?? {},
     },
   });

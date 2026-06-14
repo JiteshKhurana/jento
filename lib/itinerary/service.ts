@@ -10,6 +10,7 @@ import {
 import { enrichRoadTripItinerary } from "@/lib/itinerary/road-trip";
 import { enrichFlightItinerary } from "@/lib/itinerary/flight";
 import { normalizeDayItemTimes } from "@/lib/itinerary/item-times";
+import { validateItineraryDayCount } from "@/lib/trips/dates";
 
 export async function saveItineraryToDb(
   tripId: string,
@@ -29,6 +30,12 @@ export async function saveItineraryToDb(
     roadTripEnriched,
     tripContext.preferences,
     tripContext.destination,
+  );
+  validateItineraryDayCount(
+    enrichedDraft.days.length,
+    tripContext.startDate,
+    tripContext.endDate,
+    tripContext.preferences,
   );
   const parsed = itineraryDraftSchema.parse({
     days: enrichedDraft.days.map((day) => ({

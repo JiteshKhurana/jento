@@ -1,5 +1,6 @@
 import type { ItemType } from "@/app/generated/prisma/client";
 import { getCountryByIATA } from "@/lib/airports/lookup";
+import { formatCalendarDateISO } from "@/lib/trips/dates";
 
 type BookingContext = {
   destination: string;
@@ -12,9 +13,8 @@ type BookingContext = {
 
 /** Format a Date as DD/MM/YYYY for MakeMyTrip itinerary segments */
 function formatMMTDate(date: Date): string {
-  const d = String(date.getDate()).padStart(2, "0");
-  const m = String(date.getMonth() + 1).padStart(2, "0");
-  return `${d}/${m}/${date.getFullYear()}`;
+  const [y, m, d] = formatCalendarDateISO(date).split("-");
+  return `${d}/${m}/${y}`;
 }
 
 /**
@@ -85,8 +85,8 @@ export function buildBookingUrl(
   switch (type) {
     case "LODGING":
     case "lodging": {
-      const checkin = ctx.startDate?.toISOString().split("T")[0] ?? "";
-      const checkout = ctx.endDate?.toISOString().split("T")[0] ?? "";
+      const checkin = ctx.startDate ? formatCalendarDateISO(ctx.startDate) : "";
+      const checkout = ctx.endDate ? formatCalendarDateISO(ctx.endDate) : "";
       if (checkin && checkout) {
         return `https://www.booking.com/searchresults.html?ss=${dest}&checkin=${checkin}&checkout=${checkout}`;
       }
