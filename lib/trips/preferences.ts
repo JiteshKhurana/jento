@@ -119,7 +119,11 @@ export function locationsAreSameArea(
 ): boolean {
   const coordsA = getLocationCoords(a);
   const coordsB = getLocationCoords(b);
-  if (coordsA && coordsB && haversineKm(coordsA, coordsB) <= SAME_AREA_RADIUS_KM) {
+  if (
+    coordsA &&
+    coordsB &&
+    haversineKm(coordsA, coordsB) <= SAME_AREA_RADIUS_KM
+  ) {
     return true;
   }
 

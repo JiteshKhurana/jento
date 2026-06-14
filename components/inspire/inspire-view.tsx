@@ -11,6 +11,7 @@ import {
   TRAVEL_CATEGORIES,
   type TravelCategory,
 } from "@/lib/inspire/templates";
+import { getCreateTripErrorMessage } from "@/lib/trips/limits";
 import type { UnsplashPhoto } from "@/lib/unsplash/photos";
 import { cn } from "@/lib/utils";
 
@@ -28,6 +29,7 @@ export function InspireView({
   const router = useRouter();
   const [activeCategory, setActiveCategory] = useState<TravelCategory>("all");
   const [creating, setCreating] = useState<string | null>(null);
+  const [createError, setCreateError] = useState<string | null>(null);
 
   const filteredDestinations =
     activeCategory === "all"
@@ -50,6 +52,7 @@ export function InspireView({
     }
 
     setCreating(destinationName);
+    setCreateError(null);
 
     try {
       const res = await fetch("/api/trips", {
@@ -64,11 +67,16 @@ export function InspireView({
         }),
       });
 
-      if (!res.ok) throw new Error("Failed to create trip");
+      if (!res.ok) {
+        throw new Error(await getCreateTripErrorMessage(res));
+      }
 
       const trip = await res.json();
       router.push(`/trips/${trip.id}?q=${encodeURIComponent(message)}`);
-    } catch {
+    } catch (err) {
+      setCreateError(
+        err instanceof Error ? err.message : "Failed to create trip",
+      );
       setCreating(null);
     }
   }
@@ -89,6 +97,11 @@ export function InspireView({
             Explore popular destinations and ready-made itineraries. One click
             to start planning.
           </p>
+          {createError && (
+            <p className="mx-auto mt-4 max-w-lg rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+              {createError}
+            </p>
+          )}
         </div>
 
         {/* Category Filter */}

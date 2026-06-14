@@ -6,6 +6,7 @@ import { ArrowUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import { Input } from "@/components/ui/input";
+import { getCreateTripErrorMessage } from "@/lib/trips/limits";
 
 function extractDestination(prompt: string): string {
   const inMatch = prompt.match(
@@ -24,6 +25,7 @@ export function NewTripForm() {
   const [title, setTitle] = useState("");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
+  const [error, setError] = useState<string | null>(null);
 
   async function createTrip(data: {
     title: string;
@@ -33,6 +35,7 @@ export function NewTripForm() {
     initialMessage?: string;
   }) {
     setLoading(true);
+    setError(null);
     try {
       const res = await fetch("/api/trips", {
         method: "POST",
@@ -45,7 +48,9 @@ export function NewTripForm() {
         }),
       });
 
-      if (!res.ok) throw new Error("Failed to create trip");
+      if (!res.ok) {
+        throw new Error(await getCreateTripErrorMessage(res));
+      }
 
       const trip = await res.json();
       const q = data.initialMessage
@@ -54,6 +59,7 @@ export function NewTripForm() {
       router.push(`/trips/${trip.id}${q}`);
     } catch (err) {
       console.error(err);
+      setError(err instanceof Error ? err.message : "Failed to create trip");
       setLoading(false);
     }
   }
@@ -91,6 +97,12 @@ export function NewTripForm() {
           from there.
         </p>
       </div>
+
+      {error && (
+        <div className="mb-6 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+          {error}
+        </div>
+      )}
 
       <form onSubmit={handleQuickStart}>
         <div className="chat-input-shadow overflow-hidden rounded-2xl border border-neutral-200/80 bg-white">

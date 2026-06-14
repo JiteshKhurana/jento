@@ -251,31 +251,31 @@ export function TripPlanner({
             const dayDate = getDayDate(trip.startDate, day.dayNumber);
 
             return (
-            <button
-              key={day.id}
-              type="button"
-              onClick={() => setSelectedDay(day.dayNumber)}
-              className={cn(
-                "shrink-0 rounded-full px-3.5 py-1.5 text-xs font-semibold transition-all",
-                selectedDay === day.dayNumber
-                  ? "bg-neutral-900 text-white shadow-sm shadow-neutral-200"
-                  : "bg-neutral-100 text-neutral-600 hover:bg-neutral-200",
-              )}
-            >
-              Day {day.dayNumber}
-              {dayDate && (
-                <span
-                  className={cn(
-                    "ml-1 font-medium",
-                    selectedDay === day.dayNumber
-                      ? "text-neutral-300"
-                      : "text-neutral-400",
-                  )}
-                >
-                  · {format(dayDate, "MMM d")}
-                </span>
-              )}
-            </button>
+              <button
+                key={day.id}
+                type="button"
+                onClick={() => setSelectedDay(day.dayNumber)}
+                className={cn(
+                  "shrink-0 rounded-full px-3.5 py-1.5 text-xs font-semibold transition-all",
+                  selectedDay === day.dayNumber
+                    ? "bg-neutral-900 text-white shadow-sm shadow-neutral-200"
+                    : "bg-neutral-100 text-neutral-600 hover:bg-neutral-200",
+                )}
+              >
+                Day {day.dayNumber}
+                {dayDate && (
+                  <span
+                    className={cn(
+                      "ml-1 font-medium",
+                      selectedDay === day.dayNumber
+                        ? "text-neutral-300"
+                        : "text-neutral-400",
+                    )}
+                  >
+                    · {format(dayDate, "MMM d")}
+                  </span>
+                )}
+              </button>
             );
           })}
         </div>

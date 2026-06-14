@@ -34,6 +34,11 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Spinner } from "@/components/ui/spinner";
 import { MAX_TRIP_DAYS, toCalendarDateISO } from "@/lib/trips/dates";
 import {
+  MAX_TRIPS_PER_USER,
+  getCreateTripErrorMessage,
+  getTripLimitMessage,
+} from "@/lib/trips/limits";
+import {
   Select,
   SelectContent,
   SelectItem,
@@ -105,8 +110,25 @@ export function NewTripDialog({ open, onOpenChange }: NewTripDialogProps) {
   const [budgetAmount, setBudgetAmount] = useState("");
   const [budgetCurrency, setBudgetCurrency] = useState(DEFAULT_BUDGET_CURRENCY);
   const [loading, setLoading] = useState(false);
+  const [tripLimitReached, setTripLimitReached] = useState(false);
+  const [createError, setCreateError] = useState<string | null>(null);
   const [heroImage, setHeroImage] = useState<HeroImage>(FALLBACK_HERO_IMAGE);
   const [heroImageLoading, setHeroImageLoading] = useState(false);
+
+  useEffect(() => {
+    if (!open) return;
+
+    const controller = new AbortController();
+
+    fetch("/api/trips", { signal: controller.signal })
+      .then((res) => (res.ok ? res.json() : []))
+      .then((trips: unknown[]) => {
+        setTripLimitReached(trips.length >= MAX_TRIPS_PER_USER);
+      })
+      .catch(() => {});
+
+    return () => controller.abort();
+  }, [open]);
 
   useEffect(() => {
     if (!open) return;
@@ -151,6 +173,8 @@ export function NewTripDialog({ open, onOpenChange }: NewTripDialogProps) {
       setBudgetAmount("");
       setBudgetCurrency(DEFAULT_BUDGET_CURRENCY);
       setLoading(false);
+      setTripLimitReached(false);
+      setCreateError(null);
       setHeroImage(FALLBACK_HERO_IMAGE);
       setHeroImageLoading(false);
     });
@@ -201,7 +225,7 @@ export function NewTripDialog({ open, onOpenChange }: NewTripDialogProps) {
   }
 
   async function handleCreate() {
-    if (locations.length === 0 || loading) return;
+    if (locations.length === 0 || loading || tripLimitReached) return;
 
     const destination = formatDestination(locations, isRoadTrip);
     const title = `${locations[0].name}${locations.length > 1 ? ` +${locations.length - 1}` : ""} trip`;
@@ -218,6 +242,7 @@ export function NewTripDialog({ open, onOpenChange }: NewTripDialogProps) {
     if (isRoadTrip) initialParts.push("This is a road trip.");
 
     setLoading(true);
+    setCreateError(null);
     try {
       const startingLocation = await getCurrentLocation();
       if (startingLocation) {
@@ -292,7 +317,11 @@ export function NewTripDialog({ open, onOpenChange }: NewTripDialogProps) {
         }),
       });
 
-      if (!res.ok) throw new Error("Failed to create trip");
+      if (!res.ok) {
+        const message = await getCreateTripErrorMessage(res);
+        if (res.status === 429) setTripLimitReached(true);
+        throw new Error(message);
+      }
 
       const trip = await res.json();
       const q = encodeURIComponent(initialParts.join(" "));
@@ -300,11 +329,15 @@ export function NewTripDialog({ open, onOpenChange }: NewTripDialogProps) {
       router.push(`/trips/${trip.id}?q=${q}`);
     } catch (err) {
       console.error(err);
+      setCreateError(
+        err instanceof Error ? err.message : "Failed to create trip",
+      );
       setLoading(false);
     }
   }
 
   const canCreate =
+    !tripLimitReached &&
     locations.length > 0 &&
     travelerType !== null &&
     pace !== null &&
@@ -633,6 +666,19 @@ export function NewTripDialog({ open, onOpenChange }: NewTripDialogProps) {
                 </p>
               </div>
             </div>
+
+            {(tripLimitReached || createError) && (
+              <div
+                className={cn(
+                  "mt-6 rounded-xl border p-3 text-sm",
+                  tripLimitReached
+                    ? "border-amber-200 bg-amber-50 text-amber-800"
+                    : "border-red-200 bg-red-50 text-red-700",
+                )}
+              >
+                {tripLimitReached ? getTripLimitMessage() : createError}
+              </div>
+            )}
 
             <Button
               type="button"

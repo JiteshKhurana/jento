@@ -2,6 +2,8 @@ import { auth, currentUser } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { parseTripDate } from "@/lib/trips/dates";
+import { getTripLimitMessage } from "@/lib/trips/limits";
+import { isTripLimitReached } from "@/lib/trips/limits-server";
 
 async function ensureUser() {
   const { userId: clerkId } = await auth();
@@ -57,6 +59,13 @@ export async function POST(req: Request) {
     return NextResponse.json(
       { error: "Title and destination are required" },
       { status: 400 },
+    );
+  }
+
+  if (await isTripLimitReached(user.id)) {
+    return NextResponse.json(
+      { error: getTripLimitMessage() },
+      { status: 429 },
     );
   }
 
