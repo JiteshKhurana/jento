@@ -59,6 +59,7 @@ type TripCardProps = {
     itineraries?: Array<{ days: Array<{ items: unknown[] }> }>;
   };
   coverPhoto?: { url: string; alt: string } | null;
+  priority?: boolean;
 };
 
 function TripDestinationBadge({
@@ -77,7 +78,10 @@ function TripDestinationBadge({
   return (
     <span className="flex max-w-full flex-wrap items-center gap-x-1 gap-y-0.5">
       {locations.map((location, index) => (
-        <span key={`${location.name}-${index}`} className="inline-flex items-center gap-1">
+        <span
+          key={`${location.name}-${index}`}
+          className="inline-flex items-center gap-1"
+        >
           {index > 0 && (
             <ArrowRight className="h-3 w-3 shrink-0 opacity-80" aria-hidden />
           )}
@@ -88,7 +92,7 @@ function TripDestinationBadge({
   );
 }
 
-export function TripCard({ trip, coverPhoto }: TripCardProps) {
+export function TripCard({ trip, coverPhoto, priority }: TripCardProps) {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [shared, setShared] = useState(false);
@@ -155,7 +159,7 @@ export function TripCard({ trip, coverPhoto }: TripCardProps) {
           >
             <button
               type="button"
-              className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-neutral-700 transition-colors hover:bg-neutral-100"
+              className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-neutral-700 transition-colors hover:bg-neutral-100 cursor-pointer"
               onClick={handleShare}
             >
               {shared ? (
@@ -167,7 +171,7 @@ export function TripCard({ trip, coverPhoto }: TripCardProps) {
             </button>
             <button
               type="button"
-              className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-red-600 transition-colors hover:bg-red-50"
+              className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-red-600 transition-colors hover:bg-red-50 cursor-pointer"
               onClick={openDeleteDialog}
             >
               <Trash2 className="h-4 w-4" />
@@ -185,6 +189,7 @@ export function TripCard({ trip, coverPhoto }: TripCardProps) {
                 fill
                 sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                 className="object-cover transition-transform duration-500 group-hover:scale-105"
+                priority={priority}
               />
             ) : (
               <div

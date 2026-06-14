@@ -1,6 +1,11 @@
 import { cookies } from "next/headers";
 import { AppSidebarLayout } from "@/components/layout/app-sidebar-layout";
-import { SIDEBAR_COOKIE_NAME } from "@/components/ui/sidebar";
+import {
+  parseSidebarCookie,
+  SIDEBAR_COOKIE_NAME,
+} from "@/lib/sidebar/constants";
+
+export const dynamic = "force-dynamic";
 
 export default async function AppLayout({
   children,
@@ -8,8 +13,9 @@ export default async function AppLayout({
   children: React.ReactNode;
 }>) {
   const cookieStore = await cookies();
-  const sidebarState = cookieStore.get(SIDEBAR_COOKIE_NAME)?.value;
-  const defaultOpen = sidebarState !== "false";
+  const defaultOpen = parseSidebarCookie(
+    cookieStore.get(SIDEBAR_COOKIE_NAME)?.value,
+  );
 
   return (
     <AppSidebarLayout defaultOpen={defaultOpen}>{children}</AppSidebarLayout>

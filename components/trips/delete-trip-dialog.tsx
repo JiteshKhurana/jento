@@ -43,12 +43,15 @@ export function DeleteTripDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent showClose={false} className="max-w-sm gap-0 rounded-3xl p-8 sm:max-w-sm">
+      <DialogContent
+        showClose={false}
+        className="max-w-sm gap-0 rounded-3xl p-8 sm:max-w-sm"
+      >
         <DialogHeader className="space-y-3 text-center">
           <DialogTitle className="text-xl font-semibold leading-snug">
             Delete &ldquo;{tripTitle}&rdquo;?
           </DialogTitle>
-          <DialogDescription className="text-center text-neutral-500">
+          <DialogDescription className="text-left text-neutral-500">
             This will also delete its associated chats.
           </DialogDescription>
         </DialogHeader>
@@ -57,7 +60,7 @@ export function DeleteTripDialog({
           <Button
             type="button"
             variant="outline"
-            className="h-11 flex-1 rounded-full"
+            className="h-11 flex-1 rounded-full cursor-pointer"
             onClick={() => onOpenChange(false)}
             disabled={deleting}
           >
@@ -65,7 +68,7 @@ export function DeleteTripDialog({
           </Button>
           <Button
             type="button"
-            className="h-11 flex-1 rounded-full bg-neutral-900 text-white hover:bg-neutral-800"
+            className="h-11 flex-1 rounded-full bg-neutral-900 text-white hover:bg-neutral-800 cursor-pointer"
             onClick={handleConfirm}
             disabled={deleting}
           >

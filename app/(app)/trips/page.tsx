@@ -74,8 +74,13 @@ export default async function TripsPage() {
           <TripsEmptyState />
         ) : (
           <div className="grid gap-6 sm:grid-cols-2">
-            {tripsWithPhotos.map(({ trip, coverPhoto }) => (
-              <TripCard key={trip.id} trip={trip} coverPhoto={coverPhoto} />
+            {tripsWithPhotos.map(({ trip, coverPhoto }, index) => (
+              <TripCard
+                key={trip.id}
+                trip={trip}
+                coverPhoto={coverPhoto}
+                priority={index === 0}
+              />
             ))}
           </div>
         )}
