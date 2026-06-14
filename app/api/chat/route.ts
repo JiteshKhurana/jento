@@ -1,4 +1,4 @@
-import { google } from "@ai-sdk/google";
+import { google, type GoogleLanguageModelOptions } from "@ai-sdk/google";
 import {
   streamText,
   tool,
@@ -9,6 +9,7 @@ import {
 import { z } from "zod";
 import { NextResponse } from "next/server";
 import { requireCurrentDbUser, requireTripForUser } from "@/lib/auth";
+import { resolveTripGroundingLatLng } from "@/lib/ai/grounding";
 import { buildSystemPrompt } from "@/lib/ai/prompts";
 import { dayPlanSchema, itineraryDraftSchema } from "@/lib/ai/schemas";
 import { getChatLimitMessage } from "@/lib/chat/limits";
@@ -22,7 +23,6 @@ import {
   saveItineraryToDb,
   updateItineraryDayInDb,
 } from "@/lib/itinerary/service";
-import { searchPlaces } from "@/lib/places/google-places";
 import { getDrivingDuration } from "@/lib/places/directions";
 import { getStartingLocation } from "@/lib/trips/preferences";
 
@@ -72,34 +72,22 @@ export async function POST(req: Request) {
       }
     }
 
+    const groundingLatLng = await resolveTripGroundingLatLng(trip);
+    const googleProviderOptions: GoogleLanguageModelOptions = {};
+    if (groundingLatLng) {
+      googleProviderOptions.retrievalConfig = { latLng: groundingLatLng };
+    }
+
     const result = streamText({
       model: google("gemini-3.1-flash-lite"),
       system: buildSystemPrompt(trip),
       messages: await convertToModelMessages(messages),
       stopWhen: stepCountIs(10),
+      providerOptions: {
+        google: googleProviderOptions satisfies GoogleLanguageModelOptions,
+      },
       tools: {
-        searchPlaces: tool({
-          description:
-            "Search for real places at the destination. Use before adding venues to an itinerary.",
-          inputSchema: z.object({
-            query: z
-              .string()
-              .describe(
-                "What to search for, e.g. 'Gothic Quarter walking tour'",
-              ),
-            location: z
-              .string()
-              .optional()
-              .describe("Location context, defaults to trip destination"),
-          }),
-          execute: async ({ query, location }) => {
-            const results = await searchPlaces(
-              query,
-              location ?? trip.destination,
-            );
-            return results;
-          },
-        }),
+        google_maps: google.tools.googleMaps({}),
         getDrivingTime: tool({
           description:
             "Get accurate driving time and distance between two locations. Use for road trip itineraries.",
@@ -147,7 +135,7 @@ export async function POST(req: Request) {
         }),
         saveItinerary: tool({
           description:
-            "Save a complete day-by-day itinerary when you have enough user preferences.",
+            "Save a complete day-by-day itinerary. Every activity, food, and lodging item must include googlePlaceId from google_maps grounding.",
           inputSchema: itineraryDraftSchema,
           execute: async (draft) => {
             try {
@@ -174,7 +162,7 @@ export async function POST(req: Request) {
         }),
         updateItineraryDay: tool({
           description:
-            "Update or regenerate a specific day in the active itinerary.",
+            "Update or regenerate a specific day. Every activity, food, and lodging item must include googlePlaceId from google_maps grounding.",
           inputSchema: z.object({
             dayNumber: z.number().int().min(1),
             day: dayPlanSchema,

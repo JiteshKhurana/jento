@@ -12,7 +12,12 @@ export const activityItemSchema = z.object({
     .string()
     .optional()
     .describe('Duration such as "1h 30m" or "45m"'),
-  googlePlaceId: z.string().optional(),
+  googlePlaceId: z
+    .string()
+    .optional()
+    .describe(
+      "Required for activity, food, and lodging items — copy placeId from google_maps grounding",
+    ),
   latitude: z.number().optional(),
   longitude: z.number().optional(),
 });
