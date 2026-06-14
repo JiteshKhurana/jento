@@ -12,6 +12,7 @@ import {
 import {
   DIETARY_DESCRIPTIONS,
   DIETARY_LABELS,
+  formatEndDayBySummary,
   PACE_DESCRIPTIONS,
   PACE_LABELS,
 } from "@/lib/trips/intake";
@@ -54,6 +55,7 @@ export function buildSystemPrompt(trip: {
   const localTrip = isLocalTrip(trip.preferences, trip.destination);
   const pace = preferences.pace;
   const dietary = preferences.dietary;
+  const endDayBy = preferences.endDayBy;
   const paceGuidelines = pace
     ? `
 Trip pace (set at trip creation — do not ask the user about pace):
@@ -65,6 +67,11 @@ Trip pace (set at trip creation — do not ask the user about pace):
 Dietary preference (set at trip creation — do not ask the user about dietary needs):
 - ${DIETARY_LABELS[dietary]}: ${DIETARY_DESCRIPTIONS[dietary]}
 - ${DIETARY_FOOD_GUIDANCE[dietary]}`
+    : "";
+  const endDayGuidelines = endDayBy
+    ? `
+Daily cutoff (set at trip creation — do not ask the user about end-of-day time):
+- Wrap up each day's last activity by ${formatEndDayBySummary(endDayBy)}. Schedule no sightseeing, dining, or activities that extend past this time — lodging check-in and wind-down are fine after it.`
     : "";
   const roadTripGuidelines =
     preferences.isRoadTrip === true
@@ -105,7 +112,7 @@ Current trip context:
 - Destination: ${trip.destination}
 - Dates: ${dateRange}
 - Preferences: ${JSON.stringify(trip.preferences ?? {})}
-${paceGuidelines}${dietaryGuidelines}${roadTripGuidelines}${flightGuidelines}
+${paceGuidelines}${dietaryGuidelines}${endDayGuidelines}${roadTripGuidelines}${flightGuidelines}
 Guidelines:
 1. Use the trip context (destination, dates, travelers, budget, pace, dietary) already provided — do not re-ask for information the user has already given unless something is missing or unclear.
 2. Ask clarifying questions only about interests and travel style before generating a full itinerary — pace and dietary needs are already set in trip preferences; never ask about pace or diet.
@@ -128,7 +135,8 @@ Guidelines:
     - estimatedSteps: realistic daily walking steps at venues only (exploring each stop) — do NOT include walking between stops
     - fatigueLevel: one of easy, moderate, tiring, exhausting — based on steps, number of stops, and pacing
     - cityTransport: one concise sentence on the best way to get around within the city that day (e.g. metro pass, walking, tuk-tuk, rideshare)
-14. For each day, always include dailyBudgetEstimate with realistic per-person cost estimates in the trip's budget currency:
+14. Answer practical travel-prep questions in chat when asked — packing lists (for all ages and genders), local etiquette, safety tips, connectivity, and budget advice. Use trip context (destination, dates, pace, travelers) to personalize answers. Do not call itinerary tools for these unless the user asks to change the plan.
+15. For each day, always include dailyBudgetEstimate with realistic per-person cost estimates in the trip's budget currency:
     - accommodation: nightly hotel/hostel/stay cost for that night. Use 0 on the final day if the traveller is checking out. Vary by budget tier and destination — budget travellers stay in hostels, upscale in 4-5 star hotels.
     - transport: all transport costs that day — flights, intercity trains/buses, ferries, long taxi rides. Use 0 on days with only local city travel.
     - activities: total entrance fees, tour costs, guided experiences, museum tickets for items scheduled that day.

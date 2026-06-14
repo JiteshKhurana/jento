@@ -17,6 +17,8 @@ export type TripPreferences = {
   dietary?: DietaryPreference;
   budgetPerPerson?: number;
   budgetCurrency?: string;
+  /** Daily cutoff time in 24h "HH:mm" format (e.g. "22:00"). */
+  endDayBy?: string;
   [key: string]: unknown;
 };
 

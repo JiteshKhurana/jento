@@ -8,13 +8,17 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { ChatMarkdown } from "@/components/chat/chat-markdown";
+import { ThinkingIndicator } from "@/components/chat/thinking-indicator";
+import { FollowUpPrompts } from "@/components/chat/follow-up-prompts";
 import { SuggestedPrompts } from "@/components/chat/suggested-prompts";
+import { getAvailableFollowUpPrompts } from "@/lib/chat/follow-up-prompts";
 import { MAX_CHATS_PER_TRIP, getChatLimitMessage } from "@/lib/chat/limits";
 
 type ChatPanelProps = {
   tripId: string;
   initialQuery?: string | null;
   initialMessages?: Array<{ role: string; content: string }>;
+  hasItinerary?: boolean;
   onItineraryUpdate?: () => void;
   readOnly?: boolean;
 };
@@ -36,6 +40,7 @@ export function ChatPanel({
   tripId,
   initialQuery = null,
   initialMessages = [],
+  hasItinerary = false,
   onItineraryUpdate,
   readOnly = false,
 }: ChatPanelProps) {
@@ -84,6 +89,26 @@ export function ChatPanel({
   const isLoading = status === "streaming" || status === "submitted";
   const userMessageCount = messages.filter((m) => m.role === "user").length;
   const chatLimitReached = userMessageCount >= MAX_CHATS_PER_TRIP;
+  const usedUserMessages = useMemo(
+    () =>
+      messages
+        .filter((m) => m.role === "user")
+        .map((m) => getMessageText(m)),
+    [messages],
+  );
+  const followUpPrompts = useMemo(
+    () => getAvailableFollowUpPrompts(hasItinerary, usedUserMessages),
+    [hasItinerary, usedUserMessages],
+  );
+  const lastMessage = messages.at(-1);
+  const showFollowUps =
+    !readOnly &&
+    !chatLimitReached &&
+    !isLoading &&
+    followUpPrompts.length > 0 &&
+    messages.length > 0 &&
+    lastMessage?.role === "assistant" &&
+    getMessageText(lastMessage).length > 0;
 
   useEffect(() => {
     if (
@@ -172,12 +197,15 @@ export function ChatPanel({
             </div>
           ))}
 
-          {isLoading && (
-            <div className="flex items-center gap-2 text-sm text-neutral-400">
-              <Spinner size="sm" />
-              Thinking…
-            </div>
+          {showFollowUps && (
+            <FollowUpPrompts
+              prompts={followUpPrompts}
+              onSelect={handlePromptSelect}
+              disabled={isLoading || chatLimitReached}
+            />
           )}
+
+          {isLoading && <ThinkingIndicator />}
 
           {chatLimitReached && (
             <div className="rounded-xl border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800">

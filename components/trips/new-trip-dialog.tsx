@@ -49,11 +49,13 @@ import { cn } from "@/lib/utils";
 import {
   BUDGET_CURRENCIES,
   DEFAULT_BUDGET_CURRENCY,
+  DEFAULT_END_DAY_BY,
   DIETARY_DESCRIPTIONS,
   DIETARY_LABELS,
   PACE_DESCRIPTIONS,
   PACE_LABELS,
   TRAVELER_LABELS,
+  formatEndDayBySummary,
   formatTravelerSummary,
   type DietaryPreference,
   type TravelerType,
@@ -109,6 +111,7 @@ export function NewTripDialog({ open, onOpenChange }: NewTripDialogProps) {
   const [dietary, setDietary] = useState<DietaryPreference | null>(null);
   const [budgetAmount, setBudgetAmount] = useState("");
   const [budgetCurrency, setBudgetCurrency] = useState(DEFAULT_BUDGET_CURRENCY);
+  const [endDayByTime, setEndDayByTime] = useState(DEFAULT_END_DAY_BY);
   const [loading, setLoading] = useState(false);
   const [tripLimitReached, setTripLimitReached] = useState(false);
   const [createError, setCreateError] = useState<string | null>(null);
@@ -172,6 +175,7 @@ export function NewTripDialog({ open, onOpenChange }: NewTripDialogProps) {
       setDietary(null);
       setBudgetAmount("");
       setBudgetCurrency(DEFAULT_BUDGET_CURRENCY);
+      setEndDayByTime(DEFAULT_END_DAY_BY);
       setLoading(false);
       setTripLimitReached(false);
       setCreateError(null);
@@ -270,6 +274,7 @@ export function NewTripDialog({ open, onOpenChange }: NewTripDialogProps) {
         dietary,
         budgetPerPerson: budgetAmount ? Number(budgetAmount) : null,
         budgetCurrency,
+        endDayBy: endDayByTime || null,
         notes: preferences.trim() || null,
       };
 
@@ -296,6 +301,11 @@ export function NewTripDialog({ open, onOpenChange }: NewTripDialogProps) {
       if (pace) {
         initialParts.push(
           `Prefer a ${PACE_LABELS[pace].toLowerCase()} pace (${PACE_DESCRIPTIONS[pace].toLowerCase()}).`,
+        );
+      }
+      if (endDayByTime) {
+        initialParts.push(
+          `End each day by ${formatEndDayBySummary(endDayByTime)}.`,
         );
       }
       if (dietary) {
@@ -353,7 +363,8 @@ export function NewTripDialog({ open, onOpenChange }: NewTripDialogProps) {
       ? flexibleDays.trim() !== "" &&
         Number(flexibleDays) > 0 &&
         Number(flexibleDays) <= MAX_TRIP_DAYS
-      : !!dateRange?.from);
+      : !!dateRange?.from) &&
+    endDayByTime.trim() !== "";
 
   const dateLabel = dateRange?.from
     ? dateRange.to
@@ -618,6 +629,21 @@ export function NewTripDialog({ open, onOpenChange }: NewTripDialogProps) {
                   {pace
                     ? PACE_DESCRIPTIONS[pace]
                     : "How packed should each day feel?"}
+                </p>
+              </div>
+
+              <div className="space-y-3">
+                <Label htmlFor="end-day-by">End the day by what time?</Label>
+                <Input
+                  id="end-day-by"
+                  type="time"
+                  value={endDayByTime}
+                  onChange={(e) => setEndDayByTime(e.target.value)}
+                  className="max-w-[160px]"
+                />
+                <p className="text-xs text-neutral-400">
+                  We&apos;ll plan activities to finish before this time each
+                  day.
                 </p>
               </div>
 

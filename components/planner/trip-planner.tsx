@@ -221,6 +221,7 @@ export function TripPlanner({
       tripId={trip.id}
       initialQuery={chatInitialQuery}
       initialMessages={filteredMessages}
+      hasItinerary={days.length > 0}
       onItineraryUpdate={isOwner ? refreshItinerary : undefined}
       readOnly={!isOwner}
     />

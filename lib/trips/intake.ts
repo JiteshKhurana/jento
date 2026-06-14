@@ -57,6 +57,17 @@ export type BudgetCurrency = {
 };
 
 export const DEFAULT_BUDGET_CURRENCY = "INR";
+export const DEFAULT_END_DAY_BY = "22:00";
+
+export function formatEndDayBySummary(time24: string): string {
+  const match = time24.match(/^(\d{1,2}):(\d{2})$/);
+  if (!match) return time24;
+  let hours = parseInt(match[1], 10);
+  const minutes = match[2];
+  const period = hours >= 12 ? "PM" : "AM";
+  hours = hours % 12 || 12;
+  return `${hours}:${minutes} ${period}`;
+}
 
 export const BUDGET_CURRENCIES: BudgetCurrency[] = [
   { code: "INR", symbol: "₹", label: "INR" },
