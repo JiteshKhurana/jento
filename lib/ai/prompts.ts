@@ -2,7 +2,34 @@ import {
   formatTripDateRange,
   getExpectedTripDayCount,
 } from "@/lib/trips/dates";
-import { getStartingLocation, isLocalTrip } from "@/lib/trips/preferences";
+import {
+  getStartingLocation,
+  isLocalTrip,
+  parseTripPreferences,
+  type DietaryPreference,
+  type TripPace,
+} from "@/lib/trips/preferences";
+import {
+  DIETARY_DESCRIPTIONS,
+  DIETARY_LABELS,
+  PACE_DESCRIPTIONS,
+  PACE_LABELS,
+} from "@/lib/trips/intake";
+
+const PACE_ITEM_GUIDANCE: Record<TripPace, string> = {
+  relaxed: "3-4 items per day with generous breaks between stops",
+  moderate: "4-6 items per day with a balanced mix of activity and rest",
+  fast: "6-8+ items per day with tighter scheduling to fit in as much as possible",
+};
+
+const DIETARY_FOOD_GUIDANCE: Record<DietaryPreference, string> = {
+  pure_veg:
+    "Only recommend strictly pure-vegetarian restaurants and cafes (no eggs, meat, fish, or hidden animal products). Never suggest non-veg venues.",
+  veg: "Prioritize vegetarian restaurants and veg-friendly spots. Avoid dedicated meat/seafood restaurants.",
+  non_veg:
+    "Include non-vegetarian restaurants and local meat/seafood specialties alongside other options.",
+  any: "No dietary filter — recommend the best local food regardless of veg/non-veg.",
+};
 
 export function buildSystemPrompt(trip: {
   destination: string;
@@ -22,17 +49,25 @@ export function buildSystemPrompt(trip: {
         ? `about ${expectedDays} days (flexible dates)`
         : "dates to be determined";
 
-  const preferences = trip.preferences as
-    | {
-        isRoadTrip?: boolean;
-        locations?: Array<{ name: string }>;
-        startingLocation?: { name: string; label?: string };
-      }
-    | undefined;
+  const preferences = parseTripPreferences(trip.preferences);
   const startingFrom = getStartingLocation(trip.preferences);
   const localTrip = isLocalTrip(trip.preferences, trip.destination);
+  const pace = preferences.pace;
+  const dietary = preferences.dietary;
+  const paceGuidelines = pace
+    ? `
+Trip pace (set at trip creation — do not ask the user about pace):
+- ${PACE_LABELS[pace]}: ${PACE_DESCRIPTIONS[pace]}
+- Schedule ${PACE_ITEM_GUIDANCE[pace]}`
+    : "";
+  const dietaryGuidelines = dietary
+    ? `
+Dietary preference (set at trip creation — do not ask the user about dietary needs):
+- ${DIETARY_LABELS[dietary]}: ${DIETARY_DESCRIPTIONS[dietary]}
+- ${DIETARY_FOOD_GUIDANCE[dietary]}`
+    : "";
   const roadTripGuidelines =
-    preferences?.isRoadTrip === true
+    preferences.isRoadTrip === true
       ? `
 Road trip rules (this trip is marked as a road trip):
 - The route stops are listed in preferences.locations in driving order.
@@ -46,7 +81,7 @@ Road trip rules (this trip is marked as a road trip):
       : "";
 
   const flightGuidelines =
-    preferences?.isRoadTrip !== true && startingFrom && !localTrip
+    preferences.isRoadTrip !== true && startingFrom && !localTrip
       ? `
 Flight guidelines (user's starting location is known: ${startingFrom.label ?? startingFrom.name}):
 - The user will be flying to the destination.
@@ -70,10 +105,10 @@ Current trip context:
 - Destination: ${trip.destination}
 - Dates: ${dateRange}
 - Preferences: ${JSON.stringify(trip.preferences ?? {})}
-${roadTripGuidelines}${flightGuidelines}
+${paceGuidelines}${dietaryGuidelines}${roadTripGuidelines}${flightGuidelines}
 Guidelines:
-1. Use the trip context (destination, dates, travelers, budget) already provided — do not re-ask for information the user has already given unless something is missing or unclear.
-2. Ask clarifying questions only about pace, interests, dietary needs, and travel style before generating a full itinerary.
+1. Use the trip context (destination, dates, travelers, budget, pace, dietary) already provided — do not re-ask for information the user has already given unless something is missing or unclear.
+2. Ask clarifying questions only about interests and travel style before generating a full itinerary — pace and dietary needs are already set in trip preferences; never ask about pace or diet.
 3. Prefer authentic local experiences over tourist traps when the user asks for it.
 4. When you have enough information, use the saveItinerary tool to create a structured day-by-day plan.${expectedDays ? ` The itinerary must contain exactly ${expectedDays} days (dayNumber 1 through ${expectedDays}), one for each calendar day in the trip range — the end date is a full day, not checkout-only.` : ""}
 5. Use google_maps grounding to discover real venues at the destination. Ground venues before calling saveItinerary or updateItineraryDay — never invent place names without Maps data.
@@ -86,7 +121,7 @@ Guidelines:
 7. Include a mix of activities, food, lodging, and transport as appropriate.
 8. Be concise in chat but thorough in itineraries.
 9. When users ask to change a day, use updateItineraryDay.
-10. Each day should have 3-5 well-paced items with realistic timing. Every item must include startTime (e.g. "9:30 AM") and duration (e.g. "2h") — never leave items without a scheduled time. Use check-in time for lodging (e.g. "3:00 PM"), not all-day blocks.
+10. Match the number of items per day to preferences.pace when set — do not cap at a fixed count. Every item must include startTime (e.g. "9:30 AM") and duration (e.g. "2h") — never leave items without a scheduled time. Use check-in time for lodging (e.g. "3:00 PM"), not all-day blocks.
 11. After using any tool, always send a short natural-language reply summarizing what you did or asking the next question. Never end a turn with only a tool call and no text.
 12. When building an itinerary, call saveItinerary in the same turn after grounding venues with google_maps — do not stop after grounding alone.
 13. For each day in saveItinerary and updateItineraryDay, include:

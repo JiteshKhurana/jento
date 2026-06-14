@@ -39,9 +39,15 @@ import { cn } from "@/lib/utils";
 import {
   BUDGET_CURRENCIES,
   DEFAULT_BUDGET_CURRENCY,
+  DIETARY_DESCRIPTIONS,
+  DIETARY_LABELS,
+  PACE_DESCRIPTIONS,
+  PACE_LABELS,
   TRAVELER_LABELS,
   formatTravelerSummary,
+  type DietaryPreference,
   type TravelerType,
+  type TripPace,
 } from "@/lib/trips/intake";
 import { getCurrentLocation } from "@/lib/locations/get-current-location";
 
@@ -88,6 +94,8 @@ export function NewTripDialog({ open, onOpenChange }: NewTripDialogProps) {
   const [preferences, setPreferences] = useState("");
   const [travelerType, setTravelerType] = useState<TravelerType | null>(null);
   const [travelerCount, setTravelerCount] = useState("");
+  const [pace, setPace] = useState<TripPace | null>(null);
+  const [dietary, setDietary] = useState<DietaryPreference | null>(null);
   const [budgetAmount, setBudgetAmount] = useState("");
   const [budgetCurrency, setBudgetCurrency] = useState(DEFAULT_BUDGET_CURRENCY);
   const [loading, setLoading] = useState(false);
@@ -131,6 +139,8 @@ export function NewTripDialog({ open, onOpenChange }: NewTripDialogProps) {
       setPreferences("");
       setTravelerType(null);
       setTravelerCount("");
+      setPace(null);
+      setDietary(null);
       setBudgetAmount("");
       setBudgetCurrency(DEFAULT_BUDGET_CURRENCY);
       setLoading(false);
@@ -197,6 +207,8 @@ export function NewTripDialog({ open, onOpenChange }: NewTripDialogProps) {
               count: travelerCount ? Number(travelerCount) : null,
             }
           : null,
+        pace,
+        dietary,
         budgetPerPerson: budgetAmount ? Number(budgetAmount) : null,
         budgetCurrency,
         notes: preferences.trim() || null,
@@ -220,6 +232,16 @@ export function NewTripDialog({ open, onOpenChange }: NewTripDialogProps) {
           budgetCurrency;
         initialParts.push(
           `Budget of ${symbol}${Number(budgetAmount).toLocaleString()} per person.`,
+        );
+      }
+      if (pace) {
+        initialParts.push(
+          `Prefer a ${PACE_LABELS[pace].toLowerCase()} pace (${PACE_DESCRIPTIONS[pace].toLowerCase()}).`,
+        );
+      }
+      if (dietary) {
+        initialParts.push(
+          `Dietary preference: ${DIETARY_LABELS[dietary].toLowerCase()} (${DIETARY_DESCRIPTIONS[dietary].toLowerCase()}).`,
         );
       }
       if (preferences.trim()) initialParts.push(preferences.trim());
@@ -251,6 +273,8 @@ export function NewTripDialog({ open, onOpenChange }: NewTripDialogProps) {
   const canCreate =
     locations.length > 0 &&
     travelerType !== null &&
+    pace !== null &&
+    dietary !== null &&
     budgetAmount.trim() !== "" &&
     Number(budgetAmount) > 0 &&
     !loading &&
@@ -496,8 +520,59 @@ export function NewTripDialog({ open, onOpenChange }: NewTripDialogProps) {
                     className="flex-1"
                   />
                 </div>
+              </div>
+
+              <div className="space-y-3">
+                <Label>Trip pace</Label>
+                <div className="flex flex-wrap gap-2">
+                  {(["relaxed", "moderate", "fast"] as const).map((option) => (
+                    <button
+                      key={option}
+                      type="button"
+                      onClick={() => setPace(option)}
+                      className={cn(
+                        "rounded-full border px-4 py-2 text-sm font-medium transition-colors",
+                        pace === option
+                          ? "border-neutral-900 bg-neutral-900 text-white"
+                          : "border-neutral-200 text-neutral-600 hover:border-neutral-300",
+                      )}
+                    >
+                      {PACE_LABELS[option]}
+                    </button>
+                  ))}
+                </div>
                 <p className="text-xs text-neutral-400">
-                  Total spend for the whole trip, per person
+                  {pace
+                    ? PACE_DESCRIPTIONS[pace]
+                    : "How packed should each day feel?"}
+                </p>
+              </div>
+
+              <div className="space-y-3">
+                <Label>Food preference</Label>
+                <div className="flex flex-wrap gap-2">
+                  {(["pure_veg", "veg", "non_veg", "any"] as const).map(
+                    (option) => (
+                      <button
+                        key={option}
+                        type="button"
+                        onClick={() => setDietary(option)}
+                        className={cn(
+                          "rounded-full border px-4 py-2 text-sm font-medium transition-colors",
+                          dietary === option
+                            ? "border-neutral-900 bg-neutral-900 text-white"
+                            : "border-neutral-200 text-neutral-600 hover:border-neutral-300",
+                        )}
+                      >
+                        {DIETARY_LABELS[option]}
+                      </button>
+                    ),
+                  )}
+                </div>
+                <p className="text-xs text-neutral-400">
+                  {dietary
+                    ? DIETARY_DESCRIPTIONS[dietary]
+                    : "What kind of restaurants should we plan around?"}
                 </p>
               </div>
 
@@ -505,7 +580,7 @@ export function NewTripDialog({ open, onOpenChange }: NewTripDialogProps) {
                 <Label htmlFor="trip-preferences">Anything else?</Label>
                 <Textarea
                   id="trip-preferences"
-                  placeholder="Must-dos, pace, dietary needs, vibe…"
+                  placeholder="Must-dos, vibe, accessibility needs…"
                   value={preferences}
                   onChange={(e) =>
                     setPreferences(e.target.value.slice(0, 1000))

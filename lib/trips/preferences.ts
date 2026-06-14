@@ -5,10 +5,16 @@ export type TripLocationPreference = {
   longitude?: string;
 };
 
+export type TripPace = "relaxed" | "moderate" | "fast";
+
+export type DietaryPreference = "pure_veg" | "veg" | "non_veg" | "any";
+
 export type TripPreferences = {
   isRoadTrip?: boolean;
   locations?: TripLocationPreference[];
   startingLocation?: TripLocationPreference;
+  pace?: TripPace;
+  dietary?: DietaryPreference;
   budgetPerPerson?: number;
   budgetCurrency?: string;
   [key: string]: unknown;

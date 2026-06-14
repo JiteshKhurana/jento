@@ -1,6 +1,9 @@
 import { format } from "date-fns";
 import type { SelectedLocation } from "@/components/trips/destination-autocomplete";
 import { toCalendarDateISO } from "@/lib/trips/dates";
+import type { DietaryPreference, TripPace } from "@/lib/trips/preferences";
+
+export type { DietaryPreference, TripPace };
 
 export type TravelerType = "solo" | "couple" | "friends" | "family" | "group";
 export type BudgetTier = "budget" | "moderate" | "upscale" | "luxury";
@@ -12,6 +15,32 @@ export const TRAVELER_LABELS: Record<TravelerType, string> = {
   friends: "Friends",
   family: "Family",
   group: "Group",
+};
+
+export const PACE_LABELS: Record<TripPace, string> = {
+  relaxed: "Relaxed",
+  moderate: "Moderate",
+  fast: "Fast-paced",
+};
+
+export const PACE_DESCRIPTIONS: Record<TripPace, string> = {
+  relaxed: "Fewer stops, more downtime",
+  moderate: "Balanced mix of sights and rest",
+  fast: "Packed schedule, see as much as possible",
+};
+
+export const DIETARY_LABELS: Record<DietaryPreference, string> = {
+  pure_veg: "Pure veg",
+  veg: "Veg",
+  non_veg: "Non-veg",
+  any: "Anything works",
+};
+
+export const DIETARY_DESCRIPTIONS: Record<DietaryPreference, string> = {
+  pure_veg: "Strictly vegetarian — no eggs, meat, or fish",
+  veg: "Vegetarian meals preferred",
+  non_veg: "Non-vegetarian options welcome",
+  any: "No dietary restrictions",
 };
 
 export const BUDGET_LABELS: Record<BudgetTier, string> = {
@@ -59,6 +88,8 @@ export type TripIntakeData = {
   flexibleDays?: number;
   travelerType: TravelerType | null;
   travelerCount?: number;
+  pace: TripPace | null;
+  dietary: DietaryPreference | null;
   budgetPerPerson: number | null;
   budgetCurrency: string;
 };
@@ -89,7 +120,16 @@ export function formatWhenSummary(data: TripIntakeData): string | null {
 }
 
 export function isTripIntakeComplete(data: TripIntakeData): boolean {
-  if (!data.location || !data.budgetPerPerson || data.budgetPerPerson <= 0 || !data.travelerType) return false;
+  if (
+    !data.location ||
+    !data.budgetPerPerson ||
+    data.budgetPerPerson <= 0 ||
+    !data.travelerType ||
+    !data.pace ||
+    !data.dietary
+  ) {
+    return false;
+  }
   if (
     (data.travelerType === "friends" || data.travelerType === "group") &&
     (!data.travelerCount || data.travelerCount < 2)
@@ -112,6 +152,8 @@ export function buildTripPreferences(data: TripIntakeData) {
           count: data.travelerCount ?? null,
         }
       : null,
+    pace: data.pace ?? null,
+    dietary: data.dietary ?? null,
     budgetPerPerson: data.budgetPerPerson ?? null,
     budgetCurrency: data.budgetCurrency,
   };
@@ -143,6 +185,14 @@ export function buildTripInitialMessage(data: TripIntakeData): string {
   if (data.budgetPerPerson && data.budgetPerPerson > 0) {
     const symbol = getCurrencySymbol(data.budgetCurrency);
     parts.push(`Budget of ${symbol}${data.budgetPerPerson.toLocaleString()} per person.`);
+  }
+
+  if (data.pace) {
+    parts.push(`Prefer a ${PACE_LABELS[data.pace].toLowerCase()} pace (${PACE_DESCRIPTIONS[data.pace].toLowerCase()}).`);
+  }
+
+  if (data.dietary) {
+    parts.push(`Dietary preference: ${DIETARY_LABELS[data.dietary].toLowerCase()} (${DIETARY_DESCRIPTIONS[data.dietary].toLowerCase()}).`);
   }
 
   return parts.join(" ");

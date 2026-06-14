@@ -359,9 +359,9 @@ function ItemBlock({
                 {badgeLabel}
               </span>
             </div>
-            {item.placeCache?.address && (
-              <p className="mt-0.5 truncate text-[11px] text-neutral-400">
-                {item.placeCache.address}
+            {item.description && (
+              <p className="mt-0.5 line-clamp-2 text-[11px] leading-relaxed text-neutral-400">
+                {item.description}
               </p>
             )}
           </div>
@@ -372,12 +372,6 @@ function ItemBlock({
             </div>
           )}
         </div>
-
-        {item.description && !imageUrl && (
-          <p className="mt-1.5 line-clamp-2 text-xs leading-relaxed text-neutral-500">
-            {item.description}
-          </p>
-        )}
 
         {/* Quick actions */}
         {(mapsUrl || item.bookingUrl) && (

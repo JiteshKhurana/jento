@@ -12,7 +12,11 @@ import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import {
   Select,
   SelectContent,
@@ -23,14 +27,20 @@ import {
 import {
   BUDGET_CURRENCIES,
   DEFAULT_BUDGET_CURRENCY,
+  DIETARY_DESCRIPTIONS,
+  DIETARY_LABELS,
+  PACE_DESCRIPTIONS,
+  PACE_LABELS,
   TRAVELER_LABELS,
   formatBudgetAmount,
   formatTravelerSummary,
   formatWhenSummary,
   isTripIntakeComplete,
+  type DietaryPreference,
   type TimingMode,
   type TravelerType,
   type TripIntakeData,
+  type TripPace,
 } from "@/lib/trips/intake";
 import { cn } from "@/lib/utils";
 
@@ -67,7 +77,12 @@ function Segment({ label, value }: { label: string; value: string | null }) {
   );
 }
 
-export function TripIntakeBar({ onSubmit, loading, className, initialDestinationQuery }: TripIntakeBarProps) {
+export function TripIntakeBar({
+  onSubmit,
+  loading,
+  className,
+  initialDestinationQuery,
+}: TripIntakeBarProps) {
   const [openField, setOpenField] = useState<IntakeField | null>("where");
   const [location, setLocation] = useState<SelectedLocation | null>(null);
   const [searchQuery, setSearchQuery] = useState(initialDestinationQuery ?? "");
@@ -76,6 +91,8 @@ export function TripIntakeBar({ onSubmit, loading, className, initialDestination
   const [flexibleDays, setFlexibleDays] = useState("");
   const [travelerType, setTravelerType] = useState<TravelerType | null>(null);
   const [travelerCount, setTravelerCount] = useState("");
+  const [pace, setPace] = useState<TripPace | null>(null);
+  const [dietary, setDietary] = useState<DietaryPreference | null>(null);
   const [budgetAmount, setBudgetAmount] = useState("");
   const [budgetCurrency, setBudgetCurrency] = useState(DEFAULT_BUDGET_CURRENCY);
 
@@ -88,6 +105,8 @@ export function TripIntakeBar({ onSubmit, loading, className, initialDestination
     flexibleDays: flexibleDays ? Number(flexibleDays) : undefined,
     travelerType,
     travelerCount: travelerCount ? Number(travelerCount) : undefined,
+    pace,
+    dietary,
     budgetPerPerson: budgetAmount ? Number(budgetAmount) : null,
     budgetCurrency,
   };
@@ -150,228 +169,304 @@ export function TripIntakeBar({ onSubmit, loading, className, initialDestination
     <form onSubmit={handleSubmit} className={cn("w-full", className)}>
       <div className="chat-input-shadow overflow-x-auto rounded-full border border-neutral-200/80 bg-white">
         <div className="flex min-w-[520px] items-stretch">
-        {segments.map((segment, index) => (
-          <div key={segment.id} className="flex min-w-0 flex-1 items-stretch">
-            {index > 0 && <div className="w-px self-stretch bg-neutral-200" />}
-            <Popover
-              open={openField === segment.id}
-              onOpenChange={(open) => setOpenField(open ? segment.id : null)}
-            >
-              <PopoverTrigger asChild>
-                <button
-                  type="button"
-                  className="flex w-full min-w-0 items-center transition-colors hover:bg-neutral-50/80"
-                >
-                  <Segment label={segment.label} value={segment.summary} />
-                </button>
-              </PopoverTrigger>
-              <PopoverContent
-                align="start"
-                className="w-[min(calc(100vw-2rem),320px)] p-4 sm:w-80"
+          {segments.map((segment, index) => (
+            <div key={segment.id} className="flex min-w-0 flex-1 items-stretch">
+              {index > 0 && (
+                <div className="w-px self-stretch bg-neutral-200" />
+              )}
+              <Popover
+                open={openField === segment.id}
+                onOpenChange={(open) => setOpenField(open ? segment.id : null)}
               >
-                {segment.id === "where" && (
-                  <div className="space-y-3">
-                    <Label>Where to?</Label>
-                    <DestinationAutocomplete
-                      value={searchQuery}
-                      onChange={setSearchQuery}
-                      onSelect={handleLocationSelect}
-                      placeholder="Search cities or countries…"
-                      autoFocus
-                    />
-                    {location && (
-                      <p className="text-sm text-neutral-600">
-                        Selected:{" "}
-                        <span className="font-medium text-neutral-900">
-                          {whereSummary}
-                        </span>
-                      </p>
-                    )}
-                  </div>
-                )}
-
-                {segment.id === "when" && (
-                  <div className="space-y-3">
-                    <Label>When?</Label>
-                    <div className="flex gap-2">
-                      {(["dates", "flexible"] as const).map((mode) => (
-                        <button
-                          key={mode}
-                          type="button"
-                          onClick={() => setTimingMode(mode)}
-                          className={cn(
-                            "rounded-full border px-3 py-1.5 text-xs font-medium transition-colors",
-                            timingMode === mode
-                              ? "border-neutral-900 bg-neutral-900 text-white"
-                              : "border-neutral-200 text-neutral-600 hover:border-neutral-300",
-                          )}
-                        >
-                          {mode === "dates" ? "Dates" : "Flexible"}
-                        </button>
-                      ))}
-                    </div>
-
-                    {timingMode === "flexible" ? (
-                      <div className="space-y-2">
-                        <Label htmlFor="flex-days" className="font-normal text-neutral-600">
-                          How many days?
-                        </Label>
-                        <Input
-                          id="flex-days"
-                          type="number"
-                          min={1}
-                          max={365}
-                          placeholder="e.g. 5"
-                          value={flexibleDays}
-                          onChange={(e) => setFlexibleDays(e.target.value)}
-                        />
-                      </div>
-                    ) : (
-                      <Calendar
-                        mode="range"
-                        selected={dateRange}
-                        onSelect={setDateRange}
-                        numberOfMonths={1}
-                        disabled={{ before: new Date() }}
-                        className="rounded-xl border border-neutral-100 p-2"
+                <PopoverTrigger asChild>
+                  <button
+                    type="button"
+                    className="flex w-full min-w-0 items-center transition-colors hover:bg-neutral-50/80"
+                  >
+                    <Segment label={segment.label} value={segment.summary} />
+                  </button>
+                </PopoverTrigger>
+                <PopoverContent
+                  align="start"
+                  className="w-[min(calc(100vw-2rem),320px)] p-4 sm:w-80"
+                >
+                  {segment.id === "where" && (
+                    <div className="space-y-3">
+                      <Label>Where to?</Label>
+                      <DestinationAutocomplete
+                        value={searchQuery}
+                        onChange={setSearchQuery}
+                        onSelect={handleLocationSelect}
+                        placeholder="Search cities or countries…"
+                        autoFocus
                       />
-                    )}
-
-                    <Button
-                      type="button"
-                      size="sm"
-                      className="w-full"
-                      onClick={advanceFromWhen}
-                      disabled={
-                        timingMode === "flexible"
-                          ? !flexibleDays.trim()
-                          : !dateRange?.from
-                      }
-                    >
-                      Continue
-                    </Button>
-                  </div>
-                )}
-
-                {segment.id === "who" && (
-                  <div className="space-y-3">
-                    <Label>Who&apos;s going?</Label>
-                    <div className="grid grid-cols-2 gap-2">
-                      {TRAVELER_TYPES.map((type) => (
-                        <button
-                          key={type}
-                          type="button"
-                          onClick={() => handleTravelerSelect(type)}
-                          className={cn(
-                            "rounded-xl border px-3 py-2 text-sm font-medium transition-colors",
-                            travelerType === type
-                              ? "border-neutral-900 bg-neutral-900 text-white"
-                              : "border-neutral-200 text-neutral-700 hover:border-neutral-300",
-                          )}
-                        >
-                          {TRAVELER_LABELS[type]}
-                        </button>
-                      ))}
+                      {location && (
+                        <p className="text-sm text-neutral-600">
+                          Selected:{" "}
+                          <span className="font-medium text-neutral-900">
+                            {whereSummary}
+                          </span>
+                        </p>
+                      )}
                     </div>
+                  )}
 
-                    {(travelerType === "friends" || travelerType === "group") && (
-                      <div className="space-y-2">
-                        <Label htmlFor="traveler-count" className="font-normal text-neutral-600">
-                          How many people?
-                        </Label>
-                        <Input
-                          id="traveler-count"
-                          type="number"
-                          min={2}
-                          max={50}
-                          placeholder={travelerType === "friends" ? "e.g. 4" : "e.g. 8"}
-                          value={travelerCount}
-                          onChange={(e) => setTravelerCount(e.target.value)}
-                        />
+                  {segment.id === "when" && (
+                    <div className="space-y-3">
+                      <Label>When?</Label>
+                      <div className="flex gap-2">
+                        {(["dates", "flexible"] as const).map((mode) => (
+                          <button
+                            key={mode}
+                            type="button"
+                            onClick={() => setTimingMode(mode)}
+                            className={cn(
+                              "rounded-full border px-3 py-1.5 text-xs font-medium transition-colors",
+                              timingMode === mode
+                                ? "border-neutral-900 bg-neutral-900 text-white"
+                                : "border-neutral-200 text-neutral-600 hover:border-neutral-300",
+                            )}
+                          >
+                            {mode === "dates" ? "Dates" : "Flexible"}
+                          </button>
+                        ))}
                       </div>
-                    )}
 
-                    {(travelerType === "friends" || travelerType === "group") && (
+                      {timingMode === "flexible" ? (
+                        <div className="space-y-2">
+                          <Label
+                            htmlFor="flex-days"
+                            className="font-normal text-neutral-600"
+                          >
+                            How many days?
+                          </Label>
+                          <Input
+                            id="flex-days"
+                            type="number"
+                            min={1}
+                            max={365}
+                            placeholder="e.g. 5"
+                            value={flexibleDays}
+                            onChange={(e) => setFlexibleDays(e.target.value)}
+                          />
+                        </div>
+                      ) : (
+                        <Calendar
+                          mode="range"
+                          selected={dateRange}
+                          onSelect={setDateRange}
+                          numberOfMonths={1}
+                          disabled={{ before: new Date() }}
+                          className="rounded-xl border border-neutral-100 p-2"
+                        />
+                      )}
+
                       <Button
                         type="button"
                         size="sm"
                         className="w-full"
-                        onClick={() => setOpenField("budget")}
-                        disabled={!travelerCount.trim()}
+                        onClick={advanceFromWhen}
+                        disabled={
+                          timingMode === "flexible"
+                            ? !flexibleDays.trim()
+                            : !dateRange?.from
+                        }
                       >
                         Continue
                       </Button>
-                    )}
-                  </div>
-                )}
-
-                {segment.id === "budget" && (
-                  <div className="space-y-3">
-                    <Label>Budget per person</Label>
-                    <div className="flex gap-2">
-                      <Select value={budgetCurrency} onValueChange={setBudgetCurrency}>
-                        <SelectTrigger className="h-11 w-auto shrink-0 px-3">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {BUDGET_CURRENCIES.map((c) => (
-                            <SelectItem key={c.code} value={c.code}>
-                              {c.symbol} {c.code}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <Input
-                        type="number"
-                        min={1}
-                        placeholder="e.g. 1500"
-                        value={budgetAmount}
-                        onChange={(e) => setBudgetAmount(e.target.value)}
-                        autoFocus
-                        className="flex-1"
-                      />
                     </div>
-                    <p className="text-xs text-neutral-400">
-                      Total spend for the whole trip, per person
-                    </p>
-                    <Button
-                      type="button"
-                      size="sm"
-                      className="w-full"
-                      onClick={() => setOpenField(null)}
-                      disabled={!budgetAmount || Number(budgetAmount) <= 0}
-                    >
-                      Done
-                    </Button>
-                  </div>
-                )}
-              </PopoverContent>
-            </Popover>
-          </div>
-        ))}
+                  )}
 
-        <div className="flex shrink-0 items-center pr-2 pl-1">
-          <Button
-            type="submit"
-            size="icon"
-            disabled={loading || !isTripIntakeComplete(intake)}
-            className="h-10 w-10 rounded-full"
-            aria-label={loading ? "Creating trip…" : "Start planning"}
-          >
-            {loading ? (
-              <Spinner size="sm" className="text-white" />
-            ) : (
-              <ArrowUp className="h-4 w-4" />
-            )}
-          </Button>
-        </div>
+                  {segment.id === "who" && (
+                    <div className="space-y-3">
+                      <Label>Who&apos;s going?</Label>
+                      <div className="grid grid-cols-2 gap-2">
+                        {TRAVELER_TYPES.map((type) => (
+                          <button
+                            key={type}
+                            type="button"
+                            onClick={() => handleTravelerSelect(type)}
+                            className={cn(
+                              "rounded-xl border px-3 py-2 text-sm font-medium transition-colors",
+                              travelerType === type
+                                ? "border-neutral-900 bg-neutral-900 text-white"
+                                : "border-neutral-200 text-neutral-700 hover:border-neutral-300",
+                            )}
+                          >
+                            {TRAVELER_LABELS[type]}
+                          </button>
+                        ))}
+                      </div>
+
+                      {(travelerType === "friends" ||
+                        travelerType === "group") && (
+                        <div className="space-y-2">
+                          <Label
+                            htmlFor="traveler-count"
+                            className="font-normal text-neutral-600"
+                          >
+                            How many people?
+                          </Label>
+                          <Input
+                            id="traveler-count"
+                            type="number"
+                            min={2}
+                            max={50}
+                            placeholder={
+                              travelerType === "friends" ? "e.g. 4" : "e.g. 8"
+                            }
+                            value={travelerCount}
+                            onChange={(e) => setTravelerCount(e.target.value)}
+                          />
+                        </div>
+                      )}
+
+                      {(travelerType === "friends" ||
+                        travelerType === "group") && (
+                        <Button
+                          type="button"
+                          size="sm"
+                          className="w-full"
+                          onClick={() => setOpenField("budget")}
+                          disabled={!travelerCount.trim()}
+                        >
+                          Continue
+                        </Button>
+                      )}
+                    </div>
+                  )}
+
+                  {segment.id === "budget" && (
+                    <div className="space-y-3">
+                      <Label>Budget per person</Label>
+                      <div className="flex gap-2">
+                        <Select
+                          value={budgetCurrency}
+                          onValueChange={setBudgetCurrency}
+                        >
+                          <SelectTrigger className="h-11 w-auto shrink-0 px-3">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {BUDGET_CURRENCIES.map((c) => (
+                              <SelectItem key={c.code} value={c.code}>
+                                {c.symbol} {c.code}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <Input
+                          type="number"
+                          min={1}
+                          placeholder="e.g. 1500"
+                          value={budgetAmount}
+                          onChange={(e) => setBudgetAmount(e.target.value)}
+                          autoFocus
+                          className="flex-1"
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label className="font-normal text-neutral-600">
+                          Trip pace
+                        </Label>
+                        <div className="flex flex-wrap gap-2">
+                          {(["relaxed", "moderate", "fast"] as const).map(
+                            (option) => (
+                              <button
+                                key={option}
+                                type="button"
+                                onClick={() => setPace(option)}
+                                className={cn(
+                                  "rounded-full border px-3 py-1.5 text-xs font-medium transition-colors",
+                                  pace === option
+                                    ? "border-neutral-900 bg-neutral-900 text-white"
+                                    : "border-neutral-200 text-neutral-600 hover:border-neutral-300",
+                                )}
+                              >
+                                {PACE_LABELS[option]}
+                              </button>
+                            ),
+                          )}
+                        </div>
+                        <p className="text-xs text-neutral-400">
+                          {pace
+                            ? PACE_DESCRIPTIONS[pace]
+                            : "How packed should each day feel?"}
+                        </p>
+                      </div>
+                      <div className="space-y-2">
+                        <Label className="font-normal text-neutral-600">
+                          Food preference
+                        </Label>
+                        <div className="flex flex-wrap gap-2">
+                          {(["pure_veg", "veg", "non_veg", "any"] as const).map(
+                            (option) => (
+                              <button
+                                key={option}
+                                type="button"
+                                onClick={() => setDietary(option)}
+                                className={cn(
+                                  "rounded-full border px-3 py-1.5 text-xs font-medium transition-colors",
+                                  dietary === option
+                                    ? "border-neutral-900 bg-neutral-900 text-white"
+                                    : "border-neutral-200 text-neutral-600 hover:border-neutral-300",
+                                )}
+                              >
+                                {DIETARY_LABELS[option]}
+                              </button>
+                            ),
+                          )}
+                        </div>
+                        <p className="text-xs text-neutral-400">
+                          {dietary
+                            ? DIETARY_DESCRIPTIONS[dietary]
+                            : "What kind of restaurants should we plan around?"}
+                        </p>
+                      </div>
+                      <Button
+                        type="button"
+                        size="sm"
+                        className="w-full"
+                        onClick={() => setOpenField(null)}
+                        disabled={
+                          !budgetAmount ||
+                          Number(budgetAmount) <= 0 ||
+                          !pace ||
+                          !dietary
+                        }
+                      >
+                        Done
+                      </Button>
+                    </div>
+                  )}
+                </PopoverContent>
+              </Popover>
+            </div>
+          ))}
+
+          <div className="flex shrink-0 items-center pr-2 pl-1">
+            <Button
+              type="submit"
+              size="icon"
+              disabled={loading || !isTripIntakeComplete(intake)}
+              className="h-10 w-10 rounded-full"
+              aria-label={loading ? "Creating trip…" : "Start planning"}
+            >
+              {loading ? (
+                <Spinner size="sm" className="text-white" />
+              ) : (
+                <ArrowUp className="h-4 w-4" />
+              )}
+            </Button>
+          </div>
         </div>
       </div>
 
       <p className="mt-3 text-center text-xs text-neutral-400">
         {isTripIntakeComplete(intake)
           ? "Ready to plan — hit send to start"
-          : "Fill in where, when, who, and budget to begin"}
+          : "Fill in where, when, who, budget, pace, and food preference to begin"}
       </p>
     </form>
   );
