@@ -447,48 +447,62 @@ export function TripPlanner({
             </div>
           </div>
 
-          <div className="flex min-h-0 flex-col">
-            {/* Map / Calendar toggle */}
-            <div className="shrink-0 border-b border-neutral-200/80 bg-white px-3 py-2">
-              <div className="flex rounded-lg bg-neutral-100 p-0.5">
+          <div className="flex min-h-0 flex-col overflow-hidden bg-white">
+            <div className="shrink-0 border-b border-neutral-100 bg-white px-4 py-3">
+              <div className="flex rounded-xl bg-neutral-100 p-1">
                 {(["map", "calendar"] as const).map((v) => (
                   <button
                     key={v}
                     type="button"
                     onClick={() => setRightView(v)}
                     className={cn(
-                      "flex flex-1 items-center justify-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-all",
+                      "flex flex-1 items-center justify-center rounded-lg px-3 py-2 text-sm font-medium transition-all",
                       rightView === v
                         ? "bg-white text-neutral-900 shadow-sm"
                         : "text-neutral-500 hover:text-neutral-700",
                     )}
                   >
                     {v === "map" ? (
-                      <>
+                      <span className="flex items-center justify-center gap-1.5">
                         <MapPin className="h-3.5 w-3.5" />
                         Map
-                      </>
+                      </span>
                     ) : (
-                      <>
+                      <span className="flex items-center justify-center gap-1.5">
                         <Calendar className="h-3.5 w-3.5" />
                         Calendar
-                      </>
+                      </span>
                     )}
                   </button>
                 ))}
               </div>
             </div>
-            <div className="min-h-0 flex-1 bg-neutral-100">
-              {rightView === "map" ? (
+            <div className="relative min-h-0 flex-1 overflow-hidden">
+              <div
+                className={cn(
+                  "absolute inset-0",
+                  rightView !== "map" && "pointer-events-none invisible",
+                )}
+              >
                 <TripMap
                   days={days}
                   destination={trip.destination}
                   selectedItemId={selectedItemId}
                   onSelectItem={handleSelectItem}
                 />
-              ) : (
-                <TripCalendar days={days} tripStartDate={trip.startDate} />
-              )}
+              </div>
+              <div
+                className={cn(
+                  "absolute inset-0 flex flex-col overflow-hidden",
+                  rightView !== "calendar" && "pointer-events-none invisible",
+                )}
+              >
+                <TripCalendar
+                  days={days}
+                  tripStartDate={trip.startDate}
+                  embedded
+                />
+              </div>
             </div>
           </div>
         </div>

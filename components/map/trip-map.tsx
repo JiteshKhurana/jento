@@ -210,7 +210,7 @@ export function TripMap({
 
   if (!apiKey) {
     return (
-      <div className="flex h-full items-center justify-center bg-zinc-100 p-4 text-center text-sm text-zinc-500">
+      <div className="flex h-full items-center justify-center bg-neutral-100 p-4 text-center text-sm text-neutral-500">
         Set NEXT_PUBLIC_GOOGLE_MAPS_API_KEY to enable the map
       </div>
     );

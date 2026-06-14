@@ -157,9 +157,15 @@ type CalEvent = {
 type TripCalendarProps = {
   days: ItineraryDayData[];
   tripStartDate: string | null;
+  /** Hides the page title when shown inside the desktop planner tab panel */
+  embedded?: boolean;
 };
 
-export function TripCalendar({ days, tripStartDate }: TripCalendarProps) {
+export function TripCalendar({
+  days,
+  tripStartDate,
+  embedded = false,
+}: TripCalendarProps) {
   const [pageStart, setPageStart] = useState(0);
 
   const baseDate = tripStartDate ? parseISO(tripStartDate) : null;
@@ -230,44 +236,56 @@ export function TripCalendar({ days, tripStartDate }: TripCalendarProps) {
     });
   });
 
+  const navButtons = (
+    <div className="flex gap-0.5">
+      <button
+        type="button"
+        disabled={!canPrev}
+        onClick={() => setPageStart((p) => Math.max(0, p - DAYS_PER_VIEW))}
+        className="flex h-7 w-7 items-center justify-center rounded-full text-neutral-600 hover:bg-neutral-100 disabled:cursor-not-allowed disabled:opacity-30"
+      >
+        <ChevronLeft className="h-4 w-4" />
+      </button>
+      <button
+        type="button"
+        disabled={!canNext}
+        onClick={() =>
+          setPageStart((p) =>
+            Math.min(daysWithDates.length - DAYS_PER_VIEW, p + DAYS_PER_VIEW),
+          )
+        }
+        className="flex h-7 w-7 items-center justify-center rounded-full text-neutral-600 hover:bg-neutral-100 disabled:cursor-not-allowed disabled:opacity-30"
+      >
+        <ChevronRight className="h-4 w-4" />
+      </button>
+    </div>
+  );
+
   return (
     <div className="flex h-full flex-col overflow-hidden bg-white">
-      {/* ── Header ─────────────────────────────────────────── */}
-      <div className="flex shrink-0 items-center justify-between border-b border-neutral-200 px-5 py-3">
-        <div className="flex items-center gap-2.5">
-          <h2 className="text-base font-semibold text-neutral-900">Calendar</h2>
-          <span className="rounded-full bg-neutral-100 px-2 py-0.5 text-[11px] font-medium text-neutral-500">
-            {visible.length} {visible.length === 1 ? "day" : "days"}
+      {embedded ? (
+        <div className="flex shrink-0 items-center justify-between border-b border-neutral-100 bg-white px-4 py-3">
+          <span className="text-sm font-medium text-neutral-600">
+            {rangeLabel}
           </span>
+          {navButtons}
         </div>
-        <div className="flex items-center gap-2">
-          <span className="text-sm text-neutral-500">{rangeLabel}</span>
-          <div className="flex gap-0.5">
-            <button
-              type="button"
-              disabled={!canPrev}
-              onClick={() =>
-                setPageStart((p) => Math.max(0, p - DAYS_PER_VIEW))
-              }
-              className="flex h-7 w-7 items-center justify-center rounded-full text-neutral-600 hover:bg-neutral-100 disabled:opacity-30 disabled:cursor-not-allowed"
-            >
-              <ChevronLeft className="h-4 w-4" />
-            </button>
-            <button
-              type="button"
-              disabled={!canNext}
-              onClick={() =>
-                setPageStart((p) =>
-                  Math.min(daysWithDates.length - DAYS_PER_VIEW, p + DAYS_PER_VIEW),
-                )
-              }
-              className="flex h-7 w-7 items-center justify-center rounded-full text-neutral-600 hover:bg-neutral-100 disabled:opacity-30 disabled:cursor-not-allowed"
-            >
-              <ChevronRight className="h-4 w-4" />
-            </button>
+      ) : (
+        <div className="flex shrink-0 items-center justify-between border-b border-neutral-200 px-5 py-3">
+          <div className="flex items-center gap-2.5">
+            <h2 className="text-base font-semibold text-neutral-900">
+              Calendar
+            </h2>
+            <span className="rounded-full bg-neutral-100 px-2 py-0.5 text-[11px] font-medium text-neutral-500">
+              {visible.length} {visible.length === 1 ? "day" : "days"}
+            </span>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-neutral-500">{rangeLabel}</span>
+            {navButtons}
           </div>
         </div>
-      </div>
+      )}
 
       {/* ── Day column headers ──────────────────────────────── */}
       <div className="flex shrink-0 border-b border-neutral-200 bg-white">
