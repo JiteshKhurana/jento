@@ -30,14 +30,74 @@ export type ItineraryTemplate = {
 
 export const FEATURED_DESTINATIONS: FeaturedDestination[] = [
   {
-    id: "tokyo",
-    name: "Tokyo",
-    country: "Japan",
-    tagline: "Where tradition meets the future",
-    categories: ["city", "culture", "food"],
-    unsplashQuery: "tokyo japan city",
+    id: "jaipur",
+    name: "Jaipur",
+    country: "India",
+    tagline: "The Pink City of palaces and forts",
+    categories: ["culture", "city", "food"],
+    unsplashQuery: "jaipur india hawa mahal",
     initialMessage:
-      "Plan me an amazing trip to Tokyo, Japan. I want to experience the best of Japanese culture, food, and technology.",
+      "Plan a trip to Jaipur, India. I want to explore Amber Fort, Hawa Mahal, local bazaars, and Rajasthani cuisine.",
+  },
+  {
+    id: "goa",
+    name: "Goa",
+    country: "India",
+    tagline: "Sun, sand, and Portuguese charm",
+    categories: ["beach", "food", "culture"],
+    unsplashQuery: "goa india beach palm",
+    initialMessage:
+      "Help me plan a beach trip to Goa, India. Include the best beaches, seafood shacks, Portuguese heritage sites, and nightlife.",
+  },
+  {
+    id: "kerala",
+    name: "Kerala",
+    country: "India",
+    tagline: "Backwaters, spice gardens, and lush greenery",
+    categories: ["culture", "beach", "food"],
+    unsplashQuery: "kerala india backwaters houseboat",
+    initialMessage:
+      "Plan a relaxing trip to Kerala, India. Include houseboat cruises on the backwaters, Munnar tea plantations, and authentic South Indian food.",
+  },
+  {
+    id: "mumbai",
+    name: "Mumbai",
+    country: "India",
+    tagline: "Bollywood, street food, and seafront energy",
+    categories: ["city", "food", "culture"],
+    unsplashQuery: "mumbai india gateway of india",
+    initialMessage:
+      "Help me plan a trip to Mumbai, India. I want to explore street food, Marine Drive, historic neighborhoods, and day trips to Elephanta Caves.",
+  },
+  {
+    id: "udaipur",
+    name: "Udaipur",
+    country: "India",
+    tagline: "Romantic lakes and royal palaces",
+    categories: ["culture", "city"],
+    unsplashQuery: "udaipur india lake palace",
+    initialMessage:
+      "Plan a romantic trip to Udaipur, India. Include Lake Pichola, City Palace, sunset boat rides, and heritage haveli stays.",
+  },
+  {
+    id: "ladakh",
+    name: "Ladakh",
+    country: "India",
+    tagline: "High-altitude desert and mountain monasteries",
+    categories: ["adventure", "culture"],
+    unsplashQuery: "ladakh india mountains monastery",
+    initialMessage:
+      "Plan an adventure trip to Ladakh, India. Include Leh, Pangong Lake, Nubra Valley, monasteries, and scenic high-altitude drives.",
+  },
+  {
+    id: "varanasi",
+    name: "Varanasi",
+    country: "India",
+    tagline: "Ancient ghats and spiritual rituals",
+    categories: ["culture"],
+    unsplashQuery: "varanasi india ganges ghats",
+    initialMessage:
+      "Help me plan a cultural trip to Varanasi, India. I want to experience the Ganges ghats at sunrise, temple visits, and local Banarasi cuisine.",
   },
   {
     id: "bali",
@@ -60,16 +120,6 @@ export const FEATURED_DESTINATIONS: FeaturedDestination[] = [
       "Help me plan a trip to Paris, France. I want to see iconic landmarks, visit world-class museums, and enjoy French cuisine.",
   },
   {
-    id: "santorini",
-    name: "Santorini",
-    country: "Greece",
-    tagline: "Sunsets over the Aegean",
-    categories: ["beach", "culture"],
-    unsplashQuery: "santorini greece sunset",
-    initialMessage:
-      "Plan a romantic trip to Santorini, Greece with stunning sunsets, whitewashed villages, and amazing Mediterranean food.",
-  },
-  {
     id: "new-york",
     name: "New York",
     country: "USA",
@@ -78,46 +128,6 @@ export const FEATURED_DESTINATIONS: FeaturedDestination[] = [
     unsplashQuery: "new york city manhattan",
     initialMessage:
       "Help me plan a trip to New York City. I want to explore different neighborhoods, catch Broadway shows, and eat at amazing restaurants.",
-  },
-  {
-    id: "machu-picchu",
-    name: "Machu Picchu",
-    country: "Peru",
-    tagline: "Lost city of the Incas",
-    categories: ["adventure", "culture"],
-    unsplashQuery: "machu picchu peru ancient",
-    initialMessage:
-      "I want to visit Machu Picchu in Peru. Plan me a trip that includes hiking, Inca history, and exploring Cusco.",
-  },
-  {
-    id: "amalfi",
-    name: "Amalfi Coast",
-    country: "Italy",
-    tagline: "Clifftop villages above turquoise seas",
-    categories: ["beach", "food", "culture"],
-    unsplashQuery: "amalfi coast italy sea",
-    initialMessage:
-      "Plan a scenic trip along the Amalfi Coast in Italy. Include coastal drives, charming villages, fresh seafood, and day trips to Pompeii.",
-  },
-  {
-    id: "kyoto",
-    name: "Kyoto",
-    country: "Japan",
-    tagline: "Ancient temples and bamboo forests",
-    categories: ["culture", "city", "food"],
-    unsplashQuery: "kyoto japan temple cherry",
-    initialMessage:
-      "Help me plan a trip to Kyoto, Japan. I want to visit ancient temples, walk through bamboo groves, and experience a tea ceremony.",
-  },
-  {
-    id: "safari",
-    name: "Serengeti",
-    country: "Tanzania",
-    tagline: "The great migration awaits",
-    categories: ["adventure", "culture"],
-    unsplashQuery: "serengeti safari africa wildlife",
-    initialMessage:
-      "Plan a safari adventure in the Serengeti, Tanzania. I want to see the Big Five and experience African wildlife up close.",
   },
   {
     id: "maldives",
@@ -139,19 +149,45 @@ export const FEATURED_DESTINATIONS: FeaturedDestination[] = [
     initialMessage:
       "Help me plan a trip to Barcelona, Spain. I want to see Gaudí's architecture, enjoy tapas, visit the beach, and explore the Gothic Quarter.",
   },
-  {
-    id: "iceland",
-    name: "Iceland",
-    country: "Iceland",
-    tagline: "Northern lights and volcanic landscapes",
-    categories: ["adventure"],
-    unsplashQuery: "iceland northern lights aurora",
-    initialMessage:
-      "Plan an adventure trip to Iceland with Northern Lights viewing, the Golden Circle, waterfalls, and geothermal pools.",
-  },
 ];
 
 export const ITINERARY_TEMPLATES: ItineraryTemplate[] = [
+  {
+    id: "golden-triangle-7",
+    title: "Golden Triangle in 7 Days",
+    destination: "Delhi, Agra & Jaipur",
+    country: "India",
+    duration: 7,
+    categories: ["culture", "city", "food"],
+    highlights: ["Taj Mahal", "Amber Fort", "Old Delhi Food Walk"],
+    unsplashQuery: "taj mahal india agra",
+    initialMessage:
+      "Create a 7-day Golden Triangle itinerary for India covering Delhi, Agra, and Jaipur. Include the Taj Mahal, forts, bazaars, and the best local food experiences.",
+  },
+  {
+    id: "goa-5",
+    title: "Goa in 5 Days",
+    destination: "Goa",
+    country: "India",
+    duration: 5,
+    categories: ["beach", "food", "culture"],
+    highlights: ["Palolem Beach", "Old Goa Churches", "Spice Plantation Tour"],
+    unsplashQuery: "goa india beach sunset",
+    initialMessage:
+      "Create a 5-day Goa, India itinerary with North and South Goa beaches, Portuguese churches in Old Goa, seafood restaurants, and a spice plantation visit.",
+  },
+  {
+    id: "kerala-6",
+    title: "Kerala in 6 Days",
+    destination: "Kerala",
+    country: "India",
+    duration: 6,
+    categories: ["culture", "beach", "food"],
+    highlights: ["Alleppey Houseboat", "Munnar Tea Gardens", "Fort Kochi"],
+    unsplashQuery: "kerala munnar tea plantation",
+    initialMessage:
+      "Plan a 6-day Kerala, India itinerary with a backwater houseboat stay in Alleppey, tea plantations in Munnar, and heritage walks in Fort Kochi.",
+  },
   {
     id: "tokyo-7",
     title: "7 Days in Tokyo",
@@ -183,7 +219,11 @@ export const ITINERARY_TEMPLATES: ItineraryTemplate[] = [
     country: "Indonesia",
     duration: 5,
     categories: ["beach", "culture", "adventure"],
-    highlights: ["Ubud Monkey Forest", "Tegallalang Rice Terrace", "Seminyak Beach"],
+    highlights: [
+      "Ubud Monkey Forest",
+      "Tegallalang Rice Terrace",
+      "Seminyak Beach",
+    ],
     unsplashQuery: "bali rice terrace ubud",
     initialMessage:
       "Create a 5-day Bali, Indonesia itinerary covering Ubud's cultural heart, Seminyak beaches, Tanah Lot temple, rice terraces, and a cooking class.",
@@ -219,14 +259,22 @@ export const ITINERARY_TEMPLATES: ItineraryTemplate[] = [
     country: "Iceland",
     duration: 10,
     categories: ["adventure"],
-    highlights: ["Golden Circle", "Jökulsárlón Glacier Lagoon", "Northern Lights"],
+    highlights: [
+      "Golden Circle",
+      "Jökulsárlón Glacier Lagoon",
+      "Northern Lights",
+    ],
     unsplashQuery: "iceland ring road waterfall",
     initialMessage:
       "Plan a 10-day Iceland road trip along the Ring Road. Include the Golden Circle, South Coast waterfalls, glacier lagoon, whale watching, and the best spots for Northern Lights.",
   },
 ];
 
-export const TRAVEL_CATEGORIES: { id: TravelCategory; label: string; emoji: string }[] = [
+export const TRAVEL_CATEGORIES: {
+  id: TravelCategory;
+  label: string;
+  emoji: string;
+}[] = [
   { id: "all", label: "All", emoji: "✈️" },
   { id: "beach", label: "Beach", emoji: "🏖️" },
   { id: "city", label: "City", emoji: "🏙️" },
