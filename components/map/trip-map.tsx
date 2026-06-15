@@ -5,10 +5,14 @@ import type { ItineraryDayData } from "@/components/itinerary/day-timeline";
 import { TripMapMarkers } from "@/components/map/trip-map-markers";
 import { MapControls } from "@/components/map/map-controls";
 import { resolveItemCoordinates } from "@/lib/places/utils";
+import { cn } from "@/lib/utils";
 
 type TripMapProps = {
   days: ItineraryDayData[];
   destination?: string;
+  selectedDay?: number;
+  showAllPlaces?: boolean;
+  onShowAllPlaces?: () => void;
   selectedItemId?: string | null;
   onSelectItem?: (itemId: string) => void;
 };
@@ -58,6 +62,9 @@ async function geocodeDestination(
 export function TripMap({
   days,
   destination,
+  selectedDay,
+  showAllPlaces = false,
+  onShowAllPlaces,
   selectedItemId,
   onSelectItem,
 }: TripMapProps) {
@@ -87,22 +94,29 @@ export function TripMap({
     [days],
   );
 
+  const visibleItems = useMemo(() => {
+    if (showAllPlaces || selectedDay == null) return itemsWithCoords;
+    return itemsWithCoords.filter((item) => item.dayNumber === selectedDay);
+  }, [itemsWithCoords, selectedDay, showAllPlaces]);
+
+  const destinationQuery = destination?.trim() ?? "";
+  const effectiveDestinationCenter = destinationQuery
+    ? destinationCenter
+    : null;
+
   useEffect(() => {
-    if (!destination?.trim()) {
-      setDestinationCenter(null);
-      return;
-    }
+    if (!destinationQuery) return;
 
     let cancelled = false;
 
-    geocodeDestination(destination).then((center) => {
+    geocodeDestination(destinationQuery).then((center) => {
       if (!cancelled) setDestinationCenter(center);
     });
 
     return () => {
       cancelled = true;
     };
-  }, [destination]);
+  }, [destinationQuery]);
 
   useEffect(() => {
     if (!apiKey || !mapRef.current) return;
@@ -110,7 +124,8 @@ export function TripMap({
     let cancelled = false;
 
     async function initMap() {
-      const { importLibrary, setOptions } = await import("@googlemaps/js-api-loader");
+      const { importLibrary, setOptions } =
+        await import("@googlemaps/js-api-loader");
 
       if (!mapsOptionsSet) {
         setOptions({ key: apiKey!, v: "weekly" });
@@ -124,11 +139,11 @@ export function TripMap({
         const firstItem = itemsWithCoords[0];
         const defaultCenter = firstItem
           ? { lat: firstItem.lat, lng: firstItem.lng }
-          : destinationCenter ?? { lat: 20, lng: 0 };
+          : (effectiveDestinationCenter ?? { lat: 20, lng: 0 });
 
         const map = new mapsLib.Map(mapRef.current, {
           center: defaultCenter,
-          zoom: firstItem ? 13 : destinationCenter ? 11 : 2,
+          zoom: firstItem ? 13 : effectiveDestinationCenter ? 11 : 2,
           mapTypeControl: false,
           streetViewControl: false,
           fullscreenControl: false,
@@ -160,38 +175,38 @@ export function TripMap({
   useEffect(() => {
     if (!googleMapRef.current || !mapReady) return;
 
-    if (itemsWithCoords.length === 0) {
-      if (destinationCenter) {
-        googleMapRef.current.setCenter(destinationCenter);
+    if (visibleItems.length === 0) {
+      if (effectiveDestinationCenter) {
+        googleMapRef.current.setCenter(effectiveDestinationCenter);
         googleMapRef.current.setZoom(11);
       }
       return;
     }
 
     const bounds = new google.maps.LatLngBounds();
-    itemsWithCoords.forEach((item) => {
+    visibleItems.forEach((item) => {
       bounds.extend({ lat: item.lat, lng: item.lng });
     });
 
-    if (itemsWithCoords.length > 1) {
+    if (visibleItems.length > 1) {
       googleMapRef.current.fitBounds(bounds, 80);
     } else {
       googleMapRef.current.setCenter({
-        lat: itemsWithCoords[0].lat,
-        lng: itemsWithCoords[0].lng,
+        lat: visibleItems[0].lat,
+        lng: visibleItems[0].lng,
       });
       googleMapRef.current.setZoom(14);
     }
-  }, [itemsWithCoords, mapReady, destinationCenter]);
+  }, [visibleItems, mapReady, effectiveDestinationCenter]);
 
   useEffect(() => {
     if (!selectedItemId || !googleMapRef.current) return;
-    const item = itemsWithCoords.find((i) => i.id === selectedItemId);
+    const item = visibleItems.find((i) => i.id === selectedItemId);
     if (item) {
       googleMapRef.current.panTo({ lat: item.lat, lng: item.lng });
       googleMapRef.current.setZoom(15);
     }
-  }, [selectedItemId, itemsWithCoords]);
+  }, [selectedItemId, visibleItems]);
 
   if (!apiKey) {
     return (
@@ -219,9 +234,23 @@ export function TripMap({
       <div ref={mapRef} className="h-full w-full" />
       {googleMap && mapReady && (
         <>
+          {days.length > 1 && onShowAllPlaces && (
+            <button
+              type="button"
+              onClick={onShowAllPlaces}
+              className={cn(
+                "pointer-events-auto absolute left-4 top-4 z-20 rounded-full border px-3.5 py-1.5 text-xs font-semibold shadow-md transition-colors cursor-pointer",
+                showAllPlaces
+                  ? "border-neutral-900 bg-neutral-900 text-white"
+                  : "border-neutral-200 bg-white text-neutral-700 hover:bg-neutral-50",
+              )}
+            >
+              Show all items
+            </button>
+          )}
           <TripMapMarkers
             map={googleMap}
-            items={itemsWithCoords}
+            items={visibleItems}
             destination={destination}
             selectedItemId={selectedItemId}
             onSelectItem={onSelectItem}

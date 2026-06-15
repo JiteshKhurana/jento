@@ -3,7 +3,7 @@
 import { UserButton } from "@clerk/nextjs";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Compass, Map, PanelLeft, PanelLeftClose, Plane, Sparkles } from "lucide-react";
+import { Search, Map, PanelLeft, PanelLeftClose, Plane, Heart } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -20,8 +20,9 @@ import {
 
 const navLinks = [
   { href: "/trips", label: "My trips", icon: Map },
-  { href: "/explore", label: "Explore", icon: Compass },
-  { href: "/inspire", label: "Inspire", icon: Sparkles },
+  { href: "/explore", label: "Explore", icon: Search },
+  { href: "/saved", label: "Saved", icon: Heart },
+  // { href: "/inspire", label: "Inspire", icon: Sparkles },
 ] as const;
 
 function SidebarCollapseButton() {

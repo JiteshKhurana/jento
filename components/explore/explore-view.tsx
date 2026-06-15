@@ -4,7 +4,6 @@ import dynamic from "next/dynamic";
 import { useCallback, useEffect, useState, useSyncExternalStore } from "react";
 import {
   ChevronDown,
-  Heart,
   LocateFixed,
   Map as MapIcon,
   Search,
@@ -18,10 +17,8 @@ import { LoadingState } from "@/components/ui/spinner";
 import { ExplorePlaceCard } from "@/components/explore/explore-place-card";
 import { PlaceDetailDialog } from "@/components/explore/place-detail-dialog";
 import { EXPLORE_CATEGORIES, type ExploreCategoryId } from "@/lib/explore/categories";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
 import type { PlaceSearchResult } from "@/lib/places/google-places";
-import { savedPlacesToSearchResults } from "@/lib/saved-places/utils";
 import type { TripOption } from "@/components/explore/add-to-trip-picker";
 import {
   DestinationAutocomplete,
@@ -49,16 +46,11 @@ type ExploreLocation = {
   longitude?: number;
 };
 
-type SavedPlaceRecord = Parameters<typeof savedPlacesToSearchResults>[0][number];
-
 type ExploreViewProps = {
   trips: TripOption[];
   initialSavedIds: string[];
-  initialSavedPlaces: SavedPlaceRecord[];
   defaultLocation: ExploreLocation;
 };
-
-type ExploreTab = "explore" | "saved";
 
 const locationListeners = new Set<() => void>();
 
@@ -109,10 +101,8 @@ function getExploreLocationSnapshot(defaultLocation: ExploreLocation): ExploreLo
 export function ExploreView({
   trips,
   initialSavedIds,
-  initialSavedPlaces,
   defaultLocation,
 }: ExploreViewProps) {
-  const [activeTab, setActiveTab] = useState<ExploreTab>("explore");
   const location = useSyncExternalStore(
     subscribeToExploreLocation,
     () => getExploreLocationSnapshot(defaultLocation),
@@ -130,9 +120,6 @@ export function ExploreView({
   const [loading, setLoading] = useState(true);
 
   const [savedIds, setSavedIds] = useState<Set<string>>(new Set(initialSavedIds));
-  const [savedPlaces, setSavedPlaces] = useState<PlaceSearchResult[]>(() =>
-    savedPlacesToSearchResults(initialSavedPlaces),
-  );
   const [addedByPlace, setAddedByPlace] = useState<Map<string, Set<string>>>(new Map());
 
   const [selectedPlace, setSelectedPlace] = useState<PlaceSearchResult | null>(null);
@@ -282,9 +269,6 @@ export function ExploreView({
           next.delete(place.googlePlaceId);
           return next;
         });
-        setSavedPlaces((prev) =>
-          prev.filter((saved) => saved.googlePlaceId !== place.googlePlaceId),
-        );
       }
       return;
     }
@@ -303,12 +287,6 @@ export function ExploreView({
 
     if (res.ok) {
       setSavedIds((prev) => new Set(prev).add(place.googlePlaceId));
-      setSavedPlaces((prev) => {
-        if (prev.some((saved) => saved.googlePlaceId === place.googlePlaceId)) {
-          return prev;
-        }
-        return [place, ...prev];
-      });
     }
   }
 
@@ -328,83 +306,15 @@ export function ExploreView({
     setDetailOpen(true);
   }
 
-  const mapPlaces = activeTab === "saved" ? savedPlaces : results;
-  const savedPlaceWithCoords = savedPlaces.find(
-    (place) => place.latitude != null && place.longitude != null,
-  );
   const mapCenter =
-    activeTab === "saved" && savedPlaceWithCoords
-      ? { lat: savedPlaceWithCoords.latitude!, lng: savedPlaceWithCoords.longitude! }
-      : location.latitude != null && location.longitude != null
-        ? { lat: location.latitude, lng: location.longitude }
-        : null;
+    location.latitude != null && location.longitude != null
+      ? { lat: location.latitude, lng: location.longitude }
+      : null;
 
   function handleMapSelectPlace(placeId: string) {
-    const place = mapPlaces.find((p) => p.googlePlaceId === placeId);
+    const place = results.find((p) => p.googlePlaceId === placeId);
     if (place) handleSelectPlace(place);
   }
-
-  const tabSwitcher = (
-    <Tabs
-      value={activeTab}
-      onValueChange={(value) => setActiveTab(value as ExploreTab)}
-    >
-      <TabsList className="w-full">
-        <TabsTrigger value="explore" className="flex-1">
-          Explore
-        </TabsTrigger>
-        <TabsTrigger value="saved" className="flex-1">
-          Saved
-        </TabsTrigger>
-      </TabsList>
-    </Tabs>
-  );
-
-  const savedFeedContent = (
-    <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
-      <div className="shrink-0 border-b border-neutral-100 px-4 py-4 md:px-6">
-        <p className="text-sm text-neutral-500">
-          Places you&apos;ve saved from Explore
-        </p>
-      </div>
-
-      <div className="min-h-0 flex-1 overflow-y-auto px-4 py-4 md:px-6">
-        {savedPlaces.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-16 text-center">
-            <Heart className="mb-3 h-10 w-10 text-neutral-200" />
-            <p className="text-sm font-medium text-neutral-700">No saved places yet</p>
-            <p className="mt-1 max-w-xs text-sm text-neutral-400">
-              Tap the heart on any place in Explore to save it here.
-            </p>
-            <Button
-              variant="outline"
-              size="sm"
-              className="mt-4"
-              onClick={() => setActiveTab("explore")}
-            >
-              Explore places
-            </Button>
-          </div>
-        ) : (
-          <div className="grid grid-cols-2 gap-4 pb-6">
-            {savedPlaces.map((place) => (
-              <ExplorePlaceCard
-                key={place.googlePlaceId}
-                place={place}
-                destination={place.address?.split(",").slice(-2).join(",").trim() || location.name}
-                trips={trips}
-                saved
-                addedTripIds={addedByPlace.get(place.googlePlaceId) ?? new Set()}
-                onSaveToggle={handleSaveToggle}
-                onTripAdded={(tripId) => handleTripAdded(place.googlePlaceId, tripId)}
-                onSelect={handleSelectPlace}
-              />
-            ))}
-          </div>
-        )}
-      </div>
-    </div>
-  );
 
   const feedContent = (
     <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
@@ -527,10 +437,7 @@ export function ExploreView({
             mobileView === "map" && "hidden md:flex",
           )}
         >
-          <div className="shrink-0 border-b border-neutral-100 px-4 pt-4 md:px-6">
-            {tabSwitcher}
-          </div>
-          {activeTab === "saved" ? savedFeedContent : feedContent}
+          {feedContent}
         </div>
 
         <div
@@ -540,7 +447,7 @@ export function ExploreView({
           )}
         >
           <ExploreMap
-            places={mapPlaces}
+            places={results}
             destination={location.name}
             center={mapCenter}
             selectedPlaceId={mapPlaceId}
@@ -552,34 +459,14 @@ export function ExploreView({
       <div className="flex border-t border-neutral-200/80 bg-white p-2 md:hidden">
         <button
           type="button"
-          onClick={() => {
-            setActiveTab("explore");
-            setMobileView("feed");
-          }}
+          onClick={() => setMobileView("feed")}
           className={cn(
             "flex flex-1 items-center justify-center gap-2 rounded-xl py-2.5 text-sm font-medium",
-            activeTab === "explore" && mobileView === "feed"
-              ? "bg-neutral-900 text-white"
-              : "text-neutral-600",
+            mobileView === "feed" ? "bg-neutral-900 text-white" : "text-neutral-600",
           )}
         >
+          <Search className="h-4 w-4" />
           Explore
-        </button>
-        <button
-          type="button"
-          onClick={() => {
-            setActiveTab("saved");
-            setMobileView("feed");
-          }}
-          className={cn(
-            "flex flex-1 items-center justify-center gap-2 rounded-xl py-2.5 text-sm font-medium",
-            activeTab === "saved" && mobileView === "feed"
-              ? "bg-neutral-900 text-white"
-              : "text-neutral-600",
-          )}
-        >
-          <Heart className="h-4 w-4" />
-          Saved
         </button>
         <button
           type="button"

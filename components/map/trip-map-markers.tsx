@@ -117,12 +117,17 @@ export function TripMapMarkers({
 
           const isHovered = hoveredItemId === item.id;
           const isSelected = selectedItemId === item.id;
-          const { Icon, pinClass, pinActiveClass } = getMapItemCategory(item.type);
+          const { Icon, pinClass, pinActiveClass } = getMapItemCategory(
+            item.type,
+          );
 
           return (
             <div
               key={item.id}
-              className={cn("absolute", isHovered || isSelected ? "z-30" : "z-10")}
+              className={cn(
+                "absolute",
+                isHovered || isSelected ? "z-30" : "z-10",
+              )}
               style={{
                 left: position.x,
                 top: position.y,
@@ -145,7 +150,7 @@ export function TripMapMarkers({
                 >
                   <Icon className="h-4 w-4 shrink-0" />
                 </span>
-                <span className="max-w-[140px] truncate rounded-md border border-neutral-200 bg-white px-1 py-0.5 text-sm font-medium leading-tight text-neutral-900 shadow-sm">
+                <span className="max-w-[140px] truncate rounded-md border border-neutral-900 bg-neutral-900 px-1 py-0.5 text-sm font-medium leading-tight text-white shadow-sm">
                   {item.title}
                 </span>
               </button>

@@ -1,12 +1,12 @@
 import { auth, currentUser } from "@clerk/nextjs/server";
 import { AppShell } from "@/components/layout/app-shell";
-import { ExploreView } from "@/components/explore/explore-view";
+import { SavedView } from "@/components/explore/saved-view";
 import { prisma } from "@/lib/prisma";
-import { getSavedPlaceIdsForUser } from "@/lib/saved-places/service";
+import { getSavedPlacesForUser } from "@/lib/saved-places/service";
 
 export const dynamic = "force-dynamic";
 
-export default async function ExplorePage() {
+export default async function SavedPage() {
   const { userId: clerkId } = await auth();
   if (!clerkId) return null;
 
@@ -34,19 +34,11 @@ export default async function ExplorePage() {
       })
     : [];
 
-  const savedIds = user ? await getSavedPlaceIdsForUser(user.id) : [];
-  const recentTrip = trips[0];
+  const savedPlaces = user ? await getSavedPlacesForUser(user.id) : [];
 
   return (
     <AppShell fullHeight className="overflow-hidden bg-white">
-      <ExploreView
-        trips={trips}
-        initialSavedIds={savedIds}
-        defaultLocation={{
-          name: recentTrip?.destination ?? "Paris",
-          label: recentTrip?.destination ?? "Paris, France",
-        }}
-      />
+      <SavedView trips={trips} initialSavedPlaces={savedPlaces} />
     </AppShell>
   );
 }

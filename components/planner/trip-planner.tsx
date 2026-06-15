@@ -93,6 +93,7 @@ export function TripPlanner({
   const [selectedDay, setSelectedDay] = useState<number | undefined>(
     () => initialTrip.itineraries[0]?.days[0]?.dayNumber,
   );
+  const [mapShowAllPlaces, setMapShowAllPlaces] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const isDesktop = useIsDesktop();
   const itineraryScrollRef = useRef<HTMLDivElement>(null);
@@ -255,7 +256,10 @@ export function TripPlanner({
               <button
                 key={day.id}
                 type="button"
-                onClick={() => setSelectedDay(day.dayNumber)}
+                onClick={() => {
+                  setSelectedDay(day.dayNumber);
+                  setMapShowAllPlaces(false);
+                }}
                 className={cn(
                   "shrink-0 rounded-full px-3.5 py-1.5 text-xs font-semibold transition-all",
                   selectedDay === day.dayNumber
@@ -490,6 +494,9 @@ export function TripPlanner({
                 <TripMap
                   days={days}
                   destination={trip.destination}
+                  selectedDay={selectedDay}
+                  showAllPlaces={mapShowAllPlaces}
+                  onShowAllPlaces={() => setMapShowAllPlaces(true)}
                   selectedItemId={selectedItemId}
                   onSelectItem={handleSelectItem}
                 />
@@ -571,6 +578,9 @@ export function TripPlanner({
               <TripMap
                 days={days}
                 destination={trip.destination}
+                selectedDay={selectedDay}
+                showAllPlaces={mapShowAllPlaces}
+                onShowAllPlaces={() => setMapShowAllPlaces(true)}
                 selectedItemId={selectedItemId}
                 onSelectItem={handleSelectItem}
               />
