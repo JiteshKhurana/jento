@@ -1,7 +1,9 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { getDayColor, type ItineraryDayData } from "@/components/itinerary/day-timeline";
+import type { ItineraryDayData } from "@/components/itinerary/day-timeline";
+import { TripMapMarkers } from "@/components/map/trip-map-markers";
+import { MapControls } from "@/components/map/map-controls";
 import { resolveItemCoordinates } from "@/lib/places/utils";
 
 type TripMapProps = {
@@ -62,7 +64,7 @@ export function TripMap({
   const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
   const mapRef = useRef<HTMLDivElement>(null);
   const googleMapRef = useRef<google.maps.Map | null>(null);
-  const markersRef = useRef<google.maps.Marker[]>([]);
+  const [googleMap, setGoogleMap] = useState<google.maps.Map | null>(null);
   const [mapReady, setMapReady] = useState(false);
   const [mapError, setMapError] = useState<string | null>(null);
   const [destinationCenter, setDestinationCenter] = useState<{
@@ -74,6 +76,7 @@ export function TripMap({
     () =>
       days.flatMap((day) =>
         day.items
+          .filter((item) => item.type.toLowerCase() !== "transport")
           .map((item) => {
             const coords = resolveItemCoordinates(item);
             if (!coords) return null;
@@ -123,13 +126,18 @@ export function TripMap({
           ? { lat: firstItem.lat, lng: firstItem.lng }
           : destinationCenter ?? { lat: 20, lng: 0 };
 
-        googleMapRef.current = new mapsLib.Map(mapRef.current, {
+        const map = new mapsLib.Map(mapRef.current, {
           center: defaultCenter,
           zoom: firstItem ? 13 : destinationCenter ? 11 : 2,
           mapTypeControl: false,
           streetViewControl: false,
-          fullscreenControl: true,
+          fullscreenControl: false,
+          zoomControl: false,
+          clickableIcons: false,
         });
+
+        googleMapRef.current = map;
+        setGoogleMap(map);
         setMapReady(true);
       } catch {
         if (!cancelled) {
@@ -143,14 +151,14 @@ export function TripMap({
     initMap();
     return () => {
       cancelled = true;
+      googleMapRef.current = null;
+      setGoogleMap(null);
+      setMapReady(false);
     };
   }, [apiKey]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     if (!googleMapRef.current || !mapReady) return;
-
-    markersRef.current.forEach((m) => m.setMap(null));
-    markersRef.current = [];
 
     if (itemsWithCoords.length === 0) {
       if (destinationCenter) {
@@ -161,35 +169,12 @@ export function TripMap({
     }
 
     const bounds = new google.maps.LatLngBounds();
-
     itemsWithCoords.forEach((item) => {
-      const color = getDayColor(item.dayNumber);
-      const marker = new google.maps.Marker({
-        position: { lat: item.lat, lng: item.lng },
-        map: googleMapRef.current!,
-        title: item.title,
-        label: {
-          text: String(item.dayNumber),
-          color: "white",
-          fontWeight: "bold",
-        },
-        icon: {
-          path: google.maps.SymbolPath.CIRCLE,
-          scale: 14,
-          fillColor: color,
-          fillOpacity: 1,
-          strokeColor: "white",
-          strokeWeight: 2,
-        },
-      });
-
-      marker.addListener("click", () => onSelectItem?.(item.id));
-      markersRef.current.push(marker);
-      bounds.extend(marker.getPosition()!);
+      bounds.extend({ lat: item.lat, lng: item.lng });
     });
 
     if (itemsWithCoords.length > 1) {
-      googleMapRef.current.fitBounds(bounds, 60);
+      googleMapRef.current.fitBounds(bounds, 80);
     } else {
       googleMapRef.current.setCenter({
         lat: itemsWithCoords[0].lat,
@@ -197,7 +182,7 @@ export function TripMap({
       });
       googleMapRef.current.setZoom(14);
     }
-  }, [itemsWithCoords, mapReady, destinationCenter, onSelectItem]);
+  }, [itemsWithCoords, mapReady, destinationCenter]);
 
   useEffect(() => {
     if (!selectedItemId || !googleMapRef.current) return;
@@ -227,11 +212,23 @@ export function TripMap({
   return (
     <div className="relative h-full w-full">
       {!mapReady && (
-        <div className="absolute inset-0 z-10 flex items-center justify-center bg-zinc-100">
+        <div className="absolute inset-0 z-20 flex items-center justify-center bg-zinc-100">
           <p className="text-sm text-zinc-500">Loading map...</p>
         </div>
       )}
       <div ref={mapRef} className="h-full w-full" />
+      {googleMap && mapReady && (
+        <>
+          <TripMapMarkers
+            map={googleMap}
+            items={itemsWithCoords}
+            destination={destination}
+            selectedItemId={selectedItemId}
+            onSelectItem={onSelectItem}
+          />
+          <MapControls map={googleMap} />
+        </>
+      )}
     </div>
   );
 }

@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { PlaceSearchResult } from "@/lib/places/google-places";
+import { MapControls } from "@/components/map/map-controls";
 
 type ExploreMapProps = {
   places: PlaceSearchResult[];
@@ -64,6 +65,7 @@ export function ExploreMap({
   const mapRef = useRef<HTMLDivElement>(null);
   const googleMapRef = useRef<google.maps.Map | null>(null);
   const markersRef = useRef<google.maps.Marker[]>([]);
+  const [googleMap, setGoogleMap] = useState<google.maps.Map | null>(null);
   const [mapReady, setMapReady] = useState(false);
   const [mapError, setMapError] = useState<string | null>(null);
   const [destinationCenter, setDestinationCenter] = useState<{
@@ -123,13 +125,16 @@ export function ExploreMap({
           ? { lat: firstPlace.latitude, lng: firstPlace.longitude }
           : destinationCenter ?? { lat: 20, lng: 0 };
 
-        googleMapRef.current = new mapsLib.Map(mapRef.current, {
+        const map = new mapsLib.Map(mapRef.current, {
           center: defaultCenter,
           zoom: firstPlace ? 13 : destinationCenter ? 11 : 2,
           mapTypeControl: false,
           streetViewControl: false,
-          fullscreenControl: true,
+          fullscreenControl: false,
+          zoomControl: false,
         });
+        googleMapRef.current = map;
+        setGoogleMap(map);
         setMapReady(true);
       } catch {
         if (!cancelled) {
@@ -143,6 +148,9 @@ export function ExploreMap({
     initMap();
     return () => {
       cancelled = true;
+      googleMapRef.current = null;
+      setGoogleMap(null);
+      setMapReady(false);
     };
   }, [apiKey]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -227,6 +235,7 @@ export function ExploreMap({
         </div>
       )}
       <div ref={mapRef} className="h-full w-full" />
+      {googleMap && mapReady && <MapControls map={googleMap} />}
     </div>
   );
 }

@@ -307,7 +307,10 @@ export function TripPlanner({
         destination={trip.destination}
         open={detailItemId != null}
         onOpenChange={(open) => {
-          if (!open) setDetailItemId(null);
+          if (!open) {
+            setDetailItemId(null);
+            setSelectedItemId(null);
+          }
         }}
       />
 
