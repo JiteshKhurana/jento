@@ -25,7 +25,9 @@ const ExploreMap = dynamic(
   },
 );
 
-type SavedPlaceRecord = Parameters<typeof savedPlacesToSearchResults>[0][number];
+type SavedPlaceRecord = Parameters<
+  typeof savedPlacesToSearchResults
+>[0][number];
 
 type SavedViewProps = {
   trips: TripOption[];
@@ -36,14 +38,18 @@ export function SavedView({ trips, initialSavedPlaces }: SavedViewProps) {
   const [savedPlaces, setSavedPlaces] = useState<PlaceSearchResult[]>(() =>
     savedPlacesToSearchResults(initialSavedPlaces),
   );
-  const [addedByPlace, setAddedByPlace] = useState<Map<string, Set<string>>>(new Map());
+  const [addedByPlace, setAddedByPlace] = useState<Map<string, Set<string>>>(
+    new Map(),
+  );
 
-  const [selectedPlace, setSelectedPlace] = useState<PlaceSearchResult | null>(null);
+  const [selectedPlace, setSelectedPlace] = useState<PlaceSearchResult | null>(
+    null,
+  );
   const [detailOpen, setDetailOpen] = useState(false);
   const [mapPlaceId, setMapPlaceId] = useState<string | null>(null);
   const [mobileView, setMobileView] = useState<"feed" | "map">("feed");
 
-  async function handleSaveToggle(place: PlaceSearchResult, _currentlySaved: boolean) {
+  async function handleSaveToggle(place: PlaceSearchResult) {
     const res = await fetch(
       `/api/saved-places/${encodeURIComponent(place.googlePlaceId)}`,
       { method: "DELETE" },
@@ -75,7 +81,10 @@ export function SavedView({ trips, initialSavedPlaces }: SavedViewProps) {
     (place) => place.latitude != null && place.longitude != null,
   );
   const mapCenter = savedPlaceWithCoords
-    ? { lat: savedPlaceWithCoords.latitude!, lng: savedPlaceWithCoords.longitude! }
+    ? {
+        lat: savedPlaceWithCoords.latitude!,
+        lng: savedPlaceWithCoords.longitude!,
+      }
     : null;
 
   function handleMapSelectPlace(placeId: string) {
@@ -96,9 +105,8 @@ export function SavedView({ trips, initialSavedPlaces }: SavedViewProps) {
         {savedPlaces.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-16 text-center">
             <Heart className="mb-3 h-10 w-10 text-neutral-200" />
-            <p className="text-sm font-medium text-neutral-700">No saved places yet</p>
-            <p className="mt-1 max-w-xs text-sm text-neutral-400">
-              Tap the heart on any place in Explore to save it here.
+            <p className="text-sm font-medium text-neutral-700">
+              No saved places yet
             </p>
             <Button variant="outline" size="sm" className="mt-4" asChild>
               <Link href="/explore">Explore places</Link>
@@ -110,12 +118,19 @@ export function SavedView({ trips, initialSavedPlaces }: SavedViewProps) {
               <ExplorePlaceCard
                 key={place.googlePlaceId}
                 place={place}
-                destination={place.address?.split(",").slice(-2).join(",").trim() || "Saved"}
+                destination={
+                  place.address?.split(",").slice(-2).join(",").trim() ||
+                  "Saved"
+                }
                 trips={trips}
                 saved
-                addedTripIds={addedByPlace.get(place.googlePlaceId) ?? new Set()}
+                addedTripIds={
+                  addedByPlace.get(place.googlePlaceId) ?? new Set()
+                }
                 onSaveToggle={handleSaveToggle}
-                onTripAdded={(tripId) => handleTripAdded(place.googlePlaceId, tripId)}
+                onTripAdded={(tripId) =>
+                  handleTripAdded(place.googlePlaceId, tripId)
+                }
                 onSelect={handleSelectPlace}
               />
             ))}
@@ -158,7 +173,9 @@ export function SavedView({ trips, initialSavedPlaces }: SavedViewProps) {
           onClick={() => setMobileView("feed")}
           className={cn(
             "flex flex-1 items-center justify-center gap-2 rounded-xl py-2.5 text-sm font-medium",
-            mobileView === "feed" ? "bg-neutral-900 text-white" : "text-neutral-600",
+            mobileView === "feed"
+              ? "bg-neutral-900 text-white"
+              : "text-neutral-600",
           )}
         >
           <Heart className="h-4 w-4" />
@@ -169,7 +186,9 @@ export function SavedView({ trips, initialSavedPlaces }: SavedViewProps) {
           onClick={() => setMobileView("map")}
           className={cn(
             "flex flex-1 items-center justify-center gap-2 rounded-xl py-2.5 text-sm font-medium",
-            mobileView === "map" ? "bg-neutral-900 text-white" : "text-neutral-600",
+            mobileView === "map"
+              ? "bg-neutral-900 text-white"
+              : "text-neutral-600",
           )}
         >
           <MapIcon className="h-4 w-4" />
@@ -186,12 +205,13 @@ export function SavedView({ trips, initialSavedPlaces }: SavedViewProps) {
         saved
         addedTripIds={
           selectedPlace
-            ? addedByPlace.get(selectedPlace.googlePlaceId) ?? new Set()
+            ? (addedByPlace.get(selectedPlace.googlePlaceId) ?? new Set())
             : new Set()
         }
         onSaveToggle={handleSaveToggle}
         onTripAdded={(tripId) => {
-          if (selectedPlace) handleTripAdded(selectedPlace.googlePlaceId, tripId);
+          if (selectedPlace)
+            handleTripAdded(selectedPlace.googlePlaceId, tripId);
         }}
       />
     </div>
