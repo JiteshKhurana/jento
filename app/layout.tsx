@@ -1,6 +1,7 @@
 import { ClerkProvider } from "@clerk/nextjs";
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist, Geist_Mono, Libre_Franklin, Francois_One } from "next/font/google";
+import { ThemeProvider } from "@/components/theme-provider";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -13,9 +14,22 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+const jentoBrand = Libre_Franklin({
+  variable: "--font-jento",
+  subsets: ["latin"],
+  weight: "700",
+});
+
+const francoisOne = Francois_One({
+  variable: "--font-francois-one",
+  subsets: ["latin"],
+  weight: "400",
+});
+
 export const metadata: Metadata = {
   title: "Jento — Travel better.",
-  description: "AI-powered travel planning with personalized itineraries, maps, and booking links",
+  description:
+    "AI-powered travel planning with personalized itineraries, maps, and booking links",
 };
 
 export default function RootLayout({
@@ -27,9 +41,19 @@ export default function RootLayout({
     <ClerkProvider>
       <html
         lang="en"
-        className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+        suppressHydrationWarning
+        className={`${geistSans.variable} ${geistMono.variable} ${jentoBrand.variable} ${francoisOne.variable} h-full antialiased`}
       >
-        <body className="min-h-full flex flex-col font-sans">{children}</body>
+        <body className="min-h-full flex flex-col font-sans">
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange
+          >
+            {children}
+          </ThemeProvider>
+        </body>
       </html>
     </ClerkProvider>
   );

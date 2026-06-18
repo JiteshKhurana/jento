@@ -76,8 +76,12 @@ export function ExploreMap({
   const placesWithCoords = useMemo(
     () =>
       places.filter(
-        (place): place is PlaceSearchResult & { latitude: number; longitude: number } =>
-          place.latitude != null && place.longitude != null,
+        (
+          place,
+        ): place is PlaceSearchResult & {
+          latitude: number;
+          longitude: number;
+        } => place.latitude != null && place.longitude != null,
       ),
     [places],
   );
@@ -109,7 +113,8 @@ export function ExploreMap({
     let cancelled = false;
 
     async function initMap() {
-      const { importLibrary, setOptions } = await import("@googlemaps/js-api-loader");
+      const { importLibrary, setOptions } =
+        await import("@googlemaps/js-api-loader");
 
       if (!mapsOptionsSet) {
         setOptions({ key: apiKey!, v: "weekly" });
@@ -123,7 +128,7 @@ export function ExploreMap({
         const firstPlace = placesWithCoords[0];
         const defaultCenter = firstPlace
           ? { lat: firstPlace.latitude, lng: firstPlace.longitude }
-          : destinationCenter ?? { lat: 20, lng: 0 };
+          : (destinationCenter ?? { lat: 20, lng: 0 });
 
         const map = new mapsLib.Map(mapRef.current, {
           center: defaultCenter,
@@ -200,11 +205,19 @@ export function ExploreMap({
       });
       googleMapRef.current.setZoom(14);
     }
-  }, [placesWithCoords, mapReady, destinationCenter, selectedPlaceId, onSelectPlace]);
+  }, [
+    placesWithCoords,
+    mapReady,
+    destinationCenter,
+    selectedPlaceId,
+    onSelectPlace,
+  ]);
 
   useEffect(() => {
     if (!selectedPlaceId || !googleMapRef.current) return;
-    const place = placesWithCoords.find((p) => p.googlePlaceId === selectedPlaceId);
+    const place = placesWithCoords.find(
+      (p) => p.googlePlaceId === selectedPlaceId,
+    );
     if (place) {
       googleMapRef.current.panTo({ lat: place.latitude, lng: place.longitude });
       googleMapRef.current.setZoom(15);

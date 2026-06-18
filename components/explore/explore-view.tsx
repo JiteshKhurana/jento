@@ -2,12 +2,7 @@
 
 import dynamic from "next/dynamic";
 import { useCallback, useEffect, useState, useSyncExternalStore } from "react";
-import {
-  ChevronDown,
-  LocateFixed,
-  Map as MapIcon,
-  Search,
-} from "lucide-react";
+import { ChevronDown, LocateFixed, Map as MapIcon, Search } from "lucide-react";
 import { ExploreFilters } from "@/components/explore/explore-filters";
 import type { BudgetTier } from "@/lib/trips/intake";
 import { Input } from "@/components/ui/input";
@@ -16,7 +11,10 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { LoadingState } from "@/components/ui/spinner";
 import { ExplorePlaceCard } from "@/components/explore/explore-place-card";
 import { PlaceDetailDialog } from "@/components/explore/place-detail-dialog";
-import { EXPLORE_CATEGORIES, type ExploreCategoryId } from "@/lib/explore/categories";
+import {
+  EXPLORE_CATEGORIES,
+  type ExploreCategoryId,
+} from "@/lib/explore/categories";
 import { cn } from "@/lib/utils";
 import type { PlaceSearchResult } from "@/lib/places/google-places";
 import type { TripOption } from "@/components/explore/add-to-trip-picker";
@@ -76,7 +74,9 @@ function storeLocation(location: ExploreLocation) {
   }
 }
 
-function getExploreLocationSnapshot(defaultLocation: ExploreLocation): ExploreLocation {
+function getExploreLocationSnapshot(
+  defaultLocation: ExploreLocation,
+): ExploreLocation {
   if (typeof window === "undefined") return defaultLocation;
 
   let raw: string | null = null;
@@ -119,10 +119,16 @@ export function ExploreView({
   const [results, setResults] = useState<PlaceSearchResult[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const [savedIds, setSavedIds] = useState<Set<string>>(new Set(initialSavedIds));
-  const [addedByPlace, setAddedByPlace] = useState<Map<string, Set<string>>>(new Map());
+  const [savedIds, setSavedIds] = useState<Set<string>>(
+    new Set(initialSavedIds),
+  );
+  const [addedByPlace, setAddedByPlace] = useState<Map<string, Set<string>>>(
+    new Map(),
+  );
 
-  const [selectedPlace, setSelectedPlace] = useState<PlaceSearchResult | null>(null);
+  const [selectedPlace, setSelectedPlace] = useState<PlaceSearchResult | null>(
+    null,
+  );
   const [detailOpen, setDetailOpen] = useState(false);
   const [mapPlaceId, setMapPlaceId] = useState<string | null>(null);
   const [mobileView, setMobileView] = useState<"feed" | "map">("feed");
@@ -151,7 +157,13 @@ export function ExploreView({
         setLoading(false);
       }
     },
-    [location.name, location.latitude, location.longitude, activeCategory.query, budget],
+    [
+      location.name,
+      location.latitude,
+      location.longitude,
+      activeCategory.query,
+      budget,
+    ],
   );
 
   useEffect(() => {
@@ -174,8 +186,12 @@ export function ExploreView({
     const next: ExploreLocation = {
       name: selected.name,
       label: selected.label,
-      latitude: selected.latitude ? Number.parseFloat(selected.latitude) : undefined,
-      longitude: selected.longitude ? Number.parseFloat(selected.longitude) : undefined,
+      latitude: selected.latitude
+        ? Number.parseFloat(selected.latitude)
+        : undefined,
+      longitude: selected.longitude
+        ? Number.parseFloat(selected.longitude)
+        : undefined,
     };
     storeLocation(next);
     setLocationPickerOpen(false);
@@ -234,7 +250,9 @@ export function ExploreView({
             });
           }
         } catch {
-          setLocationError("Could not resolve your city name, but nearby results are shown.");
+          setLocationError(
+            "Could not resolve your city name, but nearby results are shown.",
+          );
         } finally {
           setLocating(false);
         }
@@ -257,7 +275,10 @@ export function ExploreView({
     );
   }
 
-  async function handleSaveToggle(place: PlaceSearchResult, currentlySaved: boolean) {
+  async function handleSaveToggle(
+    place: PlaceSearchResult,
+    currentlySaved: boolean,
+  ) {
     if (currentlySaved) {
       const res = await fetch(
         `/api/saved-places/${encodeURIComponent(place.googlePlaceId)}`,
@@ -390,7 +411,9 @@ export function ExploreView({
 
       <div className="min-h-0 flex-1 overflow-y-auto px-4 py-4 md:px-6">
         <h3 className="mb-3 text-sm font-semibold text-neutral-900">
-          {activeCategory.label === "For you" ? "Things To Do" : activeCategory.label}
+          {activeCategory.label === "For you"
+            ? "Things To Do"
+            : activeCategory.label}
         </h3>
 
         {loading ? (
@@ -416,9 +439,13 @@ export function ExploreView({
                 destination={location.name}
                 trips={trips}
                 saved={savedIds.has(place.googlePlaceId)}
-                addedTripIds={addedByPlace.get(place.googlePlaceId) ?? new Set()}
+                addedTripIds={
+                  addedByPlace.get(place.googlePlaceId) ?? new Set()
+                }
                 onSaveToggle={handleSaveToggle}
-                onTripAdded={(tripId) => handleTripAdded(place.googlePlaceId, tripId)}
+                onTripAdded={(tripId) =>
+                  handleTripAdded(place.googlePlaceId, tripId)
+                }
                 onSelect={handleSelectPlace}
               />
             ))}
@@ -462,7 +489,9 @@ export function ExploreView({
           onClick={() => setMobileView("feed")}
           className={cn(
             "flex flex-1 items-center justify-center gap-2 rounded-xl py-2.5 text-sm font-medium",
-            mobileView === "feed" ? "bg-neutral-900 text-white" : "text-neutral-600",
+            mobileView === "feed"
+              ? "bg-neutral-900 text-white"
+              : "text-neutral-600",
           )}
         >
           <Search className="h-4 w-4" />
@@ -473,7 +502,9 @@ export function ExploreView({
           onClick={() => setMobileView("map")}
           className={cn(
             "flex flex-1 items-center justify-center gap-2 rounded-xl py-2.5 text-sm font-medium",
-            mobileView === "map" ? "bg-neutral-900 text-white" : "text-neutral-600",
+            mobileView === "map"
+              ? "bg-neutral-900 text-white"
+              : "text-neutral-600",
           )}
         >
           <MapIcon className="h-4 w-4" />
@@ -487,15 +518,18 @@ export function ExploreView({
         open={detailOpen}
         onOpenChange={setDetailOpen}
         trips={trips}
-        saved={selectedPlace ? savedIds.has(selectedPlace.googlePlaceId) : false}
+        saved={
+          selectedPlace ? savedIds.has(selectedPlace.googlePlaceId) : false
+        }
         addedTripIds={
           selectedPlace
-            ? addedByPlace.get(selectedPlace.googlePlaceId) ?? new Set()
+            ? (addedByPlace.get(selectedPlace.googlePlaceId) ?? new Set())
             : new Set()
         }
         onSaveToggle={handleSaveToggle}
         onTripAdded={(tripId) => {
-          if (selectedPlace) handleTripAdded(selectedPlace.googlePlaceId, tripId);
+          if (selectedPlace)
+            handleTripAdded(selectedPlace.googlePlaceId, tripId);
         }}
       />
     </div>

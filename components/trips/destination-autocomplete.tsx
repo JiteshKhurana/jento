@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { MapPin, Plus, X } from "lucide-react";
+import { MapPin, Plus, Search, X } from "lucide-react";
 import { Spinner } from "@/components/ui/spinner";
 import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
@@ -27,6 +27,9 @@ type DestinationAutocompleteProps = {
   placeholder?: string;
   autoFocus?: boolean;
   className?: string;
+  inputClassName?: string;
+  leadingIcon?: "map-pin" | "search";
+  disabled?: boolean;
 };
 
 export function DestinationAutocomplete({
@@ -36,6 +39,9 @@ export function DestinationAutocomplete({
   placeholder = "Where are you headed?",
   autoFocus,
   className,
+  inputClassName,
+  leadingIcon = "map-pin",
+  disabled,
 }: DestinationAutocompleteProps) {
   const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
   const [loading, setLoading] = useState(false);
@@ -132,7 +138,11 @@ export function DestinationAutocomplete({
   return (
     <div ref={containerRef} className={cn("relative", className)}>
       <div className="relative">
-        <MapPin className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400" />
+        {leadingIcon === "search" ? (
+          <Search className="pointer-events-none absolute left-5 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400" />
+        ) : (
+          <MapPin className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400" />
+        )}
         <Input
           value={value}
           onChange={(e) => onChange(e.target.value)}
@@ -140,7 +150,11 @@ export function DestinationAutocomplete({
           onKeyDown={handleKeyDown}
           placeholder={placeholder}
           autoFocus={autoFocus}
-          className="pl-9 pr-9"
+          disabled={disabled}
+          className={cn(
+            leadingIcon === "search" ? "pl-12 pr-12" : "pl-9 pr-9",
+            inputClassName,
+          )}
         />
         {isSearchable && loading && (
           <Spinner className="absolute right-3 top-1/2 -translate-y-1/2" />

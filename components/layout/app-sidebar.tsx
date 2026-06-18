@@ -4,6 +4,7 @@ import { UserButton } from "@clerk/nextjs";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Search, Map, PanelLeft, PanelLeftClose, Plane, Heart } from "lucide-react";
+import { ModeToggle } from "@/components/mode-toggle";
 import {
   Sidebar,
   SidebarContent,
@@ -98,6 +99,11 @@ export function AppSidebar() {
       <SidebarFooter>
         <SidebarMenu>
           <SidebarCollapseButton />
+          <SidebarMenuItem>
+            <div className="flex items-center justify-center px-2 py-1.5 group-data-[collapsible=icon]:px-0">
+              <ModeToggle />
+            </div>
+          </SidebarMenuItem>
           <SidebarMenuItem>
             <div className="flex items-center gap-2 px-2 py-1.5 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0">
               <UserButton

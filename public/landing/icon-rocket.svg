@@ -1,0 +1,8 @@
+<svg preserveAspectRatio="none" width="100%" height="100%" overflow="visible" style="display: block;" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="icon/rocket">
+<path id="Vector" d="M11.25 41.25C7.5 44.4 6.25 53.75 6.25 53.75C6.25 53.75 15.6 52.5 18.75 48.75C20.525 46.65 20.5 43.425 18.525 41.475C17.5533 40.5475 16.2732 40.0116 14.9306 39.9701C13.5879 39.9285 12.2772 40.3843 11.25 41.25Z" stroke="var(--stroke-0, black)" stroke-width="2.42553" stroke-linecap="round" stroke-linejoin="round"/>
+<path id="Vector_2" d="M30 37.5L22.5 30C23.8304 26.5486 25.5055 23.2402 27.5 20.125C30.413 15.4675 34.4691 11.6326 39.2825 8.98523C44.0959 6.33783 49.5067 4.96593 55 5C55 11.8 53.05 23.75 40 32.5C36.8422 34.4968 33.4921 36.1719 30 37.5Z" stroke="var(--stroke-0, black)" stroke-width="2.42553" stroke-linecap="round" stroke-linejoin="round"/>
+<path id="Vector_3" d="M22.5 30H10C10 30 11.375 22.425 15 20C19.05 17.3 27.5 20 27.5 20" stroke="var(--stroke-0, black)" stroke-width="2.42553" stroke-linecap="round" stroke-linejoin="round"/>
+<path id="Vector_4" d="M30 37.5V50C30 50 37.575 48.625 40 45C42.7 40.95 40 32.5 40 32.5" stroke="var(--stroke-0, black)" stroke-width="2.42553" stroke-linecap="round" stroke-linejoin="round"/>
+</g>
+</svg>
