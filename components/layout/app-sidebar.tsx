@@ -1,16 +1,18 @@
 "use client";
 
 import { UserButton } from "@clerk/nextjs";
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useTheme } from "next-themes";
 import {
   Search,
   Map,
+  Moon,
   PanelLeft,
   PanelLeftClose,
-  Plane,
+  Sun,
 } from "lucide-react";
-import { ModeToggle } from "@/components/mode-toggle";
 import {
   Sidebar,
   SidebarContent,
@@ -42,9 +44,33 @@ function SidebarCollapseButton() {
       <SidebarMenuButton
         onClick={toggleSidebar}
         tooltip={expanded ? "Collapse sidebar" : "Expand sidebar"}
+        className="cursor-pointer"
       >
         {expanded ? <PanelLeftClose /> : <PanelLeft />}
         <span>{expanded ? "Collapse" : "Expand"}</span>
+      </SidebarMenuButton>
+    </SidebarMenuItem>
+  );
+}
+
+function SidebarThemeToggle() {
+  const { resolvedTheme, setTheme } = useTheme();
+
+  const toggleTheme = () => {
+    setTheme(resolvedTheme === "dark" ? "light" : "dark");
+  };
+
+  return (
+    <SidebarMenuItem>
+      <SidebarMenuButton
+        onClick={toggleTheme}
+        tooltip="Toggle theme"
+        className="cursor-pointer"
+        aria-label="Toggle theme"
+      >
+        <Sun className="dark:hidden" />
+        <Moon className="hidden dark:block" />
+        <span>Toggle theme</span>
       </SidebarMenuButton>
     </SidebarMenuItem>
   );
@@ -58,13 +84,29 @@ export function AppSidebar() {
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton size="lg" asChild tooltip="Jento">
-              <Link href="/trips">
-                <span className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-primary dark:bg-white">
-                  <Plane className="size-4 text-primary-foreground dark:text-black" />
-                </span>
-                <span className="font-bold tracking-tight group-data-[collapsible=icon]:hidden">
-                  Jento
+            <SidebarMenuButton
+              size="lg"
+              asChild
+              tooltip="Jento"
+              className="justify-center"
+            >
+              <Link href="/trips" className="justify-center">
+                <Image
+                  src="/logoblack.svg"
+                  alt=""
+                  width={18}
+                  height={32}
+                  className="h-8 w-[18px] shrink-0 dark:hidden"
+                />
+                <Image
+                  src="/logowhite.svg"
+                  alt=""
+                  width={18}
+                  height={32}
+                  className="hidden h-8 w-[18px] shrink-0 dark:block"
+                />
+                <span className="font-jento text-xl leading-none text-black group-data-[collapsible=icon]:hidden dark:text-white">
+                  JENTO
                 </span>
               </Link>
             </SidebarMenuButton>
@@ -103,12 +145,8 @@ export function AppSidebar() {
 
       <SidebarFooter>
         <SidebarMenu>
+          <SidebarThemeToggle />
           <SidebarCollapseButton />
-          <SidebarMenuItem>
-            <div className="flex items-center justify-center px-2 py-1.5 group-data-[collapsible=icon]:px-0">
-              <ModeToggle />
-            </div>
-          </SidebarMenuItem>
           <SidebarMenuItem>
             <div className="flex items-center gap-2 px-2 py-1.5 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0">
               <UserButton
