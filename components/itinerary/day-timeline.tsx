@@ -447,13 +447,38 @@ type DayExpenseBreakdownProps = {
 };
 
 const BUDGET_CATEGORIES = [
-  { key: "budgetAccommodation" as const, label: "Accommodation", icon: BedDouble, color: "#7c3aed" },
-  { key: "budgetFood" as const, label: "Food & Drinks", icon: UtensilsCrossed, color: "#db2777" },
-  { key: "budgetActivities" as const, label: "Activities", icon: Zap, color: "#2563eb" },
-  { key: "budgetTransport" as const, label: "Transport", icon: Bus, color: "#0d9488" },
+  {
+    key: "budgetAccommodation" as const,
+    label: "Accommodation",
+    icon: BedDouble,
+    color: "#7c3aed",
+  },
+  {
+    key: "budgetFood" as const,
+    label: "Food & Drinks",
+    icon: UtensilsCrossed,
+    color: "#db2777",
+  },
+  {
+    key: "budgetActivities" as const,
+    label: "Activities",
+    icon: Zap,
+    color: "#2563eb",
+  },
+  {
+    key: "budgetTransport" as const,
+    label: "Transport",
+    icon: Bus,
+    color: "#0d9488",
+  },
 ] as const;
 
-const FALLBACK_SPLITS = { budgetAccommodation: 0.35, budgetFood: 0.25, budgetActivities: 0.25, budgetTransport: 0.1 } as const;
+const FALLBACK_SPLITS = {
+  budgetAccommodation: 0.35,
+  budgetFood: 0.25,
+  budgetActivities: 0.25,
+  budgetTransport: 0.1,
+} as const;
 
 function DayExpenseBreakdown({
   day,
@@ -463,9 +488,7 @@ function DayExpenseBreakdown({
 }: DayExpenseBreakdownProps) {
   const symbol = getCurrencySymbol(currencyCode);
 
-  const hasAiBudget =
-    day.budgetTotal != null &&
-    day.budgetTotal > 0;
+  const hasAiBudget = day.budgetTotal != null && day.budgetTotal > 0;
 
   const totalToShow = hasAiBudget
     ? (day.budgetTotal as number)
@@ -504,7 +527,10 @@ function DayExpenseBreakdown({
               className="flex flex-col gap-1 bg-white px-3 py-2.5"
             >
               <div className="flex items-center gap-1.5">
-                <Icon className="h-3 w-3 shrink-0" style={{ color: cat.color }} />
+                <Icon
+                  className="h-3 w-3 shrink-0"
+                  style={{ color: cat.color }}
+                />
                 <span className="text-[10px] font-medium text-neutral-500 truncate">
                   {cat.label}
                 </span>
@@ -706,7 +732,9 @@ function DayItems({
                       {item.startTime}
                     </span>
                   ) : (
-                    <span className="block text-[11px] text-neutral-300">—</span>
+                    <span className="block text-[11px] text-neutral-300">
+                      —
+                    </span>
                   )}
                   {item.duration && (
                     <span className="mt-1 block text-[10px] tabular-nums text-neutral-400">
@@ -725,10 +753,10 @@ function DayItems({
                 </div>
                 {!isLast && (
                   <div
-                    className="pointer-events-none absolute left-1/2 top-10 w-px -translate-x-1/2 rounded-full"
+                    className="pointer-events-none absolute left-1/2 top-10 w-px -translate-x-1/2 rounded-full bg-(--timeline-line-color) dark:bg-white"
                     style={{
                       height: "calc(100% - 2.5rem + 2rem)",
-                      backgroundColor: dayColor,
+                      ["--timeline-line-color" as string]: dayColor,
                     }}
                     aria-hidden
                   />
@@ -840,73 +868,73 @@ export function DayTimeline({
         const dayDate = getDayDate(tripStartDate, day.dayNumber);
 
         return (
-        <section key={day.id} id={`day-${day.dayNumber}`}>
-          {/* Day header banner */}
-          <div
-            className="mb-4 flex items-center gap-3 rounded-xl px-4 py-3"
-            style={{ backgroundColor: `${getDayColor(day.dayNumber)}15` }}
-          >
+          <section key={day.id} id={`day-${day.dayNumber}`}>
+            {/* Day header banner */}
             <div
-              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-sm font-black text-white"
-              style={{ backgroundColor: getDayColor(day.dayNumber) }}
+              className="mb-4 flex items-center gap-3 rounded-xl px-4 py-3"
+              style={{ backgroundColor: `${getDayColor(day.dayNumber)}15` }}
             >
-              {day.dayNumber}
+              <div
+                className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-sm font-black text-white"
+                style={{ backgroundColor: getDayColor(day.dayNumber) }}
+              >
+                {day.dayNumber}
+              </div>
+              <div className="flex-1 min-w-0">
+                <h3 className="font-semibold text-neutral-900 truncate">
+                  {day.title}
+                </h3>
+                {dayDate && (
+                  <p className="truncate text-xs font-medium text-neutral-500">
+                    {format(dayDate, "EEEE, MMM d")}
+                  </p>
+                )}
+                {day.summary && (
+                  <p className="truncate text-xs text-neutral-500">
+                    {day.summary}
+                  </p>
+                )}
+              </div>
+              <span className="shrink-0 text-xs font-medium text-neutral-400">
+                {day.items.length} {day.items.length === 1 ? "stop" : "stops"}
+              </span>
+              <DayAudioButton
+                tripId={tripId}
+                dayNumber={day.dayNumber}
+                contentKey={`${day.title}|${day.summary ?? ""}|${day.items.map((i) => i.id).join(",")}`}
+                color={getDayColor(day.dayNumber)}
+              />
             </div>
-            <div className="flex-1 min-w-0">
-              <h3 className="font-semibold text-neutral-900 truncate">
-                {day.title}
-              </h3>
-              {dayDate && (
-                <p className="truncate text-xs font-medium text-neutral-500">
-                  {format(dayDate, "EEEE, MMM d")}
-                </p>
-              )}
-              {day.summary && (
-                <p className="truncate text-xs text-neutral-500">
-                  {day.summary}
-                </p>
-              )}
-            </div>
-            <span className="shrink-0 text-xs font-medium text-neutral-400">
-              {day.items.length} {day.items.length === 1 ? "stop" : "stops"}
-            </span>
-            <DayAudioButton
-              tripId={tripId}
-              dayNumber={day.dayNumber}
-              contentKey={`${day.title}|${day.summary ?? ""}|${day.items.map((i) => i.id).join(",")}`}
-              color={getDayColor(day.dayNumber)}
-            />
-          </div>
 
-          {(day.budgetTotal != null || fallbackDailyBudget != null) && (
-            <DayExpenseBreakdown
-              day={day}
-              fallbackDailyBudget={fallbackDailyBudget}
-              currencyCode={budgetCurrency}
-              dayColor={getDayColor(day.dayNumber)}
-            />
-          )}
-
-          {day.items.length > 0 && (
-            <>
-              <DayActivityInsight
+            {(day.budgetTotal != null || fallbackDailyBudget != null) && (
+              <DayExpenseBreakdown
                 day={day}
-                destination={destination}
+                fallbackDailyBudget={fallbackDailyBudget}
+                currencyCode={budgetCurrency}
                 dayColor={getDayColor(day.dayNumber)}
               />
-            </>
-          )}
+            )}
 
-          <DayItems
-            day={day}
-            tripId={tripId}
-            dayColor={getDayColor(day.dayNumber)}
-            onUpdate={onUpdate}
-            onSelectItem={onSelectItem}
-            sortable={mounted && !readOnly}
-            readOnly={readOnly}
-          />
-        </section>
+            {day.items.length > 0 && (
+              <>
+                <DayActivityInsight
+                  day={day}
+                  destination={destination}
+                  dayColor={getDayColor(day.dayNumber)}
+                />
+              </>
+            )}
+
+            <DayItems
+              day={day}
+              tripId={tripId}
+              dayColor={getDayColor(day.dayNumber)}
+              onUpdate={onUpdate}
+              onSelectItem={onSelectItem}
+              sortable={mounted && !readOnly}
+              readOnly={readOnly}
+            />
+          </section>
         );
       })}
     </div>

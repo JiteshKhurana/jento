@@ -145,7 +145,7 @@ export function TripCard({ trip, coverPhoto, priority }: TripCardProps) {
               type="button"
               variant="ghost"
               size="icon"
-              className="absolute right-3 top-3 z-10 h-8 w-8 rounded-full bg-card/90 text-foreground shadow-sm backdrop-blur-sm hover:bg-card hover:text-foreground"
+              className="absolute right-3 top-3 z-10 h-8 w-8 rounded-full bg-card/90 text-foreground shadow-sm backdrop-blur-sm hover:bg-card hover:text-foreground cursor-pointer"
               onClick={(e) => e.stopPropagation()}
               aria-label="Trip options"
             >
@@ -227,7 +227,9 @@ export function TripCard({ trip, coverPhoto, priority }: TripCardProps) {
                   {" – "}
                   {end ? format(end, "MMM d, yyyy") : "TBD"}
                   {tripDuration != null && tripDuration > 0 && (
-                    <span className="text-muted-foreground">· {tripDuration}d</span>
+                    <span className="text-muted-foreground">
+                      · {tripDuration}d
+                    </span>
                   )}
                 </span>
               )}

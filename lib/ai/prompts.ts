@@ -73,6 +73,22 @@ Dietary preference (set at trip creation — do not ask the user about dietary n
 Daily cutoff (set at trip creation — do not ask the user about end-of-day time):
 - Wrap up each day's last activity by ${formatEndDayBySummary(endDayBy)}. Schedule no sightseeing, dining, or activities that extend past this time — lodging check-in and wind-down are fine after it.`
     : "";
+  const petsGuidelines =
+    preferences.travelingWithPets === true
+      ? `
+Pets (set at trip creation — do not ask the user about pets):
+- Prefer pet-friendly hotels, restaurants with outdoor seating, and parks or outdoor activities where pets are welcome.
+- Avoid venues that typically prohibit pets unless clearly pet-friendly.
+- Note pet policies or fees in lodging item descriptions when relevant.`
+      : "";
+  const infantsGuidelines =
+    preferences.travelingWithInfants === true
+      ? `
+Infants (set at trip creation — do not ask the user about infants):
+- Plan stroller-friendly routes, shorter activity blocks, and nap-friendly gaps between stops.
+- Prefer family-friendly venues; avoid late-night or high-noise activities.
+- Keep daily pacing lighter and include practical breaks.`
+      : "";
   const roadTripGuidelines =
     preferences.isRoadTrip === true
       ? `
@@ -112,7 +128,7 @@ Current trip context:
 - Destination: ${trip.destination}
 - Dates: ${dateRange}
 - Preferences: ${JSON.stringify(trip.preferences ?? {})}
-${paceGuidelines}${dietaryGuidelines}${endDayGuidelines}${roadTripGuidelines}${flightGuidelines}
+${paceGuidelines}${dietaryGuidelines}${endDayGuidelines}${petsGuidelines}${infantsGuidelines}${roadTripGuidelines}${flightGuidelines}
 Guidelines:
 1. Use the trip context (destination, dates, travelers, budget, pace, dietary) already provided — do not re-ask for information the user has already given unless something is missing or unclear.
 2. Ask clarifying questions only about interests and travel style before generating a full itinerary — pace and dietary needs are already set in trip preferences; never ask about pace or diet.

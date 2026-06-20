@@ -111,7 +111,7 @@ export function DayAudioButton({
       }
       title={state === "playing" ? "Stop" : "Listen to this day"}
       className={cn(
-        "flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white/80 shadow-sm backdrop-blur-sm transition-all hover:scale-105 hover:bg-white",
+        "flex h-8 w-8 shrink-0 cursor-pointer items-center justify-center rounded-full bg-white/80 shadow-sm backdrop-blur-sm transition-all hover:scale-105 hover:bg-white",
         state === "playing" && "animate-pulse",
       )}
       style={{ color }}

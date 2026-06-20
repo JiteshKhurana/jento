@@ -74,7 +74,8 @@ export function DeleteTripDialog({
           </Button>
           <Button
             type="button"
-            className="h-11 flex-1 rounded-full bg-neutral-900 text-white hover:bg-neutral-800 cursor-pointer"
+            variant="destructive"
+            className="h-11 flex-1 rounded-full cursor-pointer"
             onClick={handleConfirm}
             disabled={deleting}
           >

@@ -57,6 +57,7 @@ import {
   TRAVELER_LABELS,
   formatEndDayBySummary,
   formatTravelerSummary,
+  travelerTypeRequiresCount,
   type DietaryPreference,
   type TravelerType,
   type TripPace,
@@ -99,6 +100,10 @@ export function NewTripDialog({ open, onOpenChange }: NewTripDialogProps) {
   const [locations, setLocations] = useState<SelectedLocation[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [showSearch, setShowSearch] = useState(true);
+  const [departFromCurrent, setDepartFromCurrent] = useState(true);
+  const [departureLocation, setDepartureLocation] =
+    useState<SelectedLocation | null>(null);
+  const [departureSearchQuery, setDepartureSearchQuery] = useState("");
   const [isRoadTrip, setIsRoadTrip] = useState(false);
   const [timingMode, setTimingMode] = useState<TimingMode | null>(null);
   const [flexibleDays, setFlexibleDays] = useState("");
@@ -107,6 +112,8 @@ export function NewTripDialog({ open, onOpenChange }: NewTripDialogProps) {
   const [preferences, setPreferences] = useState("");
   const [travelerType, setTravelerType] = useState<TravelerType | null>(null);
   const [travelerCount, setTravelerCount] = useState("");
+  const [travelingWithPets, setTravelingWithPets] = useState(false);
+  const [travelingWithInfants, setTravelingWithInfants] = useState(false);
   const [pace, setPace] = useState<TripPace | null>(null);
   const [dietary, setDietary] = useState<DietaryPreference | null>(null);
   const [budgetAmount, setBudgetAmount] = useState("");
@@ -163,6 +170,9 @@ export function NewTripDialog({ open, onOpenChange }: NewTripDialogProps) {
       setLocations([]);
       setSearchQuery("");
       setShowSearch(true);
+      setDepartFromCurrent(true);
+      setDepartureLocation(null);
+      setDepartureSearchQuery("");
       setIsRoadTrip(false);
       setTimingMode(null);
       setFlexibleDays("");
@@ -171,6 +181,8 @@ export function NewTripDialog({ open, onOpenChange }: NewTripDialogProps) {
       setPreferences("");
       setTravelerType(null);
       setTravelerCount("");
+      setTravelingWithPets(false);
+      setTravelingWithInfants(false);
       setPace(null);
       setDietary(null);
       setBudgetAmount("");
@@ -248,7 +260,18 @@ export function NewTripDialog({ open, onOpenChange }: NewTripDialogProps) {
     setLoading(true);
     setCreateError(null);
     try {
-      const startingLocation = await getCurrentLocation();
+      let startingLocation = null;
+      if (departFromCurrent) {
+        startingLocation = await getCurrentLocation();
+      } else if (departureLocation) {
+        startingLocation = {
+          name: departureLocation.name,
+          label: departureLocation.label,
+          latitude: departureLocation.latitude,
+          longitude: departureLocation.longitude,
+        };
+      }
+
       if (startingLocation) {
         initialParts.push(
           isRoadTrip
@@ -275,6 +298,8 @@ export function NewTripDialog({ open, onOpenChange }: NewTripDialogProps) {
         budgetPerPerson: budgetAmount ? Number(budgetAmount) : null,
         budgetCurrency,
         endDayBy: endDayByTime || null,
+        travelingWithPets,
+        travelingWithInfants,
         notes: preferences.trim() || null,
       };
 
@@ -288,6 +313,14 @@ export function NewTripDialog({ open, onOpenChange }: NewTripDialogProps) {
       if (travelerType) {
         initialParts.push(
           `Traveling as ${formatTravelerSummary(travelerType, travelerCount ? Number(travelerCount) : undefined).toLowerCase()}.`,
+        );
+      }
+      if (travelingWithPets) {
+        initialParts.push("Traveling with pets — prefer pet-friendly stays and activities.");
+      }
+      if (travelingWithInfants) {
+        initialParts.push(
+          "Traveling with infants — plan for stroller-friendly routes, nap breaks, and family-friendly venues.",
         );
       }
       if (budgetAmount && Number(budgetAmount) > 0) {
@@ -348,6 +381,8 @@ export function NewTripDialog({ open, onOpenChange }: NewTripDialogProps) {
           hasEndDate: !!endDate,
           travelerType: travelerType ?? "none",
           travelerCount: travelerCount ? Number(travelerCount) : 1,
+          travelingWithPets,
+          travelingWithInfants,
           pace: pace ?? "none",
           dietary: dietary ?? "none",
           budgetAmount: Number(budgetAmount) || 0,
@@ -378,7 +413,7 @@ export function NewTripDialog({ open, onOpenChange }: NewTripDialogProps) {
     budgetAmount.trim() !== "" &&
     Number(budgetAmount) > 0 &&
     !loading &&
-    (travelerType === "friends" || travelerType === "group"
+    (travelerTypeRequiresCount(travelerType)
       ? travelerCount.trim() !== ""
       : true) &&
     timingMode !== null &&
@@ -387,7 +422,8 @@ export function NewTripDialog({ open, onOpenChange }: NewTripDialogProps) {
         Number(flexibleDays) > 0 &&
         Number(flexibleDays) <= MAX_TRIP_DAYS
       : !!dateRange?.from) &&
-    endDayByTime.trim() !== "";
+    endDayByTime.trim() !== "" &&
+    (departFromCurrent || departureLocation !== null);
 
   const dateLabel = dateRange?.from
     ? dateRange.to
@@ -436,6 +472,56 @@ export function NewTripDialog({ open, onOpenChange }: NewTripDialogProps) {
 
             <div className="mt-8 space-y-6">
               <div className="space-y-3">
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <Label
+                    htmlFor="depart-current"
+                    className="font-normal text-neutral-600"
+                  >
+                    Departing from current location?
+                  </Label>
+                  <Switch
+                    id="depart-current"
+                    checked={departFromCurrent}
+                    onCheckedChange={(checked) => {
+                      setDepartFromCurrent(checked);
+                      if (checked) {
+                        setDepartureLocation(null);
+                        setDepartureSearchQuery("");
+                      }
+                    }}
+                  />
+                </div>
+
+                {!departFromCurrent && (
+                  <div className="space-y-2">
+                    <Label className="font-normal text-neutral-600">
+                      Where are you departing from?
+                    </Label>
+                    {departureLocation ? (
+                      <LocationChip
+                        location={departureLocation}
+                        onRemove={() => {
+                          setDepartureLocation(null);
+                          setDepartureSearchQuery("");
+                        }}
+                      />
+                    ) : (
+                      <DestinationAutocomplete
+                        value={departureSearchQuery}
+                        onChange={setDepartureSearchQuery}
+                        onSelect={(location) => {
+                          setDepartureLocation(location);
+                          setDepartureSearchQuery("");
+                        }}
+                        placeholder="City, airport, or address"
+                        autoFocus={open && !departFromCurrent && !departureLocation}
+                      />
+                    )}
+                  </div>
+                )}
+              </div>
+
+              <div className="space-y-3">
                 <Label>Destination</Label>
 
                 <div className="space-y-2">
@@ -452,7 +538,7 @@ export function NewTripDialog({ open, onOpenChange }: NewTripDialogProps) {
                       value={searchQuery}
                       onChange={setSearchQuery}
                       onSelect={addLocation}
-                      autoFocus={open && locations.length === 0}
+                      autoFocus={open && locations.length === 0 && departFromCurrent}
                     />
                   )}
                 </div>
@@ -579,7 +665,7 @@ export function NewTripDialog({ open, onOpenChange }: NewTripDialogProps) {
                     </button>
                   ))}
                 </div>
-                {(travelerType === "friends" || travelerType === "group") && (
+                {travelerTypeRequiresCount(travelerType) && (
                   <Input
                     type="number"
                     min={2}
@@ -590,6 +676,36 @@ export function NewTripDialog({ open, onOpenChange }: NewTripDialogProps) {
                     className="max-w-[160px]"
                   />
                 )}
+
+                <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
+                  <div className="flex items-center gap-2.5">
+                    <Label
+                      htmlFor="traveling-with-pets"
+                      className="font-normal text-neutral-600"
+                    >
+                      Traveling with pets?
+                    </Label>
+                    <Switch
+                      id="traveling-with-pets"
+                      checked={travelingWithPets}
+                      onCheckedChange={setTravelingWithPets}
+                    />
+                  </div>
+
+                  <div className="flex items-center gap-2.5">
+                    <Label
+                      htmlFor="traveling-with-infants"
+                      className="font-normal text-neutral-600"
+                    >
+                      Traveling with infants?
+                    </Label>
+                    <Switch
+                      id="traveling-with-infants"
+                      checked={travelingWithInfants}
+                      onCheckedChange={setTravelingWithInfants}
+                    />
+                  </div>
+                </div>
               </div>
 
               <div className="space-y-3">

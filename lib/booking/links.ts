@@ -30,8 +30,7 @@ function extractFlightIATACodes(title: string): [string | null, string | null] {
 /**
  * Builds a MakeMyTrip flight search URL.
  *
- * - Outbound (isReturn=false): round-trip URL when both dates are available,
- *   otherwise one-way.
+ * - Outbound (isReturn=false): one-way URL using the trip start date.
  * - Return (isReturn=true): one-way URL using the trip end date.
  * - Falls back to a Google Flights text search when dates are missing.
  */
@@ -60,13 +59,7 @@ function buildMMTFlightUrl(
     return `${base}?itinerary=${iata1}-${iata2}-${formatMMTDate(date)}&tripType=O&${pax}&intl=${intl}&${cabin}&${lang}`;
   }
 
-  // Outbound leg: round-trip when both dates exist, one-way otherwise
-  if (startDate && endDate) {
-    const out = formatMMTDate(startDate);
-    const ret = formatMMTDate(endDate);
-    return `${base}?itinerary=${iata1}-${iata2}-${out}_${iata2}-${iata1}-${ret}&tripType=R&${pax}&intl=${intl}&${cabin}&${lang}`;
-  }
-
+  // Outbound leg: one-way flight on the trip start date
   if (startDate) {
     return `${base}?itinerary=${iata1}-${iata2}-${formatMMTDate(startDate)}&tripType=O&${pax}&intl=${intl}&${cabin}&${lang}`;
   }

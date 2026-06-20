@@ -161,15 +161,6 @@ function ItemDetailDialogContent({
       >
         <div className="shrink-0 border-b border-neutral-100 px-4 py-3">
           <div className="flex items-center justify-between gap-3">
-            <button
-              type="button"
-              onClick={() => onOpenChange(false)}
-              className="flex h-8 w-8 items-center justify-center rounded-full text-neutral-500 hover:bg-neutral-100"
-              aria-label="Close"
-            >
-              <X className="h-4 w-4" />
-            </button>
-
             <div className="flex items-center gap-2">
               {headerActions}
               {mapsUrl && (
@@ -195,6 +186,14 @@ function ItemDetailDialogContent({
                 </a>
               )}
             </div>
+            <button
+              type="button"
+              onClick={() => onOpenChange(false)}
+              className="flex h-8 w-8 shrink-0 cursor-pointer items-center justify-center rounded-full text-neutral-500 hover:bg-neutral-100"
+              aria-label="Close"
+            >
+              <X className="h-4 w-4" />
+            </button>
           </div>
         </div>
 

@@ -36,6 +36,7 @@ import {
   formatTravelerSummary,
   formatWhenSummary,
   isTripIntakeComplete,
+  travelerTypeRequiresCount,
   type DietaryPreference,
   type TimingMode,
   type TravelerType,
@@ -134,9 +135,11 @@ export function TripIntakeBar({
 
   function handleTravelerSelect(type: TravelerType) {
     setTravelerType(type);
-    if (type === "solo" || type === "couple" || type === "family") {
+    if (type === "solo" || type === "couple") {
       setTravelerCount("");
       setOpenField("budget");
+    } else {
+      setTravelerCount("");
     }
   }
 
@@ -298,8 +301,7 @@ export function TripIntakeBar({
                         ))}
                       </div>
 
-                      {(travelerType === "friends" ||
-                        travelerType === "group") && (
+                      {travelerTypeRequiresCount(travelerType) && (
                         <div className="space-y-2">
                           <Label
                             htmlFor="traveler-count"
@@ -313,7 +315,7 @@ export function TripIntakeBar({
                             min={2}
                             max={50}
                             placeholder={
-                              travelerType === "friends" ? "e.g. 4" : "e.g. 8"
+                              travelerType === "group" ? "e.g. 8" : "e.g. 4"
                             }
                             value={travelerCount}
                             onChange={(e) => setTravelerCount(e.target.value)}
@@ -321,8 +323,7 @@ export function TripIntakeBar({
                         </div>
                       )}
 
-                      {(travelerType === "friends" ||
-                        travelerType === "group") && (
+                      {travelerTypeRequiresCount(travelerType) && (
                         <Button
                           type="button"
                           size="sm"

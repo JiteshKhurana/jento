@@ -111,9 +111,17 @@ export function formatTravelerSummary(
 ): string {
   if (type === "solo") return "Solo";
   if (type === "couple") return "Couple";
-  if (type === "family") return "Family";
+  if (type === "family") {
+    return count && count > 0 ? `Family of ${count}` : "Family";
+  }
   const n = count && count > 0 ? count : type === "friends" ? 2 : 4;
   return `${n} ${type}`;
+}
+
+export function travelerTypeRequiresCount(
+  type: TravelerType | null | undefined,
+): boolean {
+  return type === "friends" || type === "group" || type === "family";
 }
 
 export function formatWhenSummary(data: TripIntakeData): string | null {
@@ -142,7 +150,7 @@ export function isTripIntakeComplete(data: TripIntakeData): boolean {
     return false;
   }
   if (
-    (data.travelerType === "friends" || data.travelerType === "group") &&
+    travelerTypeRequiresCount(data.travelerType) &&
     (!data.travelerCount || data.travelerCount < 2)
   ) {
     return false;

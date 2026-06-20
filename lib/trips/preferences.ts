@@ -19,6 +19,8 @@ export type TripPreferences = {
   budgetCurrency?: string;
   /** Daily cutoff time in 24h "HH:mm" format (e.g. "22:00"). */
   endDayBy?: string;
+  travelingWithPets?: boolean;
+  travelingWithInfants?: boolean;
   [key: string]: unknown;
 };
 

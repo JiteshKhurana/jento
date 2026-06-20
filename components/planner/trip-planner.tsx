@@ -261,7 +261,7 @@ export function TripPlanner({
                   setMapShowAllPlaces(false);
                 }}
                 className={cn(
-                  "shrink-0 rounded-full px-3.5 py-1.5 text-xs font-semibold transition-all",
+                  "shrink-0 cursor-pointer rounded-full px-3.5 py-1.5 text-xs font-semibold transition-all",
                   selectedDay === day.dayNumber
                     ? "bg-neutral-900 text-white shadow-sm shadow-neutral-200"
                     : "bg-neutral-100 text-neutral-600 hover:bg-neutral-200",
