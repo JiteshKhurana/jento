@@ -248,7 +248,7 @@ export function TripPlanner({
         </div>
       )}
       {days.length > 1 && (
-        <div className="sticky top-0 z-10 flex gap-1.5 overflow-x-auto border-b border-neutral-100 bg-white px-4 py-3">
+        <div className="sticky top-0 z-20 flex gap-1.5 overflow-x-auto border-b border-neutral-100 bg-white px-4 py-3">
           {days.map((day) => {
             const dayDate = getDayDate(trip.startDate, day.dayNumber);
 

@@ -6,6 +6,13 @@ import { Spinner } from "@/components/ui/spinner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 type ItemEditorProps = {
   item: {
@@ -34,6 +41,8 @@ export function ItemEditor({
   const [startTime, setStartTime] = useState(item.startTime ?? "");
   const [duration, setDuration] = useState(item.duration ?? "");
   const [loading, setLoading] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   async function handleSave() {
     setLoading(true);
@@ -42,10 +51,14 @@ export function ItemEditor({
     setEditing(false);
   }
 
-  async function handleDelete() {
-    if (!confirm("Remove this item from your itinerary?")) return;
-    setLoading(true);
-    await onDelete();
+  async function handleConfirmDelete() {
+    setDeleting(true);
+    try {
+      await onDelete();
+      setDeleteDialogOpen(false);
+    } finally {
+      setDeleting(false);
+    }
   }
 
   if (editing) {
@@ -111,18 +124,57 @@ export function ItemEditor({
             size="icon"
             variant="ghost"
             className="h-7 w-7 text-red-500 hover:text-red-600"
-            onClick={handleDelete}
-            disabled={loading}
-            aria-label={loading ? "Removing item…" : "Remove item"}
+            onClick={() => setDeleteDialogOpen(true)}
+            disabled={loading || deleting}
+            aria-label="Remove item"
           >
-            {loading ? (
-              <Spinner size="sm" className="text-red-500" />
-            ) : (
-              <Trash2 className="h-3.5 w-3.5" />
-            )}
+            <Trash2 className="h-3.5 w-3.5" />
           </Button>
         </div>
       )}
+
+      <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <DialogContent
+          showClose={false}
+          className="max-w-sm gap-0 rounded-3xl p-8 sm:max-w-sm"
+        >
+          <DialogHeader className="space-y-3 text-center">
+            <DialogTitle className="text-xl font-semibold leading-snug">
+              Remove &ldquo;{item.title}&rdquo;?
+            </DialogTitle>
+            <DialogDescription className="text-left text-neutral-500">
+              This item will be removed from your itinerary.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="mt-8 flex gap-3">
+            <Button
+              type="button"
+              variant="outline"
+              className="h-11 flex-1 rounded-full cursor-pointer"
+              onClick={() => setDeleteDialogOpen(false)}
+              disabled={deleting}
+            >
+              Cancel
+            </Button>
+            <Button
+              type="button"
+              className="h-11 flex-1 rounded-full bg-neutral-900 text-white hover:bg-neutral-800 cursor-pointer"
+              onClick={handleConfirmDelete}
+              disabled={deleting}
+            >
+              {deleting ? (
+                <>
+                  <Spinner size="sm" className="text-white" />
+                  Removing…
+                </>
+              ) : (
+                "Yes, remove"
+              )}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

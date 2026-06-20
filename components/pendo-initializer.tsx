@@ -9,13 +9,13 @@ export function PendoInitializer() {
   const wasSignedIn = useRef(false);
 
   useEffect(() => {
-    if (initialized.current) return;
+    if (initialized.current || typeof pendo === "undefined") return;
     initialized.current = true;
     pendo.initialize({ visitor: { id: "" } });
   }, []);
 
   useEffect(() => {
-    if (!isLoaded) return;
+    if (!isLoaded || typeof pendo === "undefined") return;
     if (wasSignedIn.current && isSignedIn === false) {
       pendo.clearSession();
     }

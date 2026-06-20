@@ -17,6 +17,7 @@ export function PendoIdentifier({ user }: { user: PendoUser | null }) {
 
   useEffect(() => {
     if (!user || user.id === lastIdentifiedId.current) return;
+    if (typeof pendo === "undefined") return;
     lastIdentifiedId.current = user.id;
 
     pendo.identify({
