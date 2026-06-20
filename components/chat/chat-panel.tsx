@@ -82,8 +82,28 @@ export function ChatPanel({
     onError: (err) => {
       setError(err.message || "Something went wrong. Please try again.");
     },
-    onFinish: () => {
+    onFinish: ({ message }) => {
       onItineraryUpdateRef.current?.();
+
+      if (typeof window !== "undefined" && window.pendo?.trackAgent) {
+        const content = getMessageText(message);
+        const toolsUsed = [
+          ...new Set(
+            message.parts
+              .filter((p) => p.type.startsWith("tool-"))
+              .map((p) => p.type.slice(5)),
+          ),
+        ];
+
+        window.pendo.trackAgent("agent_response", {
+          agentId: "RGd0NiMxaQXNV3DJzeCH5hY_obg",
+          conversationId: tripId,
+          messageId: message.id,
+          content,
+          modelUsed: "gemini-3.1-flash-lite",
+          toolsUsed,
+        });
+      }
     },
   });
 
@@ -129,6 +149,17 @@ export function ChatPanel({
     sentInitialQuery.current = true;
     sessionStorage.setItem(storageKey, initialQuery);
     router.replace(`/trips/${tripId}`, { scroll: false });
+
+    if (typeof window !== "undefined" && window.pendo?.trackAgent) {
+      window.pendo.trackAgent("prompt", {
+        agentId: "RGd0NiMxaQXNV3DJzeCH5hY_obg",
+        conversationId: tripId,
+        messageId: crypto.randomUUID(),
+        content: initialQuery,
+        suggestedPrompt: false,
+      });
+    }
+
     sendMessage({ text: initialQuery });
   }, [chatLimitReached, initialQuery, sendMessage, status, tripId, router]);
 
@@ -143,13 +174,36 @@ export function ChatPanel({
     e.preventDefault();
     if (!input.trim() || isLoading || chatLimitReached) return;
     setError(null);
-    sendMessage({ text: input.trim() });
+    const text = input.trim();
+
+    if (typeof window !== "undefined" && window.pendo?.trackAgent) {
+      window.pendo.trackAgent("prompt", {
+        agentId: "RGd0NiMxaQXNV3DJzeCH5hY_obg",
+        conversationId: tripId,
+        messageId: crypto.randomUUID(),
+        content: text,
+        suggestedPrompt: false,
+      });
+    }
+
+    sendMessage({ text });
     setInput("");
   }
 
   function handlePromptSelect(prompt: string) {
     if (isLoading || chatLimitReached) return;
     setError(null);
+
+    if (typeof window !== "undefined" && window.pendo?.trackAgent) {
+      window.pendo.trackAgent("prompt", {
+        agentId: "RGd0NiMxaQXNV3DJzeCH5hY_obg",
+        conversationId: tripId,
+        messageId: crypto.randomUUID(),
+        content: prompt,
+        suggestedPrompt: true,
+      });
+    }
+
     sendMessage({ text: prompt });
   }
 
