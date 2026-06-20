@@ -22,7 +22,7 @@ const STEPS = [
     iconAlt: "Magic wand icon",
   },
   {
-    label: "Itinerary is Ready!",
+    label: "Itinerary is\nReady!",
     icon: "/landing/icon-rocket.svg",
     iconAlt: "Rocket icon",
   },
@@ -39,7 +39,7 @@ export function LandingItinerarySteps() {
           transition={{ duration: 0.65, ease }}
           className="w-full text-center"
         >
-          <h2 className="font-francois text-[32px] leading-[1.14] text-black sm:text-[44px] sm:leading-[52px] lg:text-[56px] lg:leading-[64px]">
+          <h2 className="font-francois text-[32px] leading-[1.14] text-black dark:text-white sm:text-[44px] sm:leading-[52px] lg:text-[56px] lg:leading-[64px]">
             Your perfect itinerary,
             <br />
             generated in seconds.
@@ -55,9 +55,9 @@ export function LandingItinerarySteps() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: "-60px" }}
                 transition={{ duration: 0.6, delay: i * 0.08, ease }}
-                className="flex h-[220px] w-[140px] shrink-0 flex-col items-center justify-center gap-7 rounded-[120px] bg-[#f9c993] px-4 py-5 sm:h-[250px] sm:w-[160px] sm:gap-8 sm:rounded-[140px] md:h-[273px] md:w-[186px] md:gap-9 md:rounded-[162px] lg:w-[188px]"
+                className="flex h-[220px] w-[140px] shrink-0 flex-col items-center justify-center gap-7 rounded-[120px] bg-[#f9c993] px-4 py-5 dark:bg-[#FF8800]/40 sm:h-[250px] sm:w-[160px] sm:gap-8 sm:rounded-[140px] md:h-[273px] md:w-[186px] md:gap-9 md:rounded-[162px] lg:w-[188px]"
               >
-                <p className="text-center text-sm font-medium leading-6 text-black sm:text-base md:text-[18px] md:leading-6">
+                <p className="whitespace-pre-line text-center text-sm font-medium leading-6 text-black dark:text-white sm:text-base md:text-[18px] md:leading-6">
                   {label}
                 </p>
                 <div className="relative size-12 sm:size-14 md:size-[60px]">
@@ -65,7 +65,7 @@ export function LandingItinerarySteps() {
                     src={icon}
                     alt={iconAlt}
                     fill
-                    className="object-contain"
+                    className="object-contain dark:brightness-0 dark:invert"
                     sizes="60px"
                   />
                 </div>

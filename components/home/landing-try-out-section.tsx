@@ -89,8 +89,9 @@ export function LandingTryOutSection({ userId }: LandingTryOutSectionProps) {
             onSelect={handleSelect}
             placeholder="Search a Destination"
             leadingIcon="search"
+            leadingIconClassName="dark:text-white"
             disabled={creating}
-            inputClassName="h-14 rounded-full border-0 bg-card text-base text-foreground shadow-sm ring-1 ring-border placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-ring/60"
+            inputClassName="h-14 rounded-full border-0 bg-card text-base text-foreground shadow-sm ring-1 ring-border placeholder:text-muted-foreground dark:placeholder:text-white focus-visible:border-ring focus-visible:ring-ring/60"
           />
           {error && <p className="mt-3 text-sm text-red-600">{error}</p>}
         </div>

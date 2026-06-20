@@ -29,6 +29,7 @@ type DestinationAutocompleteProps = {
   className?: string;
   inputClassName?: string;
   leadingIcon?: "map-pin" | "search";
+  leadingIconClassName?: string;
   disabled?: boolean;
 };
 
@@ -41,6 +42,7 @@ export function DestinationAutocomplete({
   className,
   inputClassName,
   leadingIcon = "map-pin",
+  leadingIconClassName,
   disabled,
 }: DestinationAutocompleteProps) {
   const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
@@ -139,9 +141,19 @@ export function DestinationAutocomplete({
     <div ref={containerRef} className={cn("relative", className)}>
       <div className="relative">
         {leadingIcon === "search" ? (
-          <Search className="pointer-events-none absolute left-5 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400" />
+          <Search
+            className={cn(
+              "pointer-events-none absolute left-5 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400",
+              leadingIconClassName,
+            )}
+          />
         ) : (
-          <MapPin className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400" />
+          <MapPin
+            className={cn(
+              "pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400",
+              leadingIconClassName,
+            )}
+          />
         )}
         <Input
           value={value}

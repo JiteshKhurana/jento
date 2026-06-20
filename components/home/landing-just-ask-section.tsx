@@ -18,10 +18,10 @@ export function LandingJustAskSection() {
             className="w-full min-w-0 lg:order-1 lg:flex-45"
           >
             <div className="flex flex-col gap-4 text-center lg:text-left">
-              <h2 className="font-francois text-[32px] leading-[1.14] text-black sm:text-[44px] sm:leading-[52px] lg:text-[56px] lg:leading-[64px]">
+              <h2 className="font-francois text-[32px] leading-[1.14] text-black dark:text-white sm:text-[44px] sm:leading-[52px] lg:text-[56px] lg:leading-[64px]">
                 Just ask, we&apos;ll plan it.
               </h2>
-              <p className="text-base leading-7 text-black sm:text-lg sm:leading-8 lg:text-[20px] lg:leading-8">
+              <p className="text-base leading-7 text-black dark:text-white sm:text-lg sm:leading-8 lg:text-[20px] lg:leading-8">
                 Detailed timelines and daily budget breakdowns for every stop.
               </p>
             </div>

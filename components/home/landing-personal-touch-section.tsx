@@ -36,10 +36,10 @@ export function LandingPersonalTouchSection() {
             className="w-full min-w-0 lg:flex-45"
           >
             <div className="flex flex-col gap-4 text-center lg:text-left">
-              <h2 className="font-francois text-[32px] leading-[1.14] text-black sm:text-[44px] sm:leading-[52px] lg:text-[56px] lg:leading-[64px]">
+              <h2 className="font-francois text-[32px] leading-[1.14] text-black dark:text-white sm:text-[44px] sm:leading-[52px] lg:text-[56px] lg:leading-[64px]">
                 Add your personal touch
               </h2>
-              <p className="text-base leading-7 text-black sm:text-lg sm:leading-8 lg:text-[20px] lg:leading-8">
+              <p className="text-base leading-7 text-black dark:text-white sm:text-lg sm:leading-8 lg:text-[20px] lg:leading-8">
                 Already have places in mind? Add, remove, or rearrange plans
                 however you like.
               </p>

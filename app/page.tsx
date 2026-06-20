@@ -41,13 +41,20 @@ export default async function HomePage() {
         <div className="mx-auto flex max-w-6xl flex-col items-center gap-4 px-6 sm:flex-row sm:justify-between">
           <Link href="/" className="flex shrink-0 items-center gap-2">
             <Image
-              src="/Group 3.svg"
+              src="/logoblack.svg"
               alt=""
               width={18}
               height={32}
-              className="h-8 w-[18px]"
+              className="h-8 w-[18px] dark:hidden"
             />
-            <span className="font-jento text-[28px] leading-none text-black">
+            <Image
+              src="/logowhite.svg"
+              alt=""
+              width={18}
+              height={32}
+              className="hidden h-8 w-[18px] dark:block"
+            />
+            <span className="font-jento text-[28px] leading-none text-black dark:text-white">
               JENTO
             </span>
           </Link>
