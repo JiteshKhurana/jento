@@ -138,14 +138,14 @@ export function TripCard({ trip, coverPhoto, priority }: TripCardProps) {
 
   return (
     <>
-      <Card className="group relative overflow-hidden border-neutral-200/60 bg-white transition-all duration-300 hover:-translate-y-0.5 hover:border-neutral-300/80 hover:shadow-lg hover:shadow-neutral-200/60">
+      <Card className="group relative overflow-hidden border-border bg-card transition-all duration-300 hover:-translate-y-0.5 hover:border-foreground/20 hover:shadow-lg">
         <Popover open={menuOpen} onOpenChange={setMenuOpen}>
           <PopoverTrigger asChild>
             <Button
               type="button"
               variant="ghost"
               size="icon"
-              className="absolute right-3 top-3 z-10 h-8 w-8 rounded-full bg-white/90 text-neutral-700 shadow-sm backdrop-blur-sm hover:bg-white hover:text-neutral-900"
+              className="absolute right-3 top-3 z-10 h-8 w-8 rounded-full bg-card/90 text-foreground shadow-sm backdrop-blur-sm hover:bg-card hover:text-foreground"
               onClick={(e) => e.stopPropagation()}
               aria-label="Trip options"
             >
@@ -159,7 +159,7 @@ export function TripCard({ trip, coverPhoto, priority }: TripCardProps) {
           >
             <button
               type="button"
-              className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-neutral-700 transition-colors hover:bg-neutral-100 cursor-pointer"
+              className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-foreground transition-colors hover:bg-accent cursor-pointer"
               onClick={handleShare}
             >
               {shared ? (
@@ -219,21 +219,21 @@ export function TripCard({ trip, coverPhoto, priority }: TripCardProps) {
           </div>
 
           <div className="flex items-center justify-between gap-3 p-4">
-            <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-neutral-500">
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted-foreground">
               {(start || end) && (
                 <span className="flex items-center gap-1.5">
-                  <Calendar className="h-3.5 w-3.5 shrink-0 text-neutral-400" />
+                  <Calendar className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
                   {start ? format(start, "MMM d") : "TBD"}
                   {" – "}
                   {end ? format(end, "MMM d, yyyy") : "TBD"}
                   {tripDuration != null && tripDuration > 0 && (
-                    <span className="text-neutral-400">· {tripDuration}d</span>
+                    <span className="text-muted-foreground">· {tripDuration}d</span>
                   )}
                 </span>
               )}
               {(itemCount > 0 || dayCount > 0) && (
                 <span className="flex items-center gap-1.5">
-                  <MapPin className="h-3.5 w-3.5 shrink-0 text-neutral-400" />
+                  <MapPin className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
                   {dayCount > 0 &&
                     `${dayCount} ${dayCount === 1 ? "day" : "days"}`}
                   {dayCount > 0 && itemCount > 0 && ", "}
@@ -241,17 +241,17 @@ export function TripCard({ trip, coverPhoto, priority }: TripCardProps) {
                 </span>
               )}
               {!start && !end && itemCount === 0 && dayCount === 0 && (
-                <span className="text-neutral-400">No itinerary yet</span>
+                <span className="text-muted-foreground">No itinerary yet</span>
               )}
             </div>
 
             <div className="flex shrink-0 items-center gap-2">
-              <span className="hidden text-xs text-neutral-400 sm:block">
+              <span className="hidden text-xs text-muted-foreground sm:block">
                 {formatDistanceToNow(new Date(trip.updatedAt), {
                   addSuffix: true,
                 })}
               </span>
-              <ArrowRight className="h-4 w-4 text-neutral-300 transition-all group-hover:translate-x-0.5 group-hover:text-neutral-900" />
+              <ArrowRight className="h-4 w-4 text-muted-foreground transition-all group-hover:translate-x-0.5 group-hover:text-foreground" />
             </div>
           </div>
         </Link>

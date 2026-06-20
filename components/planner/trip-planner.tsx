@@ -35,7 +35,7 @@ const TripMap = dynamic(
   {
     ssr: false,
     loading: () => (
-      <div className="flex h-full items-center justify-center bg-neutral-100">
+      <div className="flex h-full items-center justify-center bg-secondary">
         <LoadingState label="Loading map…" />
       </div>
     ),
@@ -305,7 +305,7 @@ export function TripPlanner({
   const totalItems = days.reduce((n, d) => n + d.items.length, 0);
 
   return (
-    <AppShell fullHeight className="overflow-hidden bg-neutral-50">
+    <AppShell fullHeight className="overflow-hidden bg-background">
       <ItemDetailDialog
         item={detailItem}
         destination={trip.destination}
@@ -325,7 +325,7 @@ export function TripPlanner({
       )}
 
       {/* Trip header bar */}
-      <div className="shrink-0 border-b border-neutral-200/80 bg-white px-4 py-3 md:px-6">
+      <div className="shrink-0 border-b border-border bg-card px-4 py-3 md:px-6">
         <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
           <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
             <TripTitleEditor
@@ -334,9 +334,9 @@ export function TripPlanner({
               readOnly={!isOwner}
               onTitleChange={(title) => setTrip((prev) => ({ ...prev, title }))}
             />
-            <div className="flex items-center gap-3 text-sm text-neutral-500">
+            <div className="flex items-center gap-3 text-sm text-muted-foreground">
               <span className="flex items-center gap-1">
-                <MapPin className="h-3.5 w-3.5 text-neutral-700" />
+                <MapPin className="h-3.5 w-3.5 text-foreground" />
                 {trip.destination}
               </span>
               {trip.startDate && (

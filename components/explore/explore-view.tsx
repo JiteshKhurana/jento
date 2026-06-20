@@ -28,7 +28,7 @@ const ExploreMap = dynamic(
   {
     ssr: false,
     loading: () => (
-      <div className="flex h-full items-center justify-center bg-neutral-100">
+      <div className="flex h-full items-center justify-center bg-secondary">
         <LoadingState label="Loading map…" />
       </div>
     ),
@@ -339,22 +339,22 @@ export function ExploreView({
 
   const feedContent = (
     <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
-      <div className="shrink-0 space-y-3 border-b border-neutral-100 px-4 py-4 md:px-6">
+      <div className="shrink-0 space-y-3 border-b border-border px-4 py-4 md:px-6">
         <div className="flex items-center gap-2">
           <button
             type="button"
             onClick={() => setLocationPickerOpen((open) => !open)}
-            className="flex items-center gap-1 text-xl font-bold text-neutral-900"
+            className="flex items-center gap-1 text-xl font-bold text-foreground"
           >
             {location.name}
-            <ChevronDown className="h-5 w-5 text-neutral-500" />
+            <ChevronDown className="h-5 w-5 text-muted-foreground" />
           </button>
           <Button
             variant="ghost"
             size="sm"
             onClick={handleUseMyLocation}
             disabled={locating}
-            className="ml-auto text-neutral-500"
+            className="ml-auto text-muted-foreground"
           >
             <LocateFixed className="h-4 w-4" />
             {locating ? "Locating…" : "Near me"}
@@ -366,7 +366,7 @@ export function ExploreView({
         )}
 
         {locationPickerOpen && (
-          <div className="space-y-2 rounded-xl border border-neutral-200 bg-neutral-50 p-3">
+          <div className="space-y-2 rounded-xl border border-border bg-surface p-3">
             <DestinationAutocomplete
               value={locationQuery}
               onChange={setLocationQuery}
@@ -379,12 +379,12 @@ export function ExploreView({
 
         <div className="flex gap-2">
           <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400" />
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search"
-              className="h-11 rounded-xl border-neutral-200 bg-neutral-50 pl-9"
+              className="h-11 rounded-xl pl-9"
             />
           </div>
           <ExploreFilters budget={budget} onBudgetChange={setBudget} />
@@ -399,8 +399,8 @@ export function ExploreView({
               className={cn(
                 "shrink-0 rounded-full px-3.5 py-1.5 text-xs font-medium transition-colors",
                 category === cat.id
-                  ? "bg-neutral-900 text-white"
-                  : "border border-neutral-200 bg-white text-neutral-700 hover:border-neutral-300",
+                  ? "bg-primary text-primary-foreground dark:bg-white dark:text-black"
+                  : "border border-border bg-card text-foreground hover:border-foreground/30",
               )}
             >
               {cat.label}
@@ -410,7 +410,7 @@ export function ExploreView({
       </div>
 
       <div className="min-h-0 flex-1 overflow-y-auto px-4 py-4 md:px-6">
-        <h3 className="mb-3 text-sm font-semibold text-neutral-900">
+        <h3 className="mb-3 text-sm font-semibold text-foreground">
           {activeCategory.label === "For you"
             ? "Things To Do"
             : activeCategory.label}
@@ -427,7 +427,7 @@ export function ExploreView({
             ))}
           </div>
         ) : results.length === 0 ? (
-          <p className="py-8 text-center text-sm text-neutral-400">
+          <p className="py-8 text-center text-sm text-muted-foreground">
             No places found. Try a different search or location.
           </p>
         ) : (
@@ -460,7 +460,7 @@ export function ExploreView({
       <div className="flex min-h-0 flex-1 flex-col md:flex-row">
         <div
           className={cn(
-            "flex min-h-0 flex-col md:w-[58%] md:border-r md:border-neutral-200/80",
+            "flex min-h-0 flex-col md:w-[58%] md:border-r md:border-border",
             mobileView === "map" && "hidden md:flex",
           )}
         >
@@ -483,15 +483,15 @@ export function ExploreView({
         </div>
       </div>
 
-      <div className="flex border-t border-neutral-200/80 bg-white p-2 md:hidden">
+      <div className="flex border-t border-border bg-card p-2 md:hidden">
         <button
           type="button"
           onClick={() => setMobileView("feed")}
           className={cn(
             "flex flex-1 items-center justify-center gap-2 rounded-xl py-2.5 text-sm font-medium",
             mobileView === "feed"
-              ? "bg-neutral-900 text-white"
-              : "text-neutral-600",
+              ? "bg-primary text-primary-foreground dark:bg-white dark:text-black"
+              : "text-muted-foreground",
           )}
         >
           <Search className="h-4 w-4" />
@@ -503,8 +503,8 @@ export function ExploreView({
           className={cn(
             "flex flex-1 items-center justify-center gap-2 rounded-xl py-2.5 text-sm font-medium",
             mobileView === "map"
-              ? "bg-neutral-900 text-white"
-              : "text-neutral-600",
+              ? "bg-primary text-primary-foreground dark:bg-white dark:text-black"
+              : "text-muted-foreground",
           )}
         >
           <MapIcon className="h-4 w-4" />

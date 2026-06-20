@@ -17,7 +17,7 @@ export function TripsPageSkeleton() {
           {Array.from({ length: 4 }).map((_, i) => (
             <div
               key={i}
-              className="overflow-hidden rounded-2xl border border-neutral-200/60 bg-white"
+              className="overflow-hidden rounded-2xl border border-border bg-card"
             >
               <Skeleton className="aspect-video w-full rounded-none" />
               <div className="space-y-3 p-4">

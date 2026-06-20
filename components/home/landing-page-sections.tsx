@@ -50,7 +50,7 @@ function DestinationsSection({
           <motion.div {...useReveal(0.1)} className="hidden sm:block">
             <Link
               href="/inspire"
-              className="group flex items-center gap-1.5 rounded-full border border-border px-4 py-2 text-sm font-medium text-muted transition-all hover:border-muted hover:text-foreground dark:border-white dark:bg-white dark:text-black dark:hover:bg-neutral-200 dark:hover:text-black"
+              className="group flex items-center gap-1.5 rounded-full border border-border px-4 py-2 text-sm font-medium text-muted transition-all hover:border-muted hover:text-foreground dark:border-transparent dark:bg-white dark:text-black dark:hover:bg-neutral-200 dark:hover:text-black"
             >
               See all destinations
               <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
@@ -116,7 +116,7 @@ function DestinationsSection({
         {/* Mobile see all */}
         <div className="mt-8 text-center sm:hidden">
           <Link href="/inspire">
-            <Button variant="outline" className="rounded-full px-6 dark:border-white dark:bg-white dark:text-black dark:hover:bg-neutral-200 dark:hover:text-black">
+            <Button variant="outline" className="rounded-full px-6 dark:border-transparent dark:bg-white dark:text-black dark:hover:bg-neutral-200 dark:hover:text-black">
               See all destinations
             </Button>
           </Link>

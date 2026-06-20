@@ -147,11 +147,11 @@ export function VacationPersonalityQuiz() {
   }
 
   return (
-    <div className="min-h-screen bg-[#fafafa] px-6 py-10">
+    <div className="min-h-screen bg-background px-6 py-10">
       <div className="mx-auto max-w-2xl">
         <Link
           href="/"
-          className="mb-8 inline-flex items-center gap-2 text-sm text-neutral-600 transition-colors hover:text-neutral-900"
+          className="mb-8 inline-flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
         >
           <ArrowLeft className="h-4 w-4" />
           Back to home
@@ -160,10 +160,10 @@ export function VacationPersonalityQuiz() {
         {!finished && (
           <div className="space-y-8">
             <div className="space-y-2">
-              <p className="text-sm font-medium uppercase tracking-widest text-neutral-500">
+              <p className="text-sm font-medium uppercase tracking-widest text-muted-foreground">
                 Question {step + 1} of {QUESTIONS.length}
               </p>
-              <h1 className="font-francois text-3xl leading-[1.14] text-black sm:text-4xl">
+              <h1 className="font-francois text-3xl leading-[1.14] text-foreground sm:text-4xl">
                 {QUESTIONS[step].question}
               </h1>
             </div>
@@ -174,7 +174,7 @@ export function VacationPersonalityQuiz() {
                   key={option.label}
                   type="button"
                   onClick={() => handleAnswer(option)}
-                  className="rounded-2xl border border-neutral-200 bg-white px-5 py-4 text-left text-base text-neutral-900 transition-colors hover:border-neutral-300 hover:bg-neutral-50"
+                  className="rounded-2xl border border-border bg-card px-5 py-4 text-left text-base text-foreground transition-colors hover:border-foreground/30 hover:bg-accent"
                 >
                   {option.label}
                 </button>
@@ -186,13 +186,13 @@ export function VacationPersonalityQuiz() {
         {finished && result && (
           <div className="space-y-8">
             <div className="space-y-3">
-              <p className="text-sm font-medium uppercase tracking-widest text-neutral-500">
+              <p className="text-sm font-medium uppercase tracking-widest text-muted-foreground">
                 Your vacation personality
               </p>
-              <h1 className="font-francois text-3xl leading-[1.14] text-black sm:text-4xl">
+              <h1 className="font-francois text-3xl leading-[1.14] text-foreground sm:text-4xl">
                 {result.title}
               </h1>
-              <p className="text-lg leading-8 text-neutral-700">
+              <p className="text-lg leading-8 text-muted-foreground">
                 {result.description}
               </p>
             </div>
@@ -200,7 +200,7 @@ export function VacationPersonalityQuiz() {
             <div className="flex flex-wrap gap-3">
               <Button
                 asChild
-                className="font-francois rounded-full bg-black px-6 hover:bg-neutral-800"
+                className="font-francois rounded-full px-6"
               >
                 <Link href="/inspire">Find destinations</Link>
               </Button>

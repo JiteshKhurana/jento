@@ -38,7 +38,7 @@ export default async function ExplorePage() {
   const recentTrip = trips[0];
 
   return (
-    <AppShell fullHeight className="overflow-hidden bg-white">
+    <AppShell fullHeight className="overflow-hidden bg-background">
       <ExploreView
         trips={trips}
         initialSavedIds={savedIds}

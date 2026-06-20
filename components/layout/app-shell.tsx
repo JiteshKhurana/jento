@@ -18,9 +18,9 @@ export function AppShell({ children, className, fullHeight }: AppShellProps) {
         className,
       )}
     >
-      <header className="flex h-12 shrink-0 items-center gap-2 border-b border-neutral-200/80 px-4 md:hidden">
+      <header className="flex h-12 shrink-0 items-center gap-2 border-b border-border px-4 md:hidden">
         <SidebarTrigger className="-ml-1" />
-        <span className="text-sm font-semibold text-neutral-900">
+        <span className="text-sm font-semibold text-foreground">
           Jento
         </span>
       </header>

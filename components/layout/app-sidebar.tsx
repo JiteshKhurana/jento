@@ -55,8 +55,8 @@ export function AppSidebar() {
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild tooltip="Jento">
               <Link href="/trips">
-                <span className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-neutral-900">
-                  <Plane className="size-4 text-white" />
+                <span className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-primary dark:bg-white">
+                  <Plane className="size-4 text-primary-foreground dark:text-black" />
                 </span>
                 <span className="font-bold tracking-tight group-data-[collapsible=icon]:hidden">
                   Jento

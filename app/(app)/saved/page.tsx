@@ -37,7 +37,7 @@ export default async function SavedPage() {
   const savedPlaces = user ? await getSavedPlacesForUser(user.id) : [];
 
   return (
-    <AppShell fullHeight className="overflow-hidden bg-white">
+    <AppShell fullHeight className="overflow-hidden bg-background">
       <SavedView trips={trips} initialSavedPlaces={savedPlaces} />
     </AppShell>
   );

@@ -56,10 +56,10 @@ export default async function TripsPage() {
       <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-10 md:px-8 md:py-14">
         <div className="mb-10 flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <h1 className="mt-2 text-3xl font-bold tracking-tight text-neutral-900 md:text-4xl">
+            <h1 className="mt-2 text-3xl font-bold tracking-tight text-foreground md:text-4xl">
               {firstName ? `${firstName}'s trips` : "My trips"}
             </h1>
-            <p className="mt-2 max-w-lg text-neutral-500">
+            <p className="mt-2 max-w-lg text-muted-foreground">
               {trips.length > 0
                 ? "Pick up where you left off or start planning something new."
                 : "Your adventures, all in one place."}

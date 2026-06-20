@@ -14,7 +14,7 @@ export default function NewTripPage() {
   }, [open]);
 
   return (
-    <AppShell className="bg-neutral-50">
+    <AppShell className="bg-background">
       <NewTripDialog open={open} onOpenChange={setOpen} />
     </AppShell>
   );

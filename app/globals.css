@@ -13,6 +13,8 @@
   --border: #e5e5e5;
   --primary: #171717;
   --primary-foreground: #ffffff;
+  --secondary: #f5f5f5;
+  --secondary-foreground: #171717;
   --accent: #eff6ff;
   --accent-foreground: #1e40af;
   --ring: #3b82f6;
@@ -40,28 +42,30 @@
 }
 
 .dark {
-  --background: #0a0a0a;
-  --foreground: #fafafa;
+  --background: #000000;
+  --foreground: #ffffff;
   --muted: #a3a3a3;
-  --muted-foreground: #737373;
-  --card: #171717;
-  --card-foreground: #fafafa;
+  --muted-foreground: #a3a3a3;
+  --card: #000000;
+  --card-foreground: #ffffff;
   --border: #262626;
-  --primary: #fafafa;
-  --primary-foreground: #171717;
-  --accent: #1e293b;
-  --accent-foreground: #93c5fd;
-  --ring: #3b82f6;
+  --primary: #ffffff;
+  --primary-foreground: #000000;
+  --secondary: #171717;
+  --secondary-foreground: #ffffff;
+  --accent: #171717;
+  --accent-foreground: #ffffff;
+  --ring: #525252;
 
-  --accent-warm: #fafafa;
-  --accent-warm-light: #262626;
-  --accent-warm-muted: #404040;
+  --accent-warm: #ffffff;
+  --accent-warm-light: #171717;
+  --accent-warm-muted: #262626;
   --accent-teal: #14b8a6;
   --accent-teal-light: #042f2e;
   --accent-coral: #fb7185;
   --accent-amber: #f59e0b;
-  --surface: #171717;
-  --surface-elevated: #262626;
+  --surface: #0a0a0a;
+  --surface-elevated: #171717;
 
   --sidebar-background: 0 0% 9%;
   --sidebar-foreground: 0 0% 90%;
@@ -83,9 +87,12 @@
   --color-border: var(--border);
   --color-primary: var(--primary);
   --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
   --color-accent: var(--accent);
   --color-accent-foreground: var(--accent-foreground);
   --color-ring: var(--ring);
+  --color-surface-elevated: var(--surface-elevated);
   --color-accent-warm: var(--accent-warm);
   --color-accent-teal: var(--accent-teal);
   --color-accent-coral: var(--accent-coral);
@@ -124,6 +131,11 @@ body {
   color: #171717;
 }
 
+.dark ::selection {
+  background: #ffffff;
+  color: #000000;
+}
+
 /* ── Backgrounds ─────────────────────────────────────── */
 
 .bg-mesh {
@@ -135,6 +147,17 @@ body {
 
 .bg-mesh-subtle {
   background-color: #fafafa;
+}
+
+.dark .bg-mesh,
+.dark .bg-mesh-subtle {
+  background-color: #000000;
+  background-image: none;
+}
+
+.dark .bg-hero {
+  background-color: #000000;
+  background-image: none;
 }
 
 /* Subtle monochrome hero gradient — used on landing & inspire pages */
@@ -162,6 +185,11 @@ body {
   -webkit-backdrop-filter: blur(16px);
 }
 
+.dark .glass,
+.dark .glass-warm {
+  background: rgb(0 0 0 / 0.85);
+}
+
 /* ── Text gradients ──────────────────────────────────── */
 
 .text-gradient {
@@ -173,6 +201,14 @@ body {
 
 .text-gradient-warm {
   background: linear-gradient(135deg, #171717 0%, #525252 50%, #737373 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.dark .text-gradient,
+.dark .text-gradient-warm {
+  background: linear-gradient(135deg, #ffffff 0%, #a3a3a3 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -231,6 +267,17 @@ body {
 .tag-pill-inactive:hover {
   border-color: #d4d4d4;
   background-color: #fafafa;
+}
+
+.dark .tag-pill-inactive {
+  background-color: #000000;
+  color: #ffffff;
+  border-color: #262626;
+}
+
+.dark .tag-pill-inactive:hover {
+  background-color: #171717;
+  border-color: #404040;
 }
 
 /* Category badge colors */
@@ -330,4 +377,107 @@ html {
 }
 .w-13 {
   width: 3.25rem;
+}
+
+/* ── Dark mode compatibility for legacy hardcoded colors ── */
+
+.dark .text-neutral-900,
+.dark .text-neutral-800,
+.dark .text-neutral-700 {
+  color: var(--foreground);
+}
+
+.dark .text-neutral-600,
+.dark .text-neutral-500,
+.dark .text-neutral-400,
+.dark .text-neutral-300 {
+  color: var(--muted-foreground);
+}
+
+.dark .bg-white {
+  background-color: var(--card);
+}
+
+.dark .bg-neutral-50,
+.dark .bg-neutral-50\/30 {
+  background-color: var(--surface);
+}
+
+.dark .bg-neutral-100 {
+  background-color: var(--secondary);
+}
+
+.dark .border-neutral-200,
+.dark .border-neutral-200\/80,
+.dark .border-neutral-200\/60,
+.dark .border-neutral-300,
+.dark .border-neutral-300\/80,
+.dark .border-dashed.border-neutral-300\/80 {
+  border-color: var(--border);
+}
+
+.dark .hover\:border-neutral-300:hover,
+.dark .hover\:border-neutral-300\/80:hover {
+  border-color: var(--border);
+}
+
+.dark .hover\:bg-neutral-50:hover,
+.dark .hover\:bg-neutral-100:hover {
+  background-color: var(--accent);
+}
+
+.dark .hover\:bg-neutral-200:hover {
+  background-color: var(--secondary);
+}
+
+.dark .hover\:text-neutral-900:hover {
+  color: var(--foreground);
+}
+
+.dark .bg-neutral-900.text-white,
+.dark button.bg-neutral-900,
+.dark [class*="bg-neutral-900"][class*="text-white"] {
+  background-color: #ffffff;
+  color: #000000;
+}
+
+.dark .bg-neutral-900.text-white:hover,
+.dark button.bg-neutral-900:hover,
+.dark [class*="hover:bg-neutral-800"]:hover {
+  background-color: #e5e5e5;
+}
+
+.dark .divide-neutral-100 > :not([hidden]) ~ :not([hidden]),
+.dark .divide-neutral-200 > :not([hidden]) ~ :not([hidden]) {
+  border-color: var(--border);
+}
+
+.dark .ring-neutral-200\/80 {
+  --tw-ring-color: var(--border);
+}
+
+.dark .shadow-neutral-200\/60 {
+  --tw-shadow-color: rgb(255 255 255 / 0.1);
+}
+
+.dark .from-blue-50\/50 {
+  --tw-gradient-from: rgb(255 255 255 / 0.05);
+}
+
+.dark .bg-white\/70,
+.dark .bg-white\/90 {
+  background-color: rgb(0 0 0 / 0.7);
+}
+
+.dark .bg-white\/95 {
+  background-color: rgb(0 0 0 / 0.95);
+}
+
+.dark .text-black {
+  color: var(--foreground);
+}
+
+.dark .bg-white\/15,
+.dark .bg-white\/20 {
+  background-color: rgb(255 255 255 / 0.15);
 }

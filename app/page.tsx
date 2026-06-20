@@ -37,7 +37,7 @@ export default async function HomePage() {
       </main>
 
       {/* ── Footer ─────────────────────────────────────────── */}
-      <footer className="border-t border-neutral-200 bg-background py-10 text-sm text-neutral-400">
+      <footer className="border-t border-border bg-background py-10 text-sm text-muted-foreground">
         <div className="mx-auto flex max-w-6xl flex-col items-center gap-4 px-6 sm:flex-row sm:justify-between">
           <Link href="/" className="flex shrink-0 items-center gap-2">
             <Image

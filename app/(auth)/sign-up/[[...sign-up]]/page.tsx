@@ -3,9 +3,9 @@ import Link from "next/link";
 
 export default function SignUpPage() {
   return (
-    <div className="flex min-h-screen flex-col bg-neutral-50">
+    <div className="flex min-h-screen flex-col bg-background">
       <header className="flex items-center justify-center px-6 py-8">
-        <Link href="/" className="text-xl font-semibold tracking-tight text-neutral-900">
+        <Link href="/" className="text-xl font-semibold tracking-tight text-foreground">
           Jento
         </Link>
       </header>
