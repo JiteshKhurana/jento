@@ -335,6 +335,28 @@ export function NewTripDialog({ open, onOpenChange }: NewTripDialogProps) {
 
       const trip = await res.json();
       const q = encodeURIComponent(initialParts.join(" "));
+
+      if (typeof pendo !== "undefined") {
+        pendo.track("trip_created", {
+          tripId: trip.id,
+          destination,
+          isRoadTrip,
+          timingMode: timingMode ?? "none",
+          flexibleDays: timingMode === "flexible" ? Number(flexibleDays) || 0 : 0,
+          hasStartDate: !!startDate,
+          hasEndDate: !!endDate,
+          travelerType: travelerType ?? "none",
+          travelerCount: travelerCount ? Number(travelerCount) : 1,
+          pace: pace ?? "none",
+          dietary: dietary ?? "none",
+          budgetAmount: Number(budgetAmount) || 0,
+          budgetCurrency,
+          creationSource: "new_trip_dialog",
+          hasPreferences: !!preferences.trim(),
+          locationCount: locations.length,
+        });
+      }
+
       onOpenChange(false);
       router.push(`/trips/${trip.id}?q=${q}`);
     } catch (err) {

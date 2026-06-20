@@ -42,10 +42,12 @@ export function TripExportMenu({
 
   async function handleShare() {
     const url = `${window.location.origin}/trips/${tripId}`;
+    let shareMethod = "clipboard";
 
     try {
       if (navigator.share) {
         await navigator.share({ title: tripTitle, url });
+        shareMethod = "native_share";
       } else {
         await navigator.clipboard.writeText(url);
         setShared(true);
@@ -57,6 +59,13 @@ export function TripExportMenu({
         setShared(true);
         setTimeout(() => setShared(false), 2000);
       }
+    }
+    if (typeof pendo !== "undefined") {
+      pendo.track("trip_shared", {
+        tripId,
+        tripTitle,
+        shareMethod,
+      });
     }
     setOpen(false);
   }
@@ -77,6 +86,15 @@ export function TripExportMenu({
         new Blob([Uint8Array.from(bytes)], { type: "application/pdf" }),
         `${slugifyFilename(tripTitle)}-itinerary.pdf`,
       );
+      if (typeof pendo !== "undefined") {
+        pendo.track("itinerary_exported_pdf", {
+          tripId,
+          tripTitle,
+          destination,
+          dayCount: days.length,
+          itemCount: days.reduce((sum, d) => sum + d.items.length, 0),
+        });
+      }
       setOpen(false);
     } finally {
       setExporting(null);
@@ -97,6 +115,14 @@ export function TripExportMenu({
         new Blob([ics], { type: "text/calendar;charset=utf-8" }),
         `${slugifyFilename(tripTitle)}-calendar.ics`,
       );
+      if (typeof pendo !== "undefined") {
+        pendo.track("itinerary_exported_calendar", {
+          tripId,
+          tripTitle,
+          destination,
+          dayCount: days.length,
+        });
+      }
       setOpen(false);
     } finally {
       setExporting(null);

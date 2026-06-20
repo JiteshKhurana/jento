@@ -82,6 +82,12 @@ export function IdeasPanel({
       method: "DELETE",
     });
     if (res.ok) {
+      if (typeof pendo !== "undefined") {
+        pendo.track("idea_deleted", {
+          tripId,
+          ideaId,
+        });
+      }
       setIdeas((prev) => prev.filter((i) => i.id !== ideaId));
     }
   }
@@ -96,6 +102,15 @@ export function IdeasPanel({
       },
     );
     if (res.ok) {
+      if (typeof pendo !== "undefined") {
+        const day = days.find((d) => d.id === dayId);
+        pendo.track("idea_added_to_itinerary", {
+          tripId,
+          ideaId,
+          dayId,
+          dayNumber: day?.dayNumber ?? 0,
+        });
+      }
       setOptimisticallyAddedIds((prev) => new Set(prev).add(ideaId));
       onItineraryUpdate?.();
     }

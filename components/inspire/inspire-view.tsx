@@ -72,6 +72,13 @@ export function InspireView({
       }
 
       const trip = await res.json();
+      if (typeof pendo !== "undefined") {
+        pendo.track("inspiration_trip_started", {
+          destinationName,
+          source: "inspire_page",
+          tripId: trip.id,
+        });
+      }
       router.push(`/trips/${trip.id}?q=${encodeURIComponent(message)}`);
     } catch (err) {
       setCreateError(

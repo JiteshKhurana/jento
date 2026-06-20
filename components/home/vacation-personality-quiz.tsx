@@ -128,17 +128,32 @@ export function VacationPersonalityQuiz() {
   const result = finished ? VACATION_TYPES[getResult(scores)] : null;
 
   function handleAnswer(option: QuizOption) {
-    setScores((current) => {
-      const next = { ...current };
-      for (const [type, value] of Object.entries(option.scores) as [
-        VacationType,
-        number,
-      ][]) {
-        next[type] += value;
+    const nextScores = { ...scores };
+    for (const [type, value] of Object.entries(option.scores) as [
+      VacationType,
+      number,
+    ][]) {
+      nextScores[type] += value;
+    }
+    const nextStep = step + 1;
+
+    if (nextStep >= QUESTIONS.length) {
+      const resultType = getResult(nextScores);
+      const resultData = VACATION_TYPES[resultType];
+      if (typeof pendo !== "undefined") {
+        pendo.track("vacation_quiz_completed", {
+          resultType,
+          resultTitle: resultData.title,
+          beachScore: nextScores.beach,
+          adventureScore: nextScores.adventure,
+          cultureScore: nextScores.culture,
+          foodScore: nextScores.food,
+        });
       }
-      return next;
-    });
-    setStep((current) => current + 1);
+    }
+
+    setScores(nextScores);
+    setStep(nextStep);
   }
 
   function restart() {
