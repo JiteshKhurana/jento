@@ -1,6 +1,12 @@
 import { ClerkProvider } from "@clerk/nextjs";
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, Libre_Franklin, Francois_One } from "next/font/google";
+import {
+  Geist,
+  Geist_Mono,
+  Inter,
+  Libre_Franklin,
+  Francois_One,
+} from "next/font/google";
 import { ThemeProvider } from "@/components/theme-provider";
 import "./globals.css";
 
@@ -26,6 +32,11 @@ const francoisOne = Francois_One({
   weight: "400",
 });
 
+const inter = Inter({
+  variable: "--font-inter-family",
+  subsets: ["latin"],
+});
+
 export const metadata: Metadata = {
   title: "Jento — Travel better.",
   description:
@@ -42,7 +53,7 @@ export default function RootLayout({
       <html
         lang="en"
         suppressHydrationWarning
-        className={`${geistSans.variable} ${geistMono.variable} ${jentoBrand.variable} ${francoisOne.variable} h-full antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} ${jentoBrand.variable} ${francoisOne.variable} ${inter.variable} h-full antialiased`}
       >
         <body className="min-h-full flex flex-col font-sans">
           <ThemeProvider

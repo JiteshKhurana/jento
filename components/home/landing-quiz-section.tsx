@@ -28,12 +28,12 @@ export function LandingQuizSection() {
             />
 
             <div className="relative z-10 flex flex-1 flex-col justify-center gap-6 px-8 py-10 sm:px-10 sm:py-12 lg:px-14 lg:py-14">
-              <p className="font-francois max-w-md text-base font-light leading-snug text-black sm:text-lg lg:text-xl">
+              <p className="max-w-md text-base font-normal leading-snug text-black sm:text-lg lg:text-xl">
                 Find out which kind of a vacation person are you?
               </p>
               <Link
                 href="/quiz"
-                className="font-francois inline-flex w-fit items-center justify-center rounded-full bg-black px-5 py-2 text-sm text-white transition-colors hover:bg-neutral-800"
+                className="font-inter font-semibold inline-flex w-fit items-center justify-center rounded-full bg-black px-6 py-2.5 text-base text-white transition-colors hover:bg-neutral-800"
               >
                 Begin Quiz
               </Link>

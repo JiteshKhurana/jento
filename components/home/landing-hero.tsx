@@ -87,12 +87,12 @@ export function LandingHero({ userId }: LandingHeroProps) {
           animate="visible"
           custom={0.4}
           variants={fadeUp}
-          className="absolute bottom-6 left-5 sm:left-8 lg:left-12 flex flex-wrap gap-2.5 lg:gap-3 lg:max-w-[520px]"
+          className="absolute bottom-16 left-5 sm:bottom-20 sm:left-8 lg:bottom-24 lg:left-12 flex flex-wrap lg:flex-nowrap gap-2.5 lg:gap-3"
         >
           {FEATURE_TAGS.map((label) => (
             <span
               key={label}
-              className="h-10 flex items-center justify-center px-5 rounded-full text-white text-sm lg:text-base backdrop-blur-sm bg-white/15"
+              className="h-10 shrink-0 flex items-center justify-center px-5 rounded-full text-white text-sm lg:text-base whitespace-nowrap backdrop-blur-sm bg-white/15"
             >
               {label}
             </span>
