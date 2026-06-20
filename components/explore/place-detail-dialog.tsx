@@ -12,6 +12,10 @@ import {
   AddToTripPicker,
   type TripOption,
 } from "@/components/explore/add-to-trip-picker";
+import {
+  PlaceInfoSections,
+  type PlaceInfoData,
+} from "@/components/places/place-detail-sections";
 import type { PlaceSearchResult } from "@/lib/places/google-places";
 
 type PlaceDetails = PlaceSearchResult & {
@@ -22,6 +26,11 @@ type PlaceDetails = PlaceSearchResult & {
     text: string;
     relativeTime: string;
   }>;
+  phone?: string | null;
+  website?: string | null;
+  openingHours?: unknown;
+  priceLevel?: string | null;
+  editorialSummary?: string | null;
 };
 
 type PlaceDetailDialogProps = {
@@ -102,6 +111,27 @@ export function PlaceDetailDialog({
   const display = details ?? place;
   const photoIndices = [0, 1, 2, 3, 4];
   const reviews = details?.reviews ?? [];
+  const categoryLabel = guessCategory(display.address);
+
+  const mapsUrl =
+    display.latitude != null && display.longitude != null
+      ? `https://www.google.com/maps/search/?api=1&query=${display.latitude},${display.longitude}`
+      : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(display.name)}`;
+
+  const placeInfo: PlaceInfoData = {
+    name: display.name,
+    address: display.address,
+    rating: display.rating,
+    reviewCount: display.reviewCount,
+    phone: details?.phone,
+    website: details?.website,
+    openingHours: details?.openingHours,
+    priceLevel: details?.priceLevel,
+    editorialSummary: details?.editorialSummary,
+    reviews,
+    latitude: display.latitude,
+    longitude: display.longitude,
+  };
 
   async function handleSave() {
     setSaving(true);
@@ -126,7 +156,10 @@ export function PlaceDetailDialog({
                 size="sm"
                 disabled={saving}
                 onClick={handleSave}
-                className={cn("cursor-pointer", saved && "border-red-200 text-red-600")}
+                className={cn(
+                  "cursor-pointer",
+                  saved && "border-red-200 text-red-600",
+                )}
               >
                 {saving ? (
                   <Spinner size="sm" />
@@ -178,7 +211,7 @@ export function PlaceDetailDialog({
               </span>
               <span className="flex items-center gap-1">
                 <MapPin className="h-3.5 w-3.5" />
-                {guessCategory(display.address)}
+                {categoryLabel}
               </span>
             </div>
 
@@ -246,60 +279,30 @@ export function PlaceDetailDialog({
                   )}
                 >
                   {tab}
+                  {tab === "reviews" && reviews.length > 0 && (
+                    <span className="ml-1 text-neutral-400">
+                      ({reviews.length})
+                    </span>
+                  )}
                 </button>
               ))}
             </div>
 
             <div className="mt-4">
-              {activeTab === "overview" && (
-                <p className="text-sm leading-relaxed text-neutral-600">
-                  {display.address
-                    ? `Discover ${display.name} in ${destination}. A popular ${guessCategory(display.address).toLowerCase()} worth visiting on your trip.`
-                    : `Discover ${display.name} in ${destination}.`}
-                </p>
-              )}
-
-              {activeTab === "reviews" && (
-                <div className="space-y-4">
-                  {reviews.length === 0 ? (
-                    <p className="text-sm text-neutral-400">
-                      No reviews available yet.
-                    </p>
-                  ) : (
-                    reviews.slice(0, 5).map((review, i) => (
-                      <div
-                        key={i}
-                        className="border-b border-neutral-100 pb-4 last:border-0"
-                      >
-                        <p className="text-sm font-medium text-neutral-900">
-                          {review.author}
-                          <span className="ml-2 font-normal text-neutral-400">
-                            {review.relativeTime}
-                          </span>
-                        </p>
-                        <div className="mt-1 flex items-center gap-1 text-xs text-neutral-500">
-                          <Star className="h-3 w-3 fill-amber-400 text-amber-400" />
-                          {review.rating}
-                        </div>
-                        <p className="mt-2 text-sm text-neutral-600">
-                          {review.text}
-                        </p>
-                      </div>
-                    ))
-                  )}
+              {loading && activeTab === "overview" ? (
+                <div className="space-y-3">
+                  <Skeleton className="h-4 w-full rounded" />
+                  <Skeleton className="h-4 w-4/5 rounded" />
+                  <Skeleton className="mt-4 h-24 w-full rounded-xl" />
                 </div>
-              )}
-
-              {activeTab === "location" && (
-                <div className="space-y-2 text-sm text-neutral-600">
-                  <p>{display.address ?? destination}</p>
-                  {display.latitude != null && display.longitude != null && (
-                    <p className="text-neutral-400">
-                      {display.latitude.toFixed(5)},{" "}
-                      {display.longitude.toFixed(5)}
-                    </p>
-                  )}
-                </div>
+              ) : (
+                <PlaceInfoSections
+                  info={placeInfo}
+                  activeTab={activeTab}
+                  destination={destination}
+                  mapsUrl={mapsUrl}
+                  categoryLabel={categoryLabel}
+                />
               )}
             </div>
           </div>

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Info, MapPin, Plus, Star } from "lucide-react";
+import { MapPin, Plus, Star } from "lucide-react";
 import { Spinner } from "@/components/ui/spinner";
 import { Button } from "@/components/ui/button";
 import { getPlacePhotoUrl } from "@/lib/places/utils";
@@ -18,7 +18,8 @@ type PlaceSearchCardProps = {
 function guessCategory(address?: string) {
   const lower = (address ?? "").toLowerCase();
   if (lower.includes("hotel") || lower.includes("resort")) return "Stay";
-  if (lower.includes("restaurant") || lower.includes("cafe")) return "Restaurant";
+  if (lower.includes("restaurant") || lower.includes("cafe"))
+    return "Restaurant";
   return "Attraction";
 }
 
@@ -76,25 +77,9 @@ export function PlaceSearchCard({
           }}
           className="absolute right-2 top-2 h-8 bg-white/95 px-3 text-xs shadow-sm hover:bg-white"
         >
-          {loading ? (
-            <Spinner size="sm" />
-          ) : (
-            <Plus className="h-3.5 w-3.5" />
-          )}
+          {loading ? <Spinner size="sm" /> : <Plus className="h-3.5 w-3.5" />}
           {added ? "Added" : loading ? "Adding…" : "Add"}
         </Button>
-
-        <button
-          type="button"
-          onClick={(e) => {
-            e.stopPropagation();
-            onSelect?.(place);
-          }}
-          className="absolute bottom-2 right-2 flex h-7 w-7 items-center justify-center rounded-full bg-black/40 text-white backdrop-blur-sm"
-          aria-label="Place info"
-        >
-          <Info className="h-3.5 w-3.5" />
-        </button>
       </div>
 
       <div className="mt-2">

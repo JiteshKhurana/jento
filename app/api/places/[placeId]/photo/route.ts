@@ -40,13 +40,18 @@ export async function GET(req: Request, { params }: RouteParams) {
     // Fallback: static map thumbnail when Places Photos SKU returns no images
     const mapsKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
     if (mapsKey && place.latitude != null && place.longitude != null) {
-      const staticUrl = buildStaticMapUrl(place.latitude, place.longitude, mapsKey);
+      const staticUrl = buildStaticMapUrl(
+        place.latitude,
+        place.longitude,
+        mapsKey,
+      );
       const staticRes = await fetch(staticUrl);
       if (staticRes.ok) {
         const buffer = await staticRes.arrayBuffer();
         return new NextResponse(buffer, {
           headers: {
-            "Content-Type": staticRes.headers.get("Content-Type") ?? "image/png",
+            "Content-Type":
+              staticRes.headers.get("Content-Type") ?? "image/png",
             "Cache-Control": "public, max-age=86400",
           },
         });
@@ -55,6 +60,9 @@ export async function GET(req: Request, { params }: RouteParams) {
 
     return NextResponse.json({ error: "Photo not available" }, { status: 404 });
   } catch {
-    return NextResponse.json({ error: "Failed to fetch photo" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to fetch photo" },
+      { status: 500 },
+    );
   }
 }

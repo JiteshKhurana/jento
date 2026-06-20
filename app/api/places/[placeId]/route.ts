@@ -13,6 +13,9 @@ export async function GET(_req: Request, { params }: RouteParams) {
     }
     return NextResponse.json(place);
   } catch {
-    return NextResponse.json({ error: "Failed to fetch place" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to fetch place" },
+      { status: 500 },
+    );
   }
 }

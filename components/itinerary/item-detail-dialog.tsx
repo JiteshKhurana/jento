@@ -12,19 +12,13 @@ import {
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
+import { getPlacePhotoUrl, placeHasPhotos } from "@/lib/places/utils";
 import {
-  buildStaticMapUrl,
-  getPlacePhotoUrl,
-  placeHasPhotos,
-} from "@/lib/places/utils";
+  PlaceInfoSections,
+  type PlaceInfoData,
+  type PlaceReview,
+} from "@/components/places/place-detail-sections";
 import type { ItineraryItemData } from "@/components/itinerary/day-timeline";
-
-type PlaceReview = {
-  author: string;
-  rating: number;
-  text: string;
-  relativeTime: string;
-};
 
 type FetchedPlaceDetails = {
   name: string;
@@ -34,6 +28,11 @@ type FetchedPlaceDetails = {
   reviews?: PlaceReview[];
   latitude?: number | null;
   longitude?: number | null;
+  phone?: string | null;
+  website?: string | null;
+  openingHours?: unknown;
+  priceLevel?: string | null;
+  editorialSummary?: string | null;
 };
 
 type ItemDetailDialogProps = {
@@ -103,6 +102,7 @@ function ItemDetailDialogContent({
   const [activeTab, setActiveTab] = useState<
     "overview" | "reviews" | "location"
   >("overview");
+
   useEffect(() => {
     if (!googlePlaceId) return;
 
@@ -133,7 +133,6 @@ function ItemDetailDialogContent({
   const hasPhotos =
     googlePlaceId &&
     (placeHasPhotos(item.placeCache?.photos) || details != null);
-  const mapsKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
 
   const mapsUrl =
     lat != null && lng != null
@@ -152,6 +151,21 @@ function ItemDetailDialogContent({
           return url ? [url] : [];
         })
       : [];
+
+  const placeInfo: PlaceInfoData = {
+    name: item.title,
+    address,
+    rating,
+    reviewCount,
+    phone: details?.phone,
+    website: details?.website,
+    openingHours: details?.openingHours,
+    priceLevel: details?.priceLevel,
+    editorialSummary: details?.editorialSummary,
+    reviews,
+    latitude: lat,
+    longitude: lng,
+  };
 
   return (
     <>
@@ -247,7 +261,9 @@ function ItemDetailDialogContent({
                           <img
                             src={url}
                             alt={
-                              i === 0 ? item.title : `${item.title} photo ${i + 1}`
+                              i === 0
+                                ? item.title
+                                : `${item.title} photo ${i + 1}`
                             }
                             className="aspect-4/3 w-full object-cover"
                           />
@@ -262,14 +278,9 @@ function ItemDetailDialogContent({
                     </>
                   )}
                 </Carousel>
-              ) : lat != null && lng != null && mapsKey ? (
-                <div className="overflow-hidden rounded-2xl bg-neutral-100">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={buildStaticMapUrl(lat, lng, mapsKey, 800, 320)}
-                    alt={`Map of ${item.title}`}
-                    className="h-48 w-full object-cover"
-                  />
+              ) : lat != null && lng != null ? (
+                <div className="flex h-36 items-center justify-center rounded-2xl bg-linear-to-br from-neutral-100 to-neutral-200/60">
+                  <MapPin className="h-10 w-10 text-neutral-300" />
                 </div>
               ) : (
                 <div className="flex h-36 items-center justify-center rounded-2xl bg-linear-to-br from-neutral-100 to-neutral-200/60">
@@ -302,82 +313,21 @@ function ItemDetailDialogContent({
             </div>
 
             <div className="mt-4">
-              {activeTab === "overview" && (
+              {loading && activeTab === "overview" ? (
                 <div className="space-y-3">
-                  {item.description ? (
-                    <p className="text-sm leading-relaxed text-neutral-600">
-                      {item.description}
-                    </p>
-                  ) : address ? (
-                    <p className="text-sm leading-relaxed text-neutral-600">
-                      Visit {item.title} in {destination}. A{" "}
-                      {categoryLabel.toLowerCase()} on your itinerary.
-                    </p>
-                  ) : (
-                    <p className="text-sm text-neutral-400">
-                      No additional details for this stop.
-                    </p>
-                  )}
+                  <Skeleton className="h-4 w-full rounded" />
+                  <Skeleton className="h-4 w-4/5 rounded" />
+                  <Skeleton className="mt-4 h-24 w-full rounded-xl" />
                 </div>
-              )}
-
-              {activeTab === "reviews" && (
-                <div className="space-y-4">
-                  {reviews.length === 0 ? (
-                    <p className="text-sm text-neutral-400">
-                      {googlePlaceId
-                        ? "No reviews available yet."
-                        : "Reviews are available for places linked to Google Maps."}
-                    </p>
-                  ) : (
-                    reviews.slice(0, 8).map((review, i) => (
-                      <div
-                        key={i}
-                        className="border-b border-neutral-100 pb-4 last:border-0"
-                      >
-                        <p className="text-sm font-medium text-neutral-900">
-                          {review.author}
-                          <span className="ml-2 font-normal text-neutral-400">
-                            {review.relativeTime}
-                          </span>
-                        </p>
-                        <div className="mt-1 flex items-center gap-1 text-xs text-neutral-500">
-                          <Star className="h-3 w-3 fill-amber-400 text-amber-400" />
-                          {review.rating}
-                        </div>
-                        <p className="mt-2 text-sm text-neutral-600">
-                          {review.text}
-                        </p>
-                      </div>
-                    ))
-                  )}
-                </div>
-              )}
-
-              {activeTab === "location" && (
-                <div className="space-y-3 text-sm text-neutral-600">
-                  {address ? (
-                    <p>{address}</p>
-                  ) : (
-                    <p className="text-neutral-400">No address on file.</p>
-                  )}
-                  {lat != null && lng != null && (
-                    <p className="text-neutral-400">
-                      {lat.toFixed(5)}, {lng.toFixed(5)}
-                    </p>
-                  )}
-                  {mapsUrl && (
-                    <a
-                      href={mapsUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1.5 font-medium text-teal-700 hover:text-teal-800"
-                    >
-                      <Navigation className="h-3.5 w-3.5" />
-                      Open in Google Maps
-                    </a>
-                  )}
-                </div>
+              ) : (
+                <PlaceInfoSections
+                  info={placeInfo}
+                  activeTab={activeTab}
+                  destination={destination}
+                  overrideDescription={item.description}
+                  mapsUrl={mapsUrl}
+                  categoryLabel={categoryLabel}
+                />
               )}
             </div>
           </div>

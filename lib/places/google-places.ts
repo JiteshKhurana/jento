@@ -34,6 +34,12 @@ export type PlaceDetails = PlaceSearchResult & {
     text: string;
     relativeTime: string;
   }>;
+  phone?: string;
+  website?: string;
+  openingHours?: string[];
+  priceLevel?: string;
+  editorialSummary?: string;
+  primaryTypeDisplayName?: string;
 };
 
 function getApiKey() {
@@ -70,7 +76,10 @@ export async function searchPlaces(
       ? budgetedQuery
       : `${budgetedQuery} in ${options.location}`;
 
-  const body: Record<string, unknown> = { textQuery, pageSize: resolvedPageSize };
+  const body: Record<string, unknown> = {
+    textQuery,
+    pageSize: resolvedPageSize,
+  };
 
   if (hasCoords) {
     body.locationBias = {
@@ -121,7 +130,9 @@ export async function searchPlaces(
   );
 }
 
-export async function getPlaceDetails(placeId: string): Promise<PlaceDetails | null> {
+export async function getPlaceDetails(
+  placeId: string,
+): Promise<PlaceDetails | null> {
   const apiKey = getApiKey();
   const apiPlaceId = toApiPlaceId(placeId);
 
@@ -129,7 +140,7 @@ export async function getPlaceDetails(placeId: string): Promise<PlaceDetails | n
     headers: {
       "X-Goog-Api-Key": apiKey,
       "X-Goog-FieldMask":
-        "id,displayName,formattedAddress,location,rating,userRatingCount,photos,reviews",
+        "id,displayName,formattedAddress,location,rating,userRatingCount,photos,reviews,internationalPhoneNumber,regularOpeningHours,websiteUri,priceLevel,primaryTypeDisplayName,editorialSummary",
     },
   });
 
@@ -147,20 +158,32 @@ export async function getPlaceDetails(placeId: string): Promise<PlaceDetails | n
     longitude: place.location?.longitude,
     rating: place.rating,
     reviewCount: place.userRatingCount,
-    photos: (place.photos ?? []).slice(0, 5).map((p: { name: string }) => p.name),
-    reviews: (place.reviews ?? []).slice(0, 5).map(
-      (r: {
-        authorAttribution?: { displayName: string };
-        rating: number;
-        text?: { text: string };
-        relativePublishTimeDescription?: string;
-      }) => ({
-        author: r.authorAttribution?.displayName ?? "Anonymous",
-        rating: r.rating,
-        text: r.text?.text ?? "",
-        relativeTime: r.relativePublishTimeDescription ?? "",
-      }),
-    ),
+    photos: (place.photos ?? [])
+      .slice(0, 5)
+      .map((p: { name: string }) => p.name),
+    reviews: (place.reviews ?? [])
+      .slice(0, 5)
+      .map(
+        (r: {
+          authorAttribution?: { displayName: string };
+          rating: number;
+          text?: { text: string };
+          relativePublishTimeDescription?: string;
+        }) => ({
+          author: r.authorAttribution?.displayName ?? "Anonymous",
+          rating: r.rating,
+          text: r.text?.text ?? "",
+          relativeTime: r.relativePublishTimeDescription ?? "",
+        }),
+      ),
+    phone: place.internationalPhoneNumber ?? undefined,
+    website: place.websiteUri ?? undefined,
+    openingHours:
+      place.regularOpeningHours?.weekdayDescriptions ?? undefined,
+    priceLevel: place.priceLevel ?? undefined,
+    editorialSummary: place.editorialSummary?.text ?? undefined,
+    primaryTypeDisplayName:
+      place.primaryTypeDisplayName?.text ?? undefined,
   };
 }
 
@@ -190,9 +213,7 @@ function isStubPlaceCache(cached: {
   rating: number | null;
 }): boolean {
   return (
-    !placeHasPhotos(cached.photos) &&
-    !cached.address &&
-    cached.rating == null
+    !placeHasPhotos(cached.photos) && !cached.address && cached.rating == null
   );
 }
 
@@ -219,8 +240,7 @@ export async function resolvePlaceCache(
   const searchQuery = fallback.destination
     ? `${fallback.title} ${fallback.destination}`
     : fallback.title;
-  const hasCoords =
-    fallback.latitude != null && fallback.longitude != null;
+  const hasCoords = fallback.latitude != null && fallback.longitude != null;
   const results = await searchPlaces(
     searchQuery,
     hasCoords
@@ -276,6 +296,11 @@ export async function getOrFetchPlaceCache(
       reviews: details.reviews,
       latitude: details.latitude,
       longitude: details.longitude,
+      phone: details.phone,
+      website: details.website,
+      openingHours: details.openingHours ?? [],
+      priceLevel: details.priceLevel,
+      editorialSummary: details.editorialSummary,
       lastFetchedAt: new Date(),
     },
     create: {
@@ -288,6 +313,11 @@ export async function getOrFetchPlaceCache(
       reviews: details.reviews,
       latitude: details.latitude,
       longitude: details.longitude,
+      phone: details.phone,
+      website: details.website,
+      openingHours: details.openingHours ?? [],
+      priceLevel: details.priceLevel,
+      editorialSummary: details.editorialSummary,
     },
   });
 }

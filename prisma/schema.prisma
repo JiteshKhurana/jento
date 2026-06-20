@@ -116,19 +116,24 @@ enum ItemType {
 }
 
 model PlaceCache {
-  googlePlaceId String          @id
-  name          String
-  address       String?
-  photos        Json            @default("[]")
-  rating        Float?
-  reviewCount   Int?
-  reviews       Json            @default("[]")
-  latitude      Float?
-  longitude     Float?
-  lastFetchedAt DateTime        @default(now())
-  items         ItineraryItem[]
-  ideas         TripIdea[]
-  savedPlaces   SavedPlace[]
+  googlePlaceId    String          @id
+  name             String
+  address          String?
+  photos           Json            @default("[]")
+  rating           Float?
+  reviewCount      Int?
+  reviews          Json            @default("[]")
+  latitude         Float?
+  longitude        Float?
+  phone            String?
+  website          String?
+  openingHours     Json?
+  priceLevel       String?
+  editorialSummary String?         @db.Text
+  lastFetchedAt    DateTime        @default(now())
+  items            ItineraryItem[]
+  ideas            TripIdea[]
+  savedPlaces      SavedPlace[]
 }
 
 model SavedPlace {
