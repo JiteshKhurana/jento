@@ -4,20 +4,30 @@ import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport } from "ai";
 import { AlertCircle, ArrowUp } from "lucide-react";
 import { Spinner } from "@/components/ui/spinner";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { ChatMarkdown } from "@/components/chat/chat-markdown";
 import { ThinkingIndicator } from "@/components/chat/thinking-indicator";
 import { FollowUpPrompts } from "@/components/chat/follow-up-prompts";
-import { getAvailableFollowUpPrompts } from "@/lib/chat/follow-up-prompts";
+import {
+  getAvailableFollowUpPrompts,
+  type ChatFollowUp,
+} from "@/lib/chat/follow-up-prompts";
 import { MAX_CHATS_PER_TRIP, getChatLimitMessage } from "@/lib/chat/limits";
+import type { TripPreferences } from "@/lib/trips/preferences";
 
 // Module-level Set to ensure chat_limit_reached fires once per trip per session
 const chatLimitTrackedTrips = new Set<string>();
 
+type TripContext = {
+  destination: string;
+  preferences?: TripPreferences | null;
+};
+
 type ChatPanelProps = {
   tripId: string;
+  trip?: TripContext;
   initialQuery?: string | null;
   initialMessages?: Array<{ role: string; content: string }>;
   hasItinerary?: boolean;
@@ -42,6 +52,7 @@ function getInitialQueryStorageKey(tripId: string) {
 
 export function ChatPanel({
   tripId,
+  trip,
   initialQuery = null,
   initialMessages = [],
   hasItinerary = false,
@@ -51,6 +62,10 @@ export function ChatPanel({
   const router = useRouter();
   const [input, setInput] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [dynamicPrompts, setDynamicPrompts] = useState<ChatFollowUp[] | null>(
+    null,
+  );
+  const [promptsLoading, setPromptsLoading] = useState(false);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const sentInitialQuery = useRef(false);
   const onItineraryUpdateRef = useRef(onItineraryUpdate);
@@ -58,6 +73,36 @@ export function ChatPanel({
   useEffect(() => {
     onItineraryUpdateRef.current = onItineraryUpdate;
   }, [onItineraryUpdate]);
+
+  const fetchDynamicPrompts = useCallback(
+    async (currentMessages: Array<{ role: string; content: string }>) => {
+      if (!trip || readOnly) return;
+      setPromptsLoading(true);
+      try {
+        const res = await fetch(
+          `/api/trips/${tripId}/follow-up-prompts`,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              hasItinerary,
+              recentMessages: currentMessages.slice(-6),
+            }),
+          },
+        );
+        if (!res.ok) return;
+        const data = await res.json();
+        if (Array.isArray(data.prompts)) {
+          setDynamicPrompts(data.prompts as ChatFollowUp[]);
+        }
+      } catch {
+        // fall back to static prompts silently
+      } finally {
+        setPromptsLoading(false);
+      }
+    },
+    [tripId, trip, hasItinerary, readOnly],
+  );
 
   const transport = useMemo(
     () =>
@@ -85,8 +130,17 @@ export function ChatPanel({
     onError: (err) => {
       setError(err.message || "Something went wrong. Please try again.");
     },
-    onFinish: () => {
+    onFinish: ({ messages: allMessages }) => {
       onItineraryUpdateRef.current?.();
+      const plainMessages = allMessages.map((m) => ({
+        role: m.role,
+        content:
+          m.parts
+            ?.filter((p) => p.type === "text")
+            .map((p) => (p as { type: "text"; text: string }).text)
+            .join("") ?? "",
+      }));
+      fetchDynamicPrompts(plainMessages);
     },
   });
 
@@ -112,19 +166,20 @@ export function ChatPanel({
       messages.filter((m) => m.role === "user").map((m) => getMessageText(m)),
     [messages],
   );
-  const followUpPrompts = useMemo(
+  const staticFollowUpPrompts = useMemo(
     () => getAvailableFollowUpPrompts(hasItinerary, usedUserMessages),
     [hasItinerary, usedUserMessages],
   );
+  const followUpPrompts = dynamicPrompts ?? staticFollowUpPrompts;
   const lastMessage = messages.at(-1);
   const showFollowUps =
     !readOnly &&
     !chatLimitReached &&
     !isLoading &&
-    followUpPrompts.length > 0 &&
     messages.length > 0 &&
     lastMessage?.role === "assistant" &&
-    getMessageText(lastMessage).length > 0;
+    getMessageText(lastMessage).length > 0 &&
+    (promptsLoading || followUpPrompts.length > 0);
 
   useEffect(() => {
     if (
@@ -160,6 +215,7 @@ export function ChatPanel({
     e.preventDefault();
     if (!input.trim() || isLoading || chatLimitReached) return;
     setError(null);
+    setDynamicPrompts(null);
     if (typeof pendo !== "undefined") {
       pendo.track("chat_message_sent", {
         tripId,
@@ -177,6 +233,7 @@ export function ChatPanel({
   function handlePromptSelect(prompt: string) {
     if (isLoading || chatLimitReached) return;
     setError(null);
+    setDynamicPrompts(null);
     if (typeof pendo !== "undefined") {
       pendo.track("chat_message_sent", {
         tripId,
@@ -235,11 +292,23 @@ export function ChatPanel({
           ))}
 
           {showFollowUps && (
-            <FollowUpPrompts
-              prompts={followUpPrompts}
-              onSelect={handlePromptSelect}
-              disabled={isLoading || chatLimitReached}
-            />
+            promptsLoading ? (
+              <div className="flex flex-wrap gap-2 pt-1">
+                {[88, 104, 76, 96].map((w) => (
+                  <div
+                    key={w}
+                    className="h-8 animate-pulse rounded-full bg-neutral-100"
+                    style={{ width: w }}
+                  />
+                ))}
+              </div>
+            ) : (
+              <FollowUpPrompts
+                prompts={followUpPrompts}
+                onSelect={handlePromptSelect}
+                disabled={isLoading || chatLimitReached}
+              />
+            )
           )}
 
           {isLoading && <ThinkingIndicator />}
@@ -294,7 +363,7 @@ export function ChatPanel({
               aria-label={isLoading ? "Sending message…" : "Send message"}
             >
               {isLoading ? (
-                <Spinner size="sm" className="text-white" />
+                <Spinner size="sm" className="text-current" />
               ) : (
                 <ArrowUp className="h-4 w-4" />
               )}

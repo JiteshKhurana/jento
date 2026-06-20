@@ -455,7 +455,7 @@ export function TripIntakeBar({
               aria-label={loading ? "Creating trip…" : "Start planning"}
             >
               {loading ? (
-                <Spinner size="sm" className="text-white" />
+                <Spinner size="sm" className="text-current" />
               ) : (
                 <ArrowUp className="h-4 w-4" />
               )}

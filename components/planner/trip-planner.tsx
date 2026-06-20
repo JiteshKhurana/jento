@@ -220,6 +220,7 @@ export function TripPlanner({
   const chatPanel = (
     <ChatPanel
       tripId={trip.id}
+      trip={{ destination: trip.destination, preferences: trip.preferences }}
       initialQuery={chatInitialQuery}
       initialMessages={filteredMessages}
       hasItinerary={days.length > 0}
