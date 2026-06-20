@@ -244,20 +244,20 @@ export function AddIdeasDialog({
           showClose={false}
           className="flex h-[min(90vh,800px)] max-w-2xl flex-col gap-0 overflow-hidden p-0 sm:rounded-2xl"
         >
+          <button
+            type="button"
+            onClick={() => onOpenChange(false)}
+            className="absolute right-3 top-3 z-10 flex h-8 w-8 items-center justify-center rounded-full text-neutral-500 hover:bg-neutral-100"
+            aria-label="Close"
+          >
+            <X className="h-4 w-4" />
+          </button>
+
           <div className="shrink-0 border-b border-neutral-100 px-4 pt-4">
             <div className="flex items-center justify-between">
-              <button
-                type="button"
-                onClick={() => onOpenChange(false)}
-                className="flex h-8 w-8 items-center justify-center rounded-full text-neutral-500 hover:bg-neutral-100"
-                aria-label="Close"
-              >
-                <X className="h-4 w-4" />
-              </button>
               <DialogTitle className="text-base font-semibold">
                 Add to trip
               </DialogTitle>
-              <div className="w-8" />
             </div>
 
             <div className="mt-4 flex gap-6 border-b border-neutral-100">
@@ -327,12 +327,6 @@ export function AddIdeasDialog({
               </div>
 
               <div className="min-h-0 flex-1 overflow-y-auto px-4 pb-6">
-                <h3 className="mb-3 text-sm font-semibold text-neutral-900">
-                  {activeCategory.label === "For you"
-                    ? "Things To Do"
-                    : activeCategory.label}
-                </h3>
-
                 {loading ? (
                   <div className="grid grid-cols-2 gap-4">
                     {Array.from({ length: 4 }).map((_, i) => (

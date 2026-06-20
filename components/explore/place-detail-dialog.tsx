@@ -1,14 +1,17 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Heart, MapPin, Plus, Star, X } from "lucide-react";
+import { Heart, MapPin, Star, X } from "lucide-react";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 import { getPlacePhotoUrl } from "@/lib/places/utils";
-import { AddToTripPicker, type TripOption } from "@/components/explore/add-to-trip-picker";
+import {
+  AddToTripPicker,
+  type TripOption,
+} from "@/components/explore/add-to-trip-picker";
 import type { PlaceSearchResult } from "@/lib/places/google-places";
 
 type PlaceDetails = PlaceSearchResult & {
@@ -36,7 +39,8 @@ type PlaceDetailDialogProps = {
 function guessCategory(address?: string) {
   const lower = (address ?? "").toLowerCase();
   if (lower.includes("hotel") || lower.includes("resort")) return "Stay";
-  if (lower.includes("restaurant") || lower.includes("cafe")) return "Restaurant";
+  if (lower.includes("restaurant") || lower.includes("cafe"))
+    return "Restaurant";
   return "Attraction";
 }
 
@@ -51,28 +55,41 @@ export function PlaceDetailDialog({
   onSaveToggle,
   onTripAdded,
 }: PlaceDetailDialogProps) {
+  const placeId = place?.googlePlaceId ?? null;
   const [details, setDetails] = useState<PlaceDetails | null>(null);
-  const [loading, setLoading] = useState(false);
+  const [fetchedPlaceId, setFetchedPlaceId] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
-  const [activeTab, setActiveTab] = useState<"overview" | "reviews" | "location">("overview");
+  const [activeTab, setActiveTab] = useState<
+    "overview" | "reviews" | "location"
+  >("overview");
+  const [prevOpen, setPrevOpen] = useState(open);
+  const [prevPlaceId, setPrevPlaceId] = useState(placeId);
+
+  if (open !== prevOpen || placeId !== prevPlaceId) {
+    setPrevOpen(open);
+    setPrevPlaceId(placeId);
+    if (!open || !placeId || placeId !== prevPlaceId) {
+      setDetails(null);
+      setFetchedPlaceId(null);
+      setActiveTab("overview");
+    }
+  }
+
+  const loading = Boolean(open && placeId && fetchedPlaceId !== placeId);
 
   useEffect(() => {
-    if (!open || !place) {
-      setDetails(null);
-      setActiveTab("overview");
-      return;
-    }
+    if (!open || !place) return;
 
+    const id = place.googlePlaceId;
     let cancelled = false;
-    setLoading(true);
 
-    fetch(`/api/places/${encodeURIComponent(place.googlePlaceId)}`)
+    fetch(`/api/places/${encodeURIComponent(id)}`)
       .then((res) => (res.ok ? res.json() : null))
       .then((data) => {
-        if (!cancelled) setDetails(data);
-      })
-      .finally(() => {
-        if (!cancelled) setLoading(false);
+        if (!cancelled) {
+          setDetails(data);
+          setFetchedPlaceId(id);
+        }
       });
 
     return () => {
@@ -103,22 +120,13 @@ export function PlaceDetailDialog({
       >
         <div className="shrink-0 border-b border-neutral-100 px-4 py-3">
           <div className="flex items-center justify-between gap-3">
-            <button
-              type="button"
-              onClick={() => onOpenChange(false)}
-              className="flex h-8 w-8 items-center justify-center rounded-full text-neutral-500 hover:bg-neutral-100"
-              aria-label="Close"
-            >
-              <X className="h-4 w-4" />
-            </button>
-
             <div className="flex items-center gap-2">
               <Button
                 variant="outline"
                 size="sm"
                 disabled={saving}
                 onClick={handleSave}
-                className={cn(saved && "border-red-200 text-red-600")}
+                className={cn("cursor-pointer", saved && "border-red-200 text-red-600")}
               >
                 {saving ? (
                   <Spinner size="sm" />
@@ -133,8 +141,17 @@ export function PlaceDetailDialog({
                 addedTripIds={addedTripIds}
                 onAdded={onTripAdded}
                 variant="button"
+                className="cursor-pointer"
               />
             </div>
+            <button
+              type="button"
+              onClick={() => onOpenChange(false)}
+              className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-full text-neutral-500 hover:bg-neutral-100"
+              aria-label="Close"
+            >
+              <X className="h-4 w-4" />
+            </button>
           </div>
         </div>
 
@@ -155,7 +172,10 @@ export function PlaceDetailDialog({
                   )}
                 </span>
               )}
-              <span>{display.address?.split(",").slice(-2).join(",").trim() || destination}</span>
+              <span>
+                {display.address?.split(",").slice(-2).join(",").trim() ||
+                  destination}
+              </span>
               <span className="flex items-center gap-1">
                 <MapPin className="h-3.5 w-3.5" />
                 {guessCategory(display.address)}
@@ -165,7 +185,7 @@ export function PlaceDetailDialog({
             <div className="mt-4 grid grid-cols-3 gap-2">
               {loading ? (
                 <>
-                  <Skeleton className="col-span-2 row-span-2 aspect-[4/5] rounded-2xl" />
+                  <Skeleton className="col-span-2 row-span-2 aspect-4/5 rounded-2xl" />
                   {Array.from({ length: 4 }).map((_, i) => (
                     <Skeleton key={i} className="aspect-square rounded-xl" />
                   ))}
@@ -242,10 +262,15 @@ export function PlaceDetailDialog({
               {activeTab === "reviews" && (
                 <div className="space-y-4">
                   {reviews.length === 0 ? (
-                    <p className="text-sm text-neutral-400">No reviews available yet.</p>
+                    <p className="text-sm text-neutral-400">
+                      No reviews available yet.
+                    </p>
                   ) : (
                     reviews.slice(0, 5).map((review, i) => (
-                      <div key={i} className="border-b border-neutral-100 pb-4 last:border-0">
+                      <div
+                        key={i}
+                        className="border-b border-neutral-100 pb-4 last:border-0"
+                      >
                         <p className="text-sm font-medium text-neutral-900">
                           {review.author}
                           <span className="ml-2 font-normal text-neutral-400">
@@ -256,7 +281,9 @@ export function PlaceDetailDialog({
                           <Star className="h-3 w-3 fill-amber-400 text-amber-400" />
                           {review.rating}
                         </div>
-                        <p className="mt-2 text-sm text-neutral-600">{review.text}</p>
+                        <p className="mt-2 text-sm text-neutral-600">
+                          {review.text}
+                        </p>
                       </div>
                     ))
                   )}
@@ -268,7 +295,8 @@ export function PlaceDetailDialog({
                   <p>{display.address ?? destination}</p>
                   {display.latitude != null && display.longitude != null && (
                     <p className="text-neutral-400">
-                      {display.latitude.toFixed(5)}, {display.longitude.toFixed(5)}
+                      {display.latitude.toFixed(5)},{" "}
+                      {display.longitude.toFixed(5)}
                     </p>
                   )}
                 </div>

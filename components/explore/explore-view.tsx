@@ -449,12 +449,6 @@ export function ExploreView({
       </div>
 
       <div className="min-h-0 flex-1 overflow-y-auto px-4 py-4 md:px-6">
-        <h3 className="mb-3 text-sm font-semibold text-foreground">
-          {activeCategory.label === "For you"
-            ? "Things To Do"
-            : activeCategory.label}
-        </h3>
-
         {loading ? (
           <div className="grid grid-cols-2 gap-4">
             {Array.from({ length: 6 }).map((_, i) => (

@@ -64,10 +64,22 @@ export function ItemEditor({
   if (editing) {
     return (
       <div className="space-y-2 rounded-xl border border-neutral-200 bg-neutral-50 p-3">
-        <Input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Title" />
+        <Input
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          placeholder="Title"
+        />
         <div className="grid grid-cols-2 gap-2">
-          <Input value={startTime} onChange={(e) => setStartTime(e.target.value)} placeholder="Start time" />
-          <Input value={duration} onChange={(e) => setDuration(e.target.value)} placeholder="Duration" />
+          <Input
+            value={startTime}
+            onChange={(e) => setStartTime(e.target.value)}
+            placeholder="Start time"
+          />
+          <Input
+            value={duration}
+            onChange={(e) => setDuration(e.target.value)}
+            placeholder="Duration"
+          />
         </div>
         <Textarea
           value={description}
@@ -117,7 +129,12 @@ export function ItemEditor({
       </div>
       {!readOnly && (
         <div className="flex gap-1">
-          <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => setEditing(true)}>
+          <Button
+            size="icon"
+            variant="ghost"
+            className="h-7 w-7"
+            onClick={() => setEditing(true)}
+          >
             <Pencil className="h-3.5 w-3.5" />
           </Button>
           <Button
