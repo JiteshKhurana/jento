@@ -155,6 +155,30 @@ export async function POST(req: Request) {
                 draft,
                 tripContext,
               );
+
+              try {
+                await fetch("https://data.pendo.io/data/track", {
+                  method: "POST",
+                  headers: {
+                    "Content-Type": "application/json",
+                    "x-pendo-integration-key": "94374dd5-a870-45f9-ae8e-debd6d16f45e",
+                  },
+                  body: JSON.stringify({
+                    type: "track",
+                    event: "itinerary_generated",
+                    visitorId: user.id,
+                    accountId: user.id,
+                    timestamp: Date.now(),
+                    properties: {
+                      tripId,
+                      itineraryId: itinerary.id,
+                      dayCount: itinerary.days.length,
+                      destination: trip.destination,
+                    },
+                  }),
+                });
+              } catch { /* tracking must not break app flow */ }
+
               return {
                 success: true,
                 itineraryId: itinerary.id,
@@ -186,6 +210,29 @@ export async function POST(req: Request) {
                 day,
                 tripContext,
               );
+
+              try {
+                await fetch("https://data.pendo.io/data/track", {
+                  method: "POST",
+                  headers: {
+                    "Content-Type": "application/json",
+                    "x-pendo-integration-key": "94374dd5-a870-45f9-ae8e-debd6d16f45e",
+                  },
+                  body: JSON.stringify({
+                    type: "track",
+                    event: "itinerary_day_updated",
+                    visitorId: user.id,
+                    accountId: user.id,
+                    timestamp: Date.now(),
+                    properties: {
+                      tripId,
+                      dayNumber,
+                      dayCount: itinerary?.days.length ?? 0,
+                    },
+                  }),
+                });
+              } catch { /* tracking must not break app flow */ }
+
               return { success: true, dayCount: itinerary?.days.length ?? 0 };
             } catch (error) {
               return {

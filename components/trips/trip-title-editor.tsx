@@ -47,6 +47,13 @@ export function TripTitleEditor({
         body: JSON.stringify({ title: trimmed }),
       });
       if (!res.ok) throw new Error("Failed to update title");
+      if (typeof pendo !== "undefined") {
+        pendo.track("trip_title_updated", {
+          tripId,
+          oldTitle: title,
+          newTitle: trimmed,
+        });
+      }
       onTitleChange(trimmed);
       setEditing(false);
     } catch {

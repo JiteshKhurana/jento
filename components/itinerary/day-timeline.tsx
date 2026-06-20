@@ -227,12 +227,27 @@ function ItemBlock({
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(updates),
     });
+    if (typeof pendo !== "undefined") {
+      pendo.track("itinerary_item_edited", {
+        tripId,
+        itemId: item.id,
+        fieldsUpdated: Object.keys(updates).join(","),
+      });
+    }
     setEditing(false);
     onUpdate?.();
   }
 
   async function handleDelete() {
     await fetch(`/api/trips/${tripId}/items/${item.id}`, { method: "DELETE" });
+    if (typeof pendo !== "undefined") {
+      pendo.track("itinerary_item_deleted", {
+        tripId,
+        itemId: item.id,
+        itemTitle: item.title,
+        itemType: item.type,
+      });
+    }
     onUpdate?.();
   }
 
@@ -649,6 +664,13 @@ function DayItems({
           itemIds: reordered.map((i) => i.id),
         }),
       });
+      if (typeof pendo !== "undefined") {
+        pendo.track("itinerary_items_reordered", {
+          tripId,
+          dayId: day.id,
+          itemCount: reordered.length,
+        });
+      }
       onUpdate?.();
     } finally {
       setReordering(false);

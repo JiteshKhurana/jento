@@ -51,6 +51,12 @@ export function LandingTryOutSection({ userId }: LandingTryOutSectionProps) {
       }
 
       const trip = await res.json();
+      if (typeof pendo !== "undefined") {
+        pendo.track("landing_quick_trip_created", {
+          destination: destinationName,
+          tripId: trip.id,
+        });
+      }
       router.push(
         `/trips/${trip.id}?q=${encodeURIComponent(initialMessage)}`,
       );

@@ -53,6 +53,14 @@ export function AddToTripPicker({
       });
 
       if (res.ok) {
+        if (typeof pendo !== "undefined") {
+          pendo.track("place_added_to_trip", {
+            tripId,
+            googlePlaceId: place.googlePlaceId,
+            placeName: place.name,
+            source: "explore",
+          });
+        }
         onAdded(tripId);
         setOpen(false);
       }

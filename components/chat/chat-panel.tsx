@@ -13,6 +13,9 @@ import { FollowUpPrompts } from "@/components/chat/follow-up-prompts";
 import { getAvailableFollowUpPrompts } from "@/lib/chat/follow-up-prompts";
 import { MAX_CHATS_PER_TRIP, getChatLimitMessage } from "@/lib/chat/limits";
 
+// Module-level Set to ensure chat_limit_reached fires once per trip per session
+const chatLimitTrackedTrips = new Set<string>();
+
 type ChatPanelProps = {
   tripId: string;
   initialQuery?: string | null;
@@ -90,6 +93,20 @@ export function ChatPanel({
   const isLoading = status === "streaming" || status === "submitted";
   const userMessageCount = messages.filter((m) => m.role === "user").length;
   const chatLimitReached = userMessageCount >= MAX_CHATS_PER_TRIP;
+
+  useEffect(() => {
+    if (chatLimitReached && !chatLimitTrackedTrips.has(tripId)) {
+      chatLimitTrackedTrips.add(tripId);
+      if (typeof pendo !== "undefined") {
+        pendo.track("chat_limit_reached", {
+          tripId,
+          messageCount: userMessageCount,
+          maxMessages: MAX_CHATS_PER_TRIP,
+        });
+      }
+    }
+  }, [chatLimitReached, tripId, userMessageCount]);
+
   const usedUserMessages = useMemo(
     () =>
       messages.filter((m) => m.role === "user").map((m) => getMessageText(m)),
@@ -143,6 +160,16 @@ export function ChatPanel({
     e.preventDefault();
     if (!input.trim() || isLoading || chatLimitReached) return;
     setError(null);
+    if (typeof pendo !== "undefined") {
+      pendo.track("chat_message_sent", {
+        tripId,
+        messageLength: input.trim().length,
+        messageSource: "typed",
+        hasItinerary,
+        userMessageCount: userMessageCount + 1,
+        isFollowUpPrompt: false,
+      });
+    }
     sendMessage({ text: input.trim() });
     setInput("");
   }
@@ -150,6 +177,16 @@ export function ChatPanel({
   function handlePromptSelect(prompt: string) {
     if (isLoading || chatLimitReached) return;
     setError(null);
+    if (typeof pendo !== "undefined") {
+      pendo.track("chat_message_sent", {
+        tripId,
+        messageLength: prompt.length,
+        messageSource: "follow_up_prompt",
+        hasItinerary,
+        userMessageCount: userMessageCount + 1,
+        isFollowUpPrompt: true,
+      });
+    }
     sendMessage({ text: prompt });
   }
 

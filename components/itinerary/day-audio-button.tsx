@@ -89,6 +89,12 @@ export function DayAudioButton({
       utterance.onerror = () => setState("idle");
       window.speechSynthesis.speak(utterance);
       setState("playing");
+      if (typeof pendo !== "undefined") {
+        pendo.track("day_narration_played", {
+          tripId,
+          dayNumber,
+        });
+      }
     } catch {
       setState("idle");
     }

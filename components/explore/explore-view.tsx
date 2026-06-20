@@ -152,6 +152,15 @@ export function ExploreView({
         if (res.ok) {
           const data = await res.json();
           setResults(data);
+          if (typeof pendo !== "undefined") {
+            pendo.track("place_search_executed", {
+              searchQuery: q,
+              location: location.name,
+              category: activeCategory.label,
+              budget: budget ?? "none",
+              resultsCount: data.length,
+            });
+          }
         }
       } finally {
         setLoading(false);
@@ -193,12 +202,28 @@ export function ExploreView({
         ? Number.parseFloat(selected.longitude)
         : undefined,
     };
+    if (typeof pendo !== "undefined") {
+      pendo.track("explore_location_changed", {
+        locationName: selected.name,
+        locationLabel: selected.label,
+        hasCoordinates: !!(selected.latitude && selected.longitude),
+        changeMethod: "search",
+      });
+    }
     storeLocation(next);
     setLocationPickerOpen(false);
     setLocationQuery("");
   }
 
-  function applyExploreLocation(next: ExploreLocation) {
+  function applyExploreLocation(next: ExploreLocation, method = "near_me") {
+    if (typeof pendo !== "undefined") {
+      pendo.track("explore_location_changed", {
+        locationName: next.name,
+        locationLabel: next.label,
+        hasCoordinates: !!(next.latitude && next.longitude),
+        changeMethod: method,
+      });
+    }
     storeLocation(next);
     setLocationPickerOpen(false);
     setLocationError(null);
@@ -285,6 +310,12 @@ export function ExploreView({
         { method: "DELETE" },
       );
       if (res.ok) {
+        if (typeof pendo !== "undefined") {
+          pendo.track("place_unsaved", {
+            googlePlaceId: place.googlePlaceId,
+            placeName: place.name,
+          });
+        }
         setSavedIds((prev) => {
           const next = new Set(prev);
           next.delete(place.googlePlaceId);
@@ -307,6 +338,14 @@ export function ExploreView({
     });
 
     if (res.ok) {
+      if (typeof pendo !== "undefined") {
+        pendo.track("place_saved", {
+          googlePlaceId: place.googlePlaceId,
+          placeName: place.name,
+          location: location.name,
+          placeRating: place.rating ?? 0,
+        });
+      }
       setSavedIds((prev) => new Set(prev).add(place.googlePlaceId));
     }
   }

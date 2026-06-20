@@ -76,6 +76,16 @@ export function AddIdeasDialog({
         if (res.ok) {
           const data = await res.json();
           setResults(data);
+          if (typeof pendo !== "undefined") {
+            pendo.track("idea_search_executed", {
+              tripId,
+              searchQuery: q,
+              destination,
+              category: activeCategory.label,
+              budget: effectiveBudget ?? "none",
+              resultsCount: data.length,
+            });
+          }
         }
       } finally {
         setLoading(false);
@@ -129,6 +139,15 @@ export function AddIdeasDialog({
     });
 
     if (res.ok) {
+      if (typeof pendo !== "undefined") {
+        pendo.track("idea_added", {
+          tripId,
+          ideaSource: "place_search",
+          hasGooglePlaceId: true,
+          destination,
+          ideaTitle: place.name,
+        });
+      }
       setAddedIds((prev) => new Set(prev).add(place.googlePlaceId));
       onIdeaAdded();
     }
@@ -169,6 +188,14 @@ export function AddIdeasDialog({
       });
 
       if (res.ok) {
+        if (typeof pendo !== "undefined") {
+          pendo.track("custom_idea_added", {
+            tripId,
+            ideaTitle: customTitle.trim(),
+            hasNotes: !!customNotes.trim(),
+            destination,
+          });
+        }
         setCustomTitle("");
         setCustomNotes("");
         onIdeaAdded();

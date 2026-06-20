@@ -184,6 +184,16 @@ function UploadZone({ tripId, onUploaded }: UploadZoneProps) {
         return;
       }
 
+      if (typeof pendo !== "undefined") {
+        pendo.track("booking_uploaded", {
+          tripId,
+          bookingCategory: form.category,
+          fileType: form.file.type || "unknown",
+          fileSizeBytes: form.file.size,
+          title: form.title.trim() || form.file.name,
+          hasNotes: !!form.notes.trim(),
+        });
+      }
       onUploaded(data as TripBookingData);
       setForm({ file: null, title: "", category: "OTHER", notes: "" });
     } catch {
@@ -463,6 +473,14 @@ export function BookingsPanel({ tripId, readOnly = false }: BookingsPanelProps) 
   }, [tripId]);
 
   async function handleDelete(bookingId: string) {
+    const booking = bookings.find((b) => b.id === bookingId);
+    if (typeof pendo !== "undefined") {
+      pendo.track("booking_deleted", {
+        tripId,
+        bookingId,
+        bookingCategory: booking?.category ?? "unknown",
+      });
+    }
     // Optimistic removal
     setBookings((prev) => prev.filter((b) => b.id !== bookingId));
     await fetch(`/api/trips/${tripId}/bookings/${bookingId}`, {

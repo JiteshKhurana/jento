@@ -33,6 +33,12 @@ export function DeleteTripDialog({
     try {
       const res = await fetch(`/api/trips/${tripId}`, { method: "DELETE" });
       if (res.ok) {
+        if (typeof pendo !== "undefined") {
+          pendo.track("trip_deleted", {
+            tripId,
+            tripTitle,
+          });
+        }
         onOpenChange(false);
         router.refresh();
       }
