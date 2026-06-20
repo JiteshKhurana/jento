@@ -436,7 +436,7 @@ export function ExploreView({
               type="button"
               onClick={() => setCategory(cat.id)}
               className={cn(
-                "shrink-0 rounded-full px-3.5 py-1.5 text-xs font-medium transition-colors",
+                "shrink-0 cursor-pointer rounded-full px-3.5 py-1.5 text-xs font-medium transition-colors",
                 category === cat.id
                   ? "bg-primary text-primary-foreground dark:bg-white dark:text-black"
                   : "border border-border bg-card text-foreground hover:border-foreground/30",

@@ -61,18 +61,12 @@ export function AddIdeasDialog({
   const activeCategory = CATEGORIES.find((c) => c.id === category)!;
 
   const runSearch = useCallback(
-    async (
-      query: string,
-      options?: { budget?: BudgetTier | null; categoryQuery?: string },
-    ) => {
+    async (query: string) => {
       setLoading(true);
       try {
-        const categoryQuery = options?.categoryQuery ?? activeCategory.query;
-        const q = query.trim() || categoryQuery;
+        const q = query.trim() || activeCategory.query;
         const params = new URLSearchParams({ q, location: destination });
-        const effectiveBudget =
-          options?.budget !== undefined ? options.budget : budget;
-        if (effectiveBudget) params.set("budget", effectiveBudget);
+        if (budget) params.set("budget", budget);
         const res = await fetch(`/api/places/search?${params}`);
         if (res.ok) {
           const data = await res.json();
@@ -83,7 +77,7 @@ export function AddIdeasDialog({
               searchQuery: q,
               destination,
               category: activeCategory.label,
-              budget: effectiveBudget ?? "none",
+              budget: budget ?? "none",
               resultsCount: data.length,
             });
           }
@@ -100,32 +94,27 @@ export function AddIdeasDialog({
       if (nextOpen) {
         setAddedIds(new Set());
         setSelectedPlace(null);
-        void runSearch("");
       }
       onOpenChange(nextOpen);
     },
-    [onOpenChange, runSearch],
+    [onOpenChange],
   );
 
-  const handleBudgetChange = useCallback(
-    (nextBudget: BudgetTier | null) => {
-      setAddedIds(new Set());
-      setSelectedPlace(null);
-      setBudget(nextBudget);
-      void runSearch("", { budget: nextBudget });
-    },
-    [runSearch],
-  );
+  const handleBudgetChange = useCallback((nextBudget: BudgetTier | null) => {
+    setAddedIds(new Set());
+    setSelectedPlace(null);
+    setBudget(nextBudget);
+  }, []);
 
   useEffect(() => {
     if (!open || tab !== "search") return;
+
+    const delay = searchQuery.trim() ? 350 : 0;
     const timer = setTimeout(() => {
-      if (searchQuery.trim()) {
-        runSearch(searchQuery);
-      }
-    }, 350);
+      void runSearch(searchQuery);
+    }, delay);
     return () => clearTimeout(timer);
-  }, [searchQuery, open, tab, runSearch]);
+  }, [searchQuery, open, tab, category, budget, runSearch]);
 
   async function addPlaceAsIdea(place: PlaceSearchResult) {
     const res = await fetch(`/api/trips/${tripId}/ideas`, {
@@ -222,7 +211,7 @@ export function AddIdeasDialog({
               size="sm"
               disabled={addingFromDetail || selectedPlaceAdded}
               onClick={handleAddFromDetail}
-              className="h-8 gap-1.5 text-xs"
+              className="h-8 gap-1.5 text-xs cursor-pointer"
             >
               {addingFromDetail ? (
                 <Spinner size="sm" className="text-white" />
@@ -247,7 +236,7 @@ export function AddIdeasDialog({
           <button
             type="button"
             onClick={() => onOpenChange(false)}
-            className="absolute right-3 top-3 z-10 flex h-8 w-8 items-center justify-center rounded-full text-neutral-500 hover:bg-neutral-100"
+            className="absolute right-3 top-3 z-10 flex h-8 w-8 cursor-pointer items-center justify-center rounded-full text-neutral-500 hover:bg-neutral-100"
             aria-label="Close"
           >
             <X className="h-4 w-4" />
@@ -267,7 +256,7 @@ export function AddIdeasDialog({
                   type="button"
                   onClick={() => setTab(t)}
                   className={cn(
-                    "pb-3 text-sm font-medium capitalize transition-colors",
+                    "cursor-pointer pb-3 text-sm font-medium capitalize transition-colors",
                     tab === t
                       ? "border-b-2 border-neutral-900 text-neutral-900"
                       : "text-neutral-400 hover:text-neutral-600",
@@ -311,10 +300,9 @@ export function AddIdeasDialog({
                         setAddedIds(new Set());
                         setSelectedPlace(null);
                         setCategory(cat.id);
-                        void runSearch("", { categoryQuery: cat.query });
                       }}
                       className={cn(
-                        "shrink-0 rounded-full px-3.5 py-1.5 text-xs font-medium transition-colors",
+                        "shrink-0 cursor-pointer rounded-full px-3.5 py-1.5 text-xs font-medium transition-colors",
                         category === cat.id
                           ? "bg-neutral-900 text-white"
                           : "border border-neutral-200 bg-white text-neutral-700 hover:border-neutral-300",
@@ -392,7 +380,7 @@ export function AddIdeasDialog({
               <Button
                 type="submit"
                 disabled={!customTitle.trim() || savingCustom}
-                className="mt-6 w-full"
+                className="mt-6 w-full cursor-pointer"
               >
                 {savingCustom ? (
                   <>

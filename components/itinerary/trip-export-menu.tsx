@@ -136,7 +136,7 @@ export function TripExportMenu({
           type="button"
           variant="ghost"
           size="icon"
-          className="h-8 w-8 shrink-0 rounded-full text-neutral-600 hover:bg-neutral-100 hover:text-neutral-900"
+          className="h-8 w-8 shrink-0 cursor-pointer rounded-full text-neutral-600 hover:bg-neutral-100 hover:text-neutral-900"
           aria-label="Trip options"
         >
           <MoreVertical className="h-4 w-4" />
@@ -146,7 +146,7 @@ export function TripExportMenu({
         <button
           type="button"
           onClick={handleShare}
-          className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-neutral-700 transition-colors hover:bg-neutral-100"
+          className="flex w-full cursor-pointer items-center gap-2 rounded-lg px-3 py-2 text-sm text-neutral-700 transition-colors hover:bg-neutral-100"
         >
           {shared ? (
             <Check className="h-4 w-4 shrink-0 text-emerald-600" />
@@ -159,7 +159,7 @@ export function TripExportMenu({
           type="button"
           disabled={!hasItems || exporting !== null}
           onClick={handleDownloadPdf}
-          className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-neutral-700 transition-colors hover:bg-neutral-100 disabled:opacity-50"
+          className="flex w-full cursor-pointer items-center gap-2 rounded-lg px-3 py-2 text-sm text-neutral-700 transition-colors hover:bg-neutral-100 disabled:cursor-not-allowed disabled:opacity-50"
         >
           <FileText className="h-4 w-4 shrink-0 text-neutral-700" />
           {exporting === "pdf" ? "Preparing PDF…" : "Download PDF"}
@@ -168,7 +168,7 @@ export function TripExportMenu({
           type="button"
           disabled={!hasItems || exporting !== null}
           onClick={handleDownloadIcs}
-          className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-neutral-700 transition-colors hover:bg-neutral-100 disabled:opacity-50"
+          className="flex w-full cursor-pointer items-center gap-2 rounded-lg px-3 py-2 text-sm text-neutral-700 transition-colors hover:bg-neutral-100 disabled:cursor-not-allowed disabled:opacity-50"
         >
           <CalendarPlus className="h-4 w-4 shrink-0 text-teal-600" />
           {exporting === "ics" ? "Preparing calendar…" : "Export to Calendar"}
