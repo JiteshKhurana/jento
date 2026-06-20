@@ -20,7 +20,7 @@ export function LandingQuizSection() {
           Take Quiz to find
         </h2>
 
-        <div className="w-full rounded-4xl border border-black!">
+        <div className="w-full rounded-4xl">
           <div className="relative flex min-h-[280px] flex-col overflow-hidden rounded-[30px] sm:min-h-[320px] lg:min-h-[420px] lg:flex-row lg:items-center">
             <div
               className="absolute inset-0 bg-[linear-gradient(to_left,#FF8800_0%,rgba(255,136,0,0.4)_100%)] opacity-40"

@@ -3,7 +3,13 @@
 import { UserButton } from "@clerk/nextjs";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Search, Map, PanelLeft, PanelLeftClose, Plane, Heart } from "lucide-react";
+import {
+  Search,
+  Map,
+  PanelLeft,
+  PanelLeftClose,
+  Plane,
+} from "lucide-react";
 import { ModeToggle } from "@/components/mode-toggle";
 import {
   Sidebar,
@@ -22,7 +28,6 @@ import {
 const navLinks = [
   { href: "/trips", label: "My trips", icon: Map },
   { href: "/explore", label: "Explore", icon: Search },
-  { href: "/saved", label: "Saved", icon: Heart },
   // { href: "/inspire", label: "Inspire", icon: Sparkles },
 ] as const;
 

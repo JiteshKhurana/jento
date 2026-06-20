@@ -93,7 +93,9 @@ export function AddToTripPicker({
       <Popover>
         <PopoverTrigger asChild>{trigger}</PopoverTrigger>
         <PopoverContent align="end" className="w-56 p-3">
-          <p className="text-sm text-neutral-600">Create a trip first to save places.</p>
+          <p className="text-sm text-neutral-600">
+            Create a trip first to save places.
+          </p>
           <Button asChild size="sm" className="mt-3 w-full">
             <Link href="/trips/new">Create trip</Link>
           </Button>
@@ -106,7 +108,9 @@ export function AddToTripPicker({
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>{trigger}</PopoverTrigger>
       <PopoverContent align="end" className="w-64 p-2">
-        <p className="mb-2 px-2 text-xs font-medium text-neutral-500">Add to trip</p>
+        <p className="mb-2 px-2 text-xs font-medium text-neutral-500">
+          Add to trip
+        </p>
         <div className="max-h-48 space-y-0.5 overflow-y-auto">
           {trips.map((trip) => {
             const added = addedTripIds.has(trip.id);
@@ -121,8 +125,12 @@ export function AddToTripPicker({
                 className="flex w-full items-center gap-2 rounded-lg px-2 py-2 text-left text-sm hover:bg-neutral-100 disabled:opacity-60"
               >
                 <div className="min-w-0 flex-1">
-                  <p className="truncate font-medium text-neutral-900">{trip.title}</p>
-                  <p className="truncate text-xs text-neutral-500">{trip.destination}</p>
+                  <p className="truncate font-medium text-neutral-900">
+                    {trip.title}
+                  </p>
+                  <p className="truncate text-xs text-neutral-500">
+                    {trip.destination}
+                  </p>
                 </div>
                 {loading ? (
                   <Spinner size="sm" />

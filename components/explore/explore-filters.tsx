@@ -2,7 +2,6 @@
 
 import { SlidersHorizontal } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
 import {
   Popover,
   PopoverContent,
@@ -18,7 +17,10 @@ type ExploreFiltersProps = {
   onBudgetChange: (budget: BudgetTier | null) => void;
 };
 
-export function ExploreFilters({ budget, onBudgetChange }: ExploreFiltersProps) {
+export function ExploreFilters({
+  budget,
+  onBudgetChange,
+}: ExploreFiltersProps) {
   return (
     <Popover>
       <PopoverTrigger asChild>
@@ -26,7 +28,7 @@ export function ExploreFilters({ budget, onBudgetChange }: ExploreFiltersProps) 
           variant="outline"
           size="icon"
           className={cn(
-            "relative h-11 w-11 shrink-0 rounded-xl",
+            "relative h-11 w-11 shrink-0 rounded-xl cursor-pointer",
             budget && "border-neutral-900",
           )}
           aria-label="Filters"
@@ -40,12 +42,12 @@ export function ExploreFilters({ budget, onBudgetChange }: ExploreFiltersProps) 
       <PopoverContent align="end" className="w-72">
         <div className="space-y-3">
           <div className="flex items-center justify-between">
-            <p className="text-sm font-semibold text-neutral-900">Filters</p>
+            <p className="text-sm font-semibold text-neutral-900">Budget</p>
             {budget && (
               <button
                 type="button"
                 onClick={() => onBudgetChange(null)}
-                className="text-xs text-neutral-500 hover:text-neutral-900"
+                className="text-xs text-neutral-500 hover:text-neutral-900 cursor-pointer"
               >
                 Clear
               </button>
@@ -53,7 +55,6 @@ export function ExploreFilters({ budget, onBudgetChange }: ExploreFiltersProps) 
           </div>
 
           <div className="space-y-2">
-            <Label>Budget</Label>
             <div className="grid grid-cols-2 gap-2">
               {BUDGET_TIERS.map((tier) => (
                 <button
@@ -61,7 +62,7 @@ export function ExploreFilters({ budget, onBudgetChange }: ExploreFiltersProps) 
                   type="button"
                   onClick={() => onBudgetChange(budget === tier ? null : tier)}
                   className={cn(
-                    "rounded-xl border px-3 py-2 text-sm font-medium transition-colors",
+                    "rounded-xl border px-3 py-2 text-sm font-medium transition-colors cursor-pointer",
                     budget === tier
                       ? "border-neutral-900 bg-neutral-900 text-white"
                       : "border-neutral-200 text-neutral-700 hover:border-neutral-300",

@@ -128,90 +128,92 @@ export function IdeaCard({
         </div>
 
         {idea.notes && (
-          <p className="mt-2 line-clamp-2 text-xs text-neutral-600">{idea.notes}</p>
+          <p className="mt-2 line-clamp-2 text-xs text-neutral-600">
+            {idea.notes}
+          </p>
         )}
 
         {!readOnly && (
-        <div
-          className="mt-3 flex items-center gap-2"
-          onClick={(e) => e.stopPropagation()}
-          onPointerDown={(e) => e.stopPropagation()}
-        >
-          {days.length > 0 ? (
-            added ? (
-              <Button
-                size="sm"
-                variant="outline"
-                disabled
-                className="h-8 text-xs text-neutral-500"
-              >
-                Added
-              </Button>
-            ) : (
-            <Popover open={dayPickerOpen} onOpenChange={setDayPickerOpen}>
-              <PopoverTrigger asChild>
+          <div
+            className="mt-3 flex items-center gap-2"
+            onClick={(e) => e.stopPropagation()}
+            onPointerDown={(e) => e.stopPropagation()}
+          >
+            {days.length > 0 ? (
+              added ? (
                 <Button
                   size="sm"
                   variant="outline"
-                  disabled={adding}
-                  className="h-8 text-xs"
+                  disabled
+                  className="h-8 text-xs text-neutral-500"
                 >
-                  {adding ? (
-                    <Spinner size="sm" />
-                  ) : (
-                    <CalendarPlus className="h-3.5 w-3.5" />
-                  )}
-                  {adding ? "Adding…" : "Add to trip"}
+                  Added
                 </Button>
-              </PopoverTrigger>
-              <PopoverContent align="start" className="w-48 p-2">
-                <p className="mb-2 px-2 text-xs font-medium text-neutral-500">
-                  Choose a day
-                </p>
-                <div className="space-y-0.5">
-                  {days.map((day) => (
-                    <button
-                      key={day.id}
-                      type="button"
-                      onMouseDown={(e) => e.preventDefault()}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleAddToDay(day.id);
-                      }}
+              ) : (
+                <Popover open={dayPickerOpen} onOpenChange={setDayPickerOpen}>
+                  <PopoverTrigger asChild>
+                    <Button
+                      size="sm"
+                      variant="outline"
                       disabled={adding}
-                      className="w-full rounded-lg px-2 py-1.5 text-left text-sm hover:bg-neutral-100"
+                      className="h-8 text-xs"
                     >
-                      Day {day.dayNumber}: {day.title}
-                    </button>
-                  ))}
-                </div>
-              </PopoverContent>
-            </Popover>
-            )
-          ) : (
-            <span className="text-xs text-neutral-400">
-              Generate an itinerary to add this
-            </span>
-          )}
-
-          <Button
-            size="sm"
-            variant="ghost"
-            disabled={deleting}
-            onClick={(e) => {
-              e.stopPropagation();
-              handleDelete();
-            }}
-            className="ml-auto h-8 w-8 p-0 text-neutral-400 hover:text-red-600"
-            aria-label={deleting ? "Removing idea…" : "Remove idea"}
-          >
-            {deleting ? (
-              <Spinner size="sm" />
+                      {adding ? (
+                        <Spinner size="sm" />
+                      ) : (
+                        <CalendarPlus className="h-3.5 w-3.5" />
+                      )}
+                      {adding ? "Adding…" : "Add to trip"}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent align="start" className="w-48 p-2">
+                    <p className="mb-2 px-2 text-xs font-medium text-neutral-500">
+                      Choose a day
+                    </p>
+                    <div className="space-y-0.5">
+                      {days.map((day) => (
+                        <button
+                          key={day.id}
+                          type="button"
+                          onMouseDown={(e) => e.preventDefault()}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleAddToDay(day.id);
+                          }}
+                          disabled={adding}
+                          className="w-full rounded-lg px-2 py-1.5 text-left text-sm hover:bg-neutral-100"
+                        >
+                          Day {day.dayNumber}: {day.title}
+                        </button>
+                      ))}
+                    </div>
+                  </PopoverContent>
+                </Popover>
+              )
             ) : (
-              <Trash2 className="h-4 w-4" />
+              <span className="text-xs text-neutral-400">
+                Generate an itinerary to add this
+              </span>
             )}
-          </Button>
-        </div>
+
+            <Button
+              size="sm"
+              variant="ghost"
+              disabled={deleting}
+              onClick={(e) => {
+                e.stopPropagation();
+                handleDelete();
+              }}
+              className="ml-auto h-8 w-8 p-0 text-neutral-400 hover:text-red-600"
+              aria-label={deleting ? "Removing idea…" : "Remove idea"}
+            >
+              {deleting ? (
+                <Spinner size="sm" />
+              ) : (
+                <Trash2 className="h-4 w-4" />
+              )}
+            </Button>
+          </div>
         )}
       </div>
     </article>

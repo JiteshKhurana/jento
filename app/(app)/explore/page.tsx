@@ -1,12 +1,20 @@
 import { auth, currentUser } from "@clerk/nextjs/server";
 import { AppShell } from "@/components/layout/app-shell";
-import { ExploreView } from "@/components/explore/explore-view";
+import { ExplorePageView } from "@/components/explore/explore-page-view";
 import { prisma } from "@/lib/prisma";
-import { getSavedPlaceIdsForUser } from "@/lib/saved-places/service";
+import {
+  getSavedPlaceIdsForUser,
+  getSavedPlacesForUser,
+} from "@/lib/saved-places/service";
 
 export const dynamic = "force-dynamic";
 
-export default async function ExplorePage() {
+type PageProps = {
+  searchParams: Promise<{ tab?: string }>;
+};
+
+export default async function ExplorePage({ searchParams }: PageProps) {
+  const { tab } = await searchParams;
   const { userId: clerkId } = await auth();
   if (!clerkId) return null;
 
@@ -35,13 +43,16 @@ export default async function ExplorePage() {
     : [];
 
   const savedIds = user ? await getSavedPlaceIdsForUser(user.id) : [];
+  const savedPlaces = user ? await getSavedPlacesForUser(user.id) : [];
   const recentTrip = trips[0];
 
   return (
     <AppShell fullHeight className="overflow-hidden bg-background">
-      <ExploreView
+      <ExplorePageView
         trips={trips}
         initialSavedIds={savedIds}
+        initialSavedPlaces={savedPlaces}
+        initialTab={tab === "saved" ? "saved" : "explore"}
         defaultLocation={{
           name: recentTrip?.destination ?? "Paris",
           label: recentTrip?.destination ?? "Paris, France",

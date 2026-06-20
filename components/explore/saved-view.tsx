@@ -1,8 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Heart, Map as MapIcon } from "lucide-react";
 import { ExplorePlaceCard } from "@/components/explore/explore-place-card";
 import { PlaceDetailDialog } from "@/components/explore/place-detail-dialog";
@@ -18,7 +17,7 @@ const ExploreMap = dynamic(
   {
     ssr: false,
     loading: () => (
-      <div className="flex h-full items-center justify-center bg-neutral-100">
+      <div className="flex h-full items-center justify-center bg-secondary">
         <LoadingState label="Loading map…" />
       </div>
     ),
@@ -32,15 +31,36 @@ type SavedPlaceRecord = Parameters<
 type SavedViewProps = {
   trips: TripOption[];
   initialSavedPlaces: SavedPlaceRecord[];
+  onSwitchToExplore?: () => void;
 };
 
-export function SavedView({ trips, initialSavedPlaces }: SavedViewProps) {
+export function SavedView({
+  trips,
+  initialSavedPlaces,
+  onSwitchToExplore,
+}: SavedViewProps) {
   const [savedPlaces, setSavedPlaces] = useState<PlaceSearchResult[]>(() =>
     savedPlacesToSearchResults(initialSavedPlaces),
   );
   const [addedByPlace, setAddedByPlace] = useState<Map<string, Set<string>>>(
     new Map(),
   );
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function refreshSavedPlaces() {
+      const res = await fetch("/api/saved-places");
+      if (!res.ok || cancelled) return;
+      const data = (await res.json()) as SavedPlaceRecord[];
+      setSavedPlaces(savedPlacesToSearchResults(data));
+    }
+
+    void refreshSavedPlaces();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const [selectedPlace, setSelectedPlace] = useState<PlaceSearchResult | null>(
     null,
@@ -94,23 +114,26 @@ export function SavedView({ trips, initialSavedPlaces }: SavedViewProps) {
 
   const feedContent = (
     <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
-      <div className="shrink-0 border-b border-neutral-100 px-4 py-4 md:px-6">
-        <h1 className="text-xl font-bold text-neutral-900">Saved</h1>
-        <p className="mt-1 text-sm text-neutral-500">
-          Places you&apos;ve saved from Explore
-        </p>
-      </div>
-
       <div className="min-h-0 flex-1 overflow-y-auto px-4 py-4 md:px-6">
         {savedPlaces.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-16 text-center">
-            <Heart className="mb-3 h-10 w-10 text-neutral-200" />
-            <p className="text-sm font-medium text-neutral-700">
+            <Heart className="mb-3 h-10 w-10 text-muted-foreground/30" />
+            <p className="text-sm font-medium text-foreground">
               No saved places yet
             </p>
-            <Button variant="outline" size="sm" className="mt-4" asChild>
-              <Link href="/explore">Explore places</Link>
-            </Button>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Save places from Explore to see them here
+            </p>
+            {onSwitchToExplore && (
+              <Button
+                variant="outline"
+                size="sm"
+                className="mt-4"
+                onClick={onSwitchToExplore}
+              >
+                Explore places
+              </Button>
+            )}
           </div>
         ) : (
           <div className="grid grid-cols-2 gap-4 pb-6">
@@ -145,7 +168,7 @@ export function SavedView({ trips, initialSavedPlaces }: SavedViewProps) {
       <div className="flex min-h-0 flex-1 flex-col md:flex-row">
         <div
           className={cn(
-            "flex min-h-0 flex-col md:w-[58%] md:border-r md:border-neutral-200/80",
+            "flex min-h-0 flex-col md:w-[58%] md:border-r md:border-border",
             mobileView === "map" && "hidden md:flex",
           )}
         >
@@ -167,15 +190,15 @@ export function SavedView({ trips, initialSavedPlaces }: SavedViewProps) {
         </div>
       </div>
 
-      <div className="flex border-t border-neutral-200/80 bg-white p-2 md:hidden">
+      <div className="flex border-t border-border bg-card p-2 md:hidden">
         <button
           type="button"
           onClick={() => setMobileView("feed")}
           className={cn(
             "flex flex-1 items-center justify-center gap-2 rounded-xl py-2.5 text-sm font-medium",
             mobileView === "feed"
-              ? "bg-neutral-900 text-white"
-              : "text-neutral-600",
+              ? "bg-primary text-primary-foreground dark:bg-white dark:text-black"
+              : "text-muted-foreground",
           )}
         >
           <Heart className="h-4 w-4" />
@@ -187,8 +210,8 @@ export function SavedView({ trips, initialSavedPlaces }: SavedViewProps) {
           className={cn(
             "flex flex-1 items-center justify-center gap-2 rounded-xl py-2.5 text-sm font-medium",
             mobileView === "map"
-              ? "bg-neutral-900 text-white"
-              : "text-neutral-600",
+              ? "bg-primary text-primary-foreground dark:bg-white dark:text-black"
+              : "text-muted-foreground",
           )}
         >
           <MapIcon className="h-4 w-4" />

@@ -170,7 +170,7 @@ export function ExploreView({
       location.name,
       location.latitude,
       location.longitude,
-      activeCategory.query,
+      activeCategory,
       budget,
     ],
   );
@@ -393,7 +393,7 @@ export function ExploreView({
             size="sm"
             onClick={handleUseMyLocation}
             disabled={locating}
-            className="ml-auto text-muted-foreground"
+            className="ml-auto text-muted-foreground cursor-pointer"
           >
             <LocateFixed className="h-4 w-4" />
             {locating ? "Locating…" : "Near me"}

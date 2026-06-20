@@ -1,44 +1,5 @@
-import { auth, currentUser } from "@clerk/nextjs/server";
-import { AppShell } from "@/components/layout/app-shell";
-import { SavedView } from "@/components/explore/saved-view";
-import { prisma } from "@/lib/prisma";
-import { getSavedPlacesForUser } from "@/lib/saved-places/service";
+import { redirect } from "next/navigation";
 
-export const dynamic = "force-dynamic";
-
-export default async function SavedPage() {
-  const { userId: clerkId } = await auth();
-  if (!clerkId) return null;
-
-  let user = await prisma.user.findUnique({ where: { clerkId } });
-
-  if (!user) {
-    const clerkUser = await currentUser();
-    if (clerkUser) {
-      user = await prisma.user.create({
-        data: {
-          clerkId,
-          email: clerkUser.emailAddresses[0]?.emailAddress ?? null,
-          name: clerkUser.fullName ?? null,
-          profileImageUrl: clerkUser.imageUrl ?? null,
-        },
-      });
-    }
-  }
-
-  const trips = user
-    ? await prisma.trip.findMany({
-        where: { userId: user.id },
-        orderBy: { updatedAt: "desc" },
-        select: { id: true, title: true, destination: true },
-      })
-    : [];
-
-  const savedPlaces = user ? await getSavedPlacesForUser(user.id) : [];
-
-  return (
-    <AppShell fullHeight className="overflow-hidden bg-background">
-      <SavedView trips={trips} initialSavedPlaces={savedPlaces} />
-    </AppShell>
-  );
+export default function SavedPage() {
+  redirect("/explore?tab=saved");
 }

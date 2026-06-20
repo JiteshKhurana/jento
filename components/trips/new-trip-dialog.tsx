@@ -342,7 +342,8 @@ export function NewTripDialog({ open, onOpenChange }: NewTripDialogProps) {
           destination,
           isRoadTrip,
           timingMode: timingMode ?? "none",
-          flexibleDays: timingMode === "flexible" ? Number(flexibleDays) || 0 : 0,
+          flexibleDays:
+            timingMode === "flexible" ? Number(flexibleDays) || 0 : 0,
           hasStartDate: !!startDate,
           hasEndDate: !!endDate,
           travelerType: travelerType ?? "none",
@@ -417,21 +418,13 @@ export function NewTripDialog({ open, onOpenChange }: NewTripDialogProps) {
               )}
               priority
             />
-            <button
-              type="button"
-              onClick={() => onOpenChange(false)}
-              className="absolute left-4 top-4 flex h-9 w-9 items-center justify-center rounded-full bg-white/90 text-neutral-700 shadow-sm transition-colors hover:bg-white"
-              aria-label="Close"
-            >
-              <X className="h-4 w-4" />
-            </button>
           </div>
 
-          <div className="flex flex-col bg-white p-6 md:overflow-y-auto md:p-8">
+          <div className="relative flex flex-col bg-white p-6 md:overflow-y-auto md:p-8">
             <button
               type="button"
               onClick={() => onOpenChange(false)}
-              className="mb-4 ml-auto flex h-8 w-8 items-center justify-center rounded-full text-neutral-500 hover:bg-neutral-100 md:hidden"
+              className="absolute right-4 top-4 flex h-8 w-8 items-center justify-center rounded-full text-neutral-500 transition-colors hover:bg-neutral-100"
               aria-label="Close"
             >
               <X className="h-4 w-4" />
