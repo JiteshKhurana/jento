@@ -1,6 +1,29 @@
 @import "tailwindcss";
 @import "react-day-picker/style.css";
 
+/* Match react-day-picker range/selection colors to app neutrals (defaults are blue/lavender). */
+.rdp-root {
+  --rdp-accent-color: #171717;
+  --rdp-accent-background-color: #f5f5f5;
+  --rdp-range_start-date-background-color: #171717;
+  --rdp-range_end-date-background-color: #171717;
+  --rdp-range_middle-background-color: #f5f5f5;
+  --rdp-today-color: #171717;
+  --rdp-day_button-border-radius: 0.375rem;
+  --rdp-selected-border: 2px solid transparent;
+}
+
+.dark .rdp-root {
+  --rdp-accent-color: #ffffff;
+  --rdp-accent-background-color: #262626;
+  --rdp-range_start-date-background-color: #ffffff;
+  --rdp-range_end-date-background-color: #ffffff;
+  --rdp-range_middle-background-color: #262626;
+  --rdp-range_start-color: #000000;
+  --rdp-range_end-color: #000000;
+  --rdp-today-color: #ffffff;
+}
+
 @custom-variant dark (&:where(.dark, .dark *));
 
 :root {

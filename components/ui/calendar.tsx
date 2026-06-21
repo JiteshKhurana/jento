@@ -37,9 +37,12 @@ function Calendar({
         day_button: cn(
           "inline-flex h-9 w-9 items-center justify-center rounded-md p-0 font-normal aria-selected:opacity-100 hover:bg-neutral-100",
         ),
-        range_end: "day-range-end",
+        range_start:
+          "day-range-start [&_.rdp-day_button]:bg-neutral-900 [&_.rdp-day_button]:text-white [&_.rdp-day_button]:hover:bg-neutral-900 [&_.rdp-day_button]:hover:text-white",
+        range_end:
+          "day-range-end [&_.rdp-day_button]:bg-neutral-900 [&_.rdp-day_button]:text-white [&_.rdp-day_button]:hover:bg-neutral-900 [&_.rdp-day_button]:hover:text-white",
         selected:
-          "bg-neutral-900 text-white hover:bg-neutral-900 hover:text-white focus:bg-neutral-900 focus:text-white rounded-md",
+          "bg-neutral-900 text-white hover:bg-neutral-900 hover:text-white focus:bg-neutral-900 focus:text-white rounded-md [&_.rdp-day_button]:bg-neutral-900 [&_.rdp-day_button]:text-white",
         today: "bg-neutral-100 text-neutral-900",
         outside:
           "day-outside text-neutral-400 opacity-50 aria-selected:bg-neutral-100/50 aria-selected:text-neutral-400",
