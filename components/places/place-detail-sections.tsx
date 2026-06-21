@@ -7,7 +7,6 @@ import {
   DollarSign,
   Globe,
   MapPin,
-  Navigation,
   Phone,
   Star,
 } from "lucide-react";
@@ -30,6 +29,7 @@ export type PlaceInfoData = {
   phone?: string | null;
   website?: string | null;
   openingHours?: unknown;
+  openNow?: boolean | null;
   priceLevel?: string | null;
   reviews?: PlaceReview[];
   latitude?: number | null;
@@ -123,8 +123,9 @@ function OverviewSection({
   const description = overrideDescription;
   const hours = parseOpeningHours(info.openingHours);
   const priceLabel = info.priceLevel ? PRICE_LEVEL_MAP[info.priceLevel] : null;
+  const showHours = hours.length > 0 || info.openNow != null;
   const hasInfoRows =
-    priceLabel || info.phone || info.website || hours.length > 0;
+    priceLabel || info.phone || info.website || showHours;
 
   const websiteDisplay = info.website
     ? (() => {
@@ -175,22 +176,42 @@ function OverviewSection({
             </InfoRow>
           )}
 
-          {hours.length > 0 && (
+          {showHours && (
             <InfoRow icon={<Clock className="h-4 w-4" />} align="start">
-              <p className="font-medium text-neutral-900">Hours</p>
-              <ul className="mt-2 space-y-1 text-xs text-neutral-600">
-                {hours.map((h, i) => {
-                  const [day, ...rest] = h.split(": ");
-                  return (
-                    <li key={i} className="flex gap-2">
-                      <span className="w-24 shrink-0 font-medium text-neutral-700">
-                        {day}
-                      </span>
-                      <span>{rest.join(": ") || "Closed"}</span>
-                    </li>
-                  );
-                })}
-              </ul>
+              <div>
+                <div className="flex flex-wrap items-center gap-2">
+                  <p className="font-medium text-neutral-900">
+                    Hours of operation
+                  </p>
+                  {info.openNow != null && (
+                    <span
+                      className={cn(
+                        "rounded-full px-2 py-0.5 text-xs font-medium",
+                        info.openNow
+                          ? "bg-emerald-100 text-emerald-700"
+                          : "bg-neutral-200 text-neutral-600",
+                      )}
+                    >
+                      {info.openNow ? "Open now" : "Closed now"}
+                    </span>
+                  )}
+                </div>
+                {hours.length > 0 && (
+                  <ul className="mt-2 space-y-1 text-xs text-neutral-600">
+                    {hours.map((h, i) => {
+                      const [day, ...rest] = h.split(": ");
+                      return (
+                        <li key={i} className="flex gap-2">
+                          <span className="w-24 shrink-0 font-medium text-neutral-700">
+                            {day}
+                          </span>
+                          <span>{rest.join(": ") || "Closed"}</span>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                )}
+              </div>
             </InfoRow>
           )}
         </div>
@@ -334,18 +355,6 @@ function LocationSection({
         </div>
       ) : (
         <p className="text-sm text-neutral-400">No address on file.</p>
-      )}
-
-      {mapsUrl && (
-        <a
-          href={mapsUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="inline-flex items-center gap-1.5 text-sm font-medium text-teal-700 transition-colors hover:text-teal-800"
-        >
-          <Navigation className="h-4 w-4" />
-          Open in Google Maps
-        </a>
       )}
     </div>
   );

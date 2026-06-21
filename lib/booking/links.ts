@@ -9,7 +9,41 @@ type BookingContext = {
   latitude?: number | null;
   longitude?: number | null;
   placeName?: string;
+  website?: string | null;
 };
+
+export function isActivityItemType(type: string): boolean {
+  const t = type.toLowerCase();
+  return (
+    t === "activity" ||
+    t.includes("activity") ||
+    t.includes("tour") ||
+    t.includes("adventure")
+  );
+}
+
+export function resolveItemBookUrl(
+  type: ItemType | string,
+  title: string,
+  options: {
+    destination?: string;
+    bookingUrl?: string | null;
+    website?: string | null;
+    latitude?: number | null;
+    longitude?: number | null;
+  },
+): string | null {
+  const { destination = "", bookingUrl, website, latitude, longitude } =
+    options;
+
+  if (isActivityItemType(type)) {
+    if (website) return website;
+    if (bookingUrl) return bookingUrl;
+    return buildBookingUrl(type, title, { destination, latitude, longitude });
+  }
+
+  return bookingUrl ?? null;
+}
 
 /** Format a Date as DD/MM/YYYY for MakeMyTrip itinerary segments */
 function formatMMTDate(date: Date): string {
@@ -111,7 +145,10 @@ export function buildBookingUrl(
         return `https://www.google.com/maps/dir/?api=1&destination=${ctx.latitude},${ctx.longitude}`;
       }
       return `https://www.google.com/maps/search/?api=1&query=${query}`;
+    case "ACTIVITY":
+    case "activity":
     default:
+      if (ctx.website) return ctx.website;
       return `https://www.google.com/search?q=${query}`;
   }
 }

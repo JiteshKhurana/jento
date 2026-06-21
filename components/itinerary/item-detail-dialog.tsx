@@ -12,6 +12,7 @@ import {
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
+import { resolveItemBookUrl } from "@/lib/booking/links";
 import { buildGoogleMapsUrl, getPlacePhotoUrl, placeHasPhotos } from "@/lib/places/utils";
 import {
   PlaceInfoSections,
@@ -31,6 +32,7 @@ type FetchedPlaceDetails = {
   phone?: string | null;
   website?: string | null;
   openingHours?: unknown;
+  openNow?: boolean | null;
   priceLevel?: string | null;
 };
 
@@ -160,11 +162,20 @@ function ItemDetailDialogContent({
     phone: details?.phone,
     website: details?.website,
     openingHours: details?.openingHours,
+    openNow: details?.openNow,
     priceLevel: details?.priceLevel,
     reviews,
     latitude: lat,
     longitude: lng,
   };
+
+  const bookUrl = resolveItemBookUrl(item.type, item.title, {
+    destination,
+    bookingUrl: item.bookingUrl,
+    website: details?.website ?? item.placeCache?.website,
+    latitude: lat,
+    longitude: lng,
+  });
 
   return (
     <>
@@ -187,9 +198,9 @@ function ItemDetailDialogContent({
                   Directions
                 </a>
               )}
-              {item.bookingUrl && (
+              {bookUrl && (
                 <a
-                  href={item.bookingUrl}
+                  href={bookUrl}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-1.5 rounded-lg bg-neutral-900 px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-neutral-800"

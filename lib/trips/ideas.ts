@@ -128,6 +128,7 @@ export async function addIdeaToItinerary(
     latitude: idea.latitude,
     longitude: idea.longitude,
     placeName: idea.title,
+    website: idea.placeCache?.website,
   });
 
   const item = await prisma.itineraryItem.create({

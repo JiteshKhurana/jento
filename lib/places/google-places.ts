@@ -37,6 +37,7 @@ export type PlaceDetails = PlaceSearchResult & {
   phone?: string;
   website?: string;
   openingHours?: string[];
+  openNow?: boolean;
   priceLevel?: string;
   primaryTypeDisplayName?: string;
 };
@@ -139,7 +140,7 @@ export async function getPlaceDetails(
     headers: {
       "X-Goog-Api-Key": apiKey,
       "X-Goog-FieldMask":
-        "id,displayName,formattedAddress,location,rating,userRatingCount,photos,reviews,internationalPhoneNumber,regularOpeningHours,websiteUri,priceLevel,primaryTypeDisplayName",
+        "id,displayName,formattedAddress,location,rating,userRatingCount,photos,reviews,internationalPhoneNumber,currentOpeningHours,regularOpeningHours,websiteUri,priceLevel,primaryTypeDisplayName",
     },
   });
 
@@ -179,6 +180,10 @@ export async function getPlaceDetails(
     website: place.websiteUri ?? undefined,
     openingHours:
       place.regularOpeningHours?.weekdayDescriptions ?? undefined,
+    openNow:
+      place.currentOpeningHours?.openNow ??
+      place.regularOpeningHours?.openNow ??
+      undefined,
     priceLevel: place.priceLevel ?? undefined,
     primaryTypeDisplayName:
       place.primaryTypeDisplayName?.text ?? undefined,
@@ -277,13 +282,14 @@ export async function getOrFetchPlaceCache(
     !isStubPlaceCache(cached);
 
   if (cacheIsFresh) {
-    return cached;
+    const details = await getPlaceDetails(storageId);
+    return { ...cached, openNow: details?.openNow ?? null };
   }
 
   const details = await getPlaceDetails(storageId);
   if (!details) return cached ?? null;
 
-  return prisma.placeCache.upsert({
+  const place = await prisma.placeCache.upsert({
     where: { googlePlaceId: storageId },
     update: {
       name: details.name,
@@ -316,4 +322,6 @@ export async function getOrFetchPlaceCache(
       priceLevel: details.priceLevel,
     },
   });
+
+  return { ...place, openNow: details.openNow ?? null };
 }

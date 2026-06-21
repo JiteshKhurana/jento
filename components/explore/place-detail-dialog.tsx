@@ -29,6 +29,7 @@ type PlaceDetails = PlaceSearchResult & {
   phone?: string | null;
   website?: string | null;
   openingHours?: unknown;
+  openNow?: boolean | null;
   priceLevel?: string | null;
 };
 
@@ -128,6 +129,7 @@ export function PlaceDetailDialog({
     phone: details?.phone,
     website: details?.website,
     openingHours: details?.openingHours,
+    openNow: details?.openNow,
     priceLevel: details?.priceLevel,
     reviews,
     latitude: display.latitude,

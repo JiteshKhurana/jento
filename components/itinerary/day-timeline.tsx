@@ -52,6 +52,7 @@ import { cn } from "@/lib/utils";
 import { ItemEditor } from "@/components/itinerary/item-editor";
 import { DayAudioButton } from "@/components/itinerary/day-audio-button";
 import { buildGoogleMapsUrl, buildStaticMapUrl, placeHasPhotos } from "@/lib/places/utils";
+import { resolveItemBookUrl } from "@/lib/booking/links";
 
 export type ItineraryItemData = {
   id: string;
@@ -75,6 +76,7 @@ export type ItineraryItemData = {
     photos?: unknown;
     latitude?: number | null;
     longitude?: number | null;
+    website?: string | null;
   } | null;
 };
 
@@ -195,6 +197,7 @@ function resolveImageUrl(
 type ItemBlockProps = {
   item: ItineraryItemData;
   tripId: string;
+  destination?: string;
   onUpdate?: () => void;
   onSelectItem?: (itemId: string) => void;
   dragHandleProps?: React.HTMLAttributes<HTMLButtonElement>;
@@ -204,6 +207,7 @@ type ItemBlockProps = {
 function ItemBlock({
   item,
   tripId,
+  destination,
   onUpdate,
   onSelectItem,
   dragHandleProps,
@@ -255,6 +259,14 @@ function ItemBlock({
     googlePlaceId: item.googlePlaceId ?? item.placeCache?.googlePlaceId,
     name: item.title || item.placeCache?.name,
     address: item.placeCache?.address,
+    latitude: item.latitude,
+    longitude: item.longitude,
+  });
+
+  const bookUrl = resolveItemBookUrl(item.type, item.title, {
+    destination,
+    bookingUrl: item.bookingUrl,
+    website: item.placeCache?.website,
     latitude: item.latitude,
     longitude: item.longitude,
   });
@@ -390,7 +402,7 @@ function ItemBlock({
         </div>
 
         {/* Quick actions */}
-        {(mapsUrl || item.bookingUrl) && (
+        {(mapsUrl || bookUrl) && (
           <div
             className="mt-2.5 flex items-center gap-2 border-t border-neutral-100 pt-2"
             onClick={(e) => e.stopPropagation()}
@@ -406,9 +418,9 @@ function ItemBlock({
                 Directions
               </a>
             )}
-            {item.bookingUrl && (
+            {bookUrl && (
               <a
-                href={item.bookingUrl}
+                href={bookUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center gap-1 rounded-lg bg-neutral-100 px-2.5 py-1.5 text-[11px] font-medium text-neutral-700 transition-colors hover:bg-neutral-200"
@@ -645,6 +657,7 @@ type DayItemsProps = {
   day: ItineraryDayData;
   tripId: string;
   dayColor: string;
+  destination?: string;
   onUpdate?: () => void;
   onSelectItem?: (itemId: string) => void;
   sortable: boolean;
@@ -655,6 +668,7 @@ function DayItems({
   day,
   tripId,
   dayColor,
+  destination,
   onUpdate,
   onSelectItem,
   sortable,
@@ -769,6 +783,7 @@ function DayItems({
                   <SortableItem
                     item={item}
                     tripId={tripId}
+                    destination={destination}
                     onUpdate={onUpdate}
                     onSelectItem={onSelectItem}
                     readOnly={readOnly}
@@ -777,6 +792,7 @@ function DayItems({
                   <ItemBlock
                     item={item}
                     tripId={tripId}
+                    destination={destination}
                     onUpdate={onUpdate}
                     onSelectItem={onSelectItem}
                     readOnly={readOnly}
@@ -930,6 +946,7 @@ export function DayTimeline({
               day={day}
               tripId={tripId}
               dayColor={getDayColor(day.dayNumber)}
+              destination={destination}
               onUpdate={onUpdate}
               onSelectItem={onSelectItem}
               sortable={mounted && !readOnly}

@@ -96,6 +96,7 @@ export async function saveItineraryToDb(
                       latitude,
                       longitude,
                       placeName: item.title,
+                      website: resolved?.website,
                     },
                   );
 
@@ -213,6 +214,7 @@ export async function updateItineraryDayInDb(
                     endDate: tripContext.endDate,
                     latitude,
                     longitude,
+                    website: resolved?.website,
                   },
                 ),
               };
