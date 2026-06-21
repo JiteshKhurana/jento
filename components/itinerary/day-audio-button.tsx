@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
-import { Loader2, Square, Volume2 } from "lucide-react";
+import { Headphones, Loader2, Square } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 type DayAudioButtonProps = {
@@ -104,12 +104,8 @@ export function DayAudioButton({
     <button
       type="button"
       onClick={play}
-      aria-label={
-        state === "playing"
-          ? "Stop reading day summary"
-          : "Listen to day summary"
-      }
-      title={state === "playing" ? "Stop" : "Listen to this day"}
+      aria-label={state === "playing" ? "Stop" : "Listen"}
+      title={state === "playing" ? "Stop" : "Listen"}
       className={cn(
         "flex h-8 w-8 shrink-0 cursor-pointer items-center justify-center rounded-full bg-white/80 shadow-sm backdrop-blur-sm transition-all hover:scale-105 hover:bg-white",
         state === "playing" && "animate-pulse",
@@ -121,7 +117,7 @@ export function DayAudioButton({
       ) : state === "playing" ? (
         <Square className="h-3.5 w-3.5 fill-current" />
       ) : (
-        <Volume2 className="h-4 w-4" />
+        <Headphones className="h-4 w-4" />
       )}
     </button>
   );
