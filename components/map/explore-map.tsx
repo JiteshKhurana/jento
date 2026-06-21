@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { PlaceSearchResult } from "@/lib/places/google-places";
+import { ExploreMapMarkers } from "@/components/map/explore-map-markers";
 import { MapControls } from "@/components/map/map-controls";
 
 type ExploreMapProps = {
@@ -64,7 +65,6 @@ export function ExploreMap({
   const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
   const mapRef = useRef<HTMLDivElement>(null);
   const googleMapRef = useRef<google.maps.Map | null>(null);
-  const markersRef = useRef<google.maps.Marker[]>([]);
   const [googleMap, setGoogleMap] = useState<google.maps.Map | null>(null);
   const [mapReady, setMapReady] = useState(false);
   const [mapError, setMapError] = useState<string | null>(null);
@@ -75,14 +75,20 @@ export function ExploreMap({
 
   const placesWithCoords = useMemo(
     () =>
-      places.filter(
-        (
-          place,
-        ): place is PlaceSearchResult & {
-          latitude: number;
-          longitude: number;
-        } => place.latitude != null && place.longitude != null,
-      ),
+      places
+        .filter(
+          (
+            place,
+          ): place is PlaceSearchResult & {
+            latitude: number;
+            longitude: number;
+          } => place.latitude != null && place.longitude != null,
+        )
+        .map((place) => ({
+          ...place,
+          lat: place.latitude,
+          lng: place.longitude,
+        })),
     [places],
   );
 
@@ -127,7 +133,7 @@ export function ExploreMap({
 
         const firstPlace = placesWithCoords[0];
         const defaultCenter = firstPlace
-          ? { lat: firstPlace.latitude, lng: firstPlace.longitude }
+          ? { lat: firstPlace.lat, lng: firstPlace.lng }
           : (destinationCenter ?? { lat: 20, lng: 0 });
 
         const map = new mapsLib.Map(mapRef.current, {
@@ -137,6 +143,7 @@ export function ExploreMap({
           streetViewControl: false,
           fullscreenControl: false,
           zoomControl: false,
+          clickableIcons: false,
         });
         googleMapRef.current = map;
         setGoogleMap(map);
@@ -162,9 +169,6 @@ export function ExploreMap({
   useEffect(() => {
     if (!googleMapRef.current || !mapReady) return;
 
-    markersRef.current.forEach((marker) => marker.setMap(null));
-    markersRef.current = [];
-
     if (placesWithCoords.length === 0) {
       if (destinationCenter) {
         googleMapRef.current.setCenter(destinationCenter);
@@ -174,44 +178,20 @@ export function ExploreMap({
     }
 
     const bounds = new google.maps.LatLngBounds();
-
     placesWithCoords.forEach((place) => {
-      const isSelected = place.googlePlaceId === selectedPlaceId;
-      const marker = new google.maps.Marker({
-        position: { lat: place.latitude, lng: place.longitude },
-        map: googleMapRef.current!,
-        title: place.name,
-        icon: {
-          path: google.maps.SymbolPath.CIRCLE,
-          scale: isSelected ? 12 : 9,
-          fillColor: isSelected ? "#171717" : "#0d9488",
-          fillOpacity: 1,
-          strokeColor: "white",
-          strokeWeight: 2,
-        },
-      });
-
-      marker.addListener("click", () => onSelectPlace?.(place.googlePlaceId));
-      markersRef.current.push(marker);
-      bounds.extend(marker.getPosition()!);
+      bounds.extend({ lat: place.lat, lng: place.lng });
     });
 
     if (placesWithCoords.length > 1) {
-      googleMapRef.current.fitBounds(bounds, 60);
+      googleMapRef.current.fitBounds(bounds, 80);
     } else {
       googleMapRef.current.setCenter({
-        lat: placesWithCoords[0].latitude,
-        lng: placesWithCoords[0].longitude,
+        lat: placesWithCoords[0].lat,
+        lng: placesWithCoords[0].lng,
       });
       googleMapRef.current.setZoom(14);
     }
-  }, [
-    placesWithCoords,
-    mapReady,
-    destinationCenter,
-    selectedPlaceId,
-    onSelectPlace,
-  ]);
+  }, [placesWithCoords, mapReady, destinationCenter]);
 
   useEffect(() => {
     if (!selectedPlaceId || !googleMapRef.current) return;
@@ -219,7 +199,7 @@ export function ExploreMap({
       (p) => p.googlePlaceId === selectedPlaceId,
     );
     if (place) {
-      googleMapRef.current.panTo({ lat: place.latitude, lng: place.longitude });
+      googleMapRef.current.panTo({ lat: place.lat, lng: place.lng });
       googleMapRef.current.setZoom(15);
     }
   }, [selectedPlaceId, placesWithCoords]);
@@ -241,14 +221,25 @@ export function ExploreMap({
   }
 
   return (
-    <div className="relative h-full w-full">
+    <div className="relative h-full w-full overflow-hidden">
       {!mapReady && (
-        <div className="absolute inset-0 z-10 flex items-center justify-center bg-zinc-100">
+        <div className="absolute inset-0 z-20 flex items-center justify-center bg-zinc-100">
           <p className="text-sm text-zinc-500">Loading map...</p>
         </div>
       )}
       <div ref={mapRef} className="h-full w-full" />
-      {googleMap && mapReady && <MapControls map={googleMap} />}
+      {googleMap && mapReady && (
+        <>
+          <ExploreMapMarkers
+            map={googleMap}
+            places={placesWithCoords}
+            destination={destination}
+            selectedPlaceId={selectedPlaceId}
+            onSelectPlace={onSelectPlace}
+          />
+          <MapControls map={googleMap} />
+        </>
+      )}
     </div>
   );
 }

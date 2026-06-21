@@ -108,3 +108,14 @@ export function getMapItemLocation(
   }
   return destination?.trim() || null;
 }
+
+export function getPlaceCategoryFromAddress(address?: string): MapItemCategory {
+  const lower = (address ?? "").toLowerCase();
+  if (lower.includes("hotel") || lower.includes("resort")) {
+    return getMapItemCategory("stay");
+  }
+  if (lower.includes("restaurant") || lower.includes("cafe")) {
+    return getMapItemCategory("restaurant");
+  }
+  return getMapItemCategory("attraction");
+}

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Heart, MapPin, Star, X } from "lucide-react";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -8,6 +8,7 @@ import { Spinner } from "@/components/ui/spinner";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 import { buildGoogleMapsUrl, getPlacePhotoUrl } from "@/lib/places/utils";
+import { PlacePhotoCarousel } from "@/components/places/place-photo-carousel";
 import {
   AddToTripPicker,
   type TripOption,
@@ -106,10 +107,20 @@ export function PlaceDetailDialog({
     };
   }, [open, place]);
 
+  const photoUrls = useMemo(
+    () =>
+      place
+        ? [0, 1, 2, 3, 4].flatMap((index) => {
+            const url = getPlacePhotoUrl(place.googlePlaceId, index);
+            return url ? [url] : [];
+          })
+        : [],
+    [place?.googlePlaceId],
+  );
+
   if (!place) return null;
 
   const display = details ?? place;
-  const photoIndices = [0, 1, 2, 3, 4];
   const reviews = details?.reviews ?? [];
   const categoryLabel = guessCategory(display.address);
 
@@ -218,53 +229,17 @@ export function PlaceDetailDialog({
               </span>
             </div>
 
-            <div className="mt-4 grid grid-cols-3 gap-2">
+            <div className="mt-4 overflow-hidden rounded-2xl">
               {loading ? (
-                <>
-                  <Skeleton className="col-span-2 row-span-2 aspect-4/5 rounded-2xl" />
-                  {Array.from({ length: 4 }).map((_, i) => (
-                    <Skeleton key={i} className="aspect-square rounded-xl" />
-                  ))}
-                </>
+                <Skeleton className="aspect-4/3 w-full rounded-2xl" />
               ) : (
-                <>
-                  <div className="col-span-2 row-span-2 overflow-hidden rounded-2xl bg-neutral-100">
-                    {getPlacePhotoUrl(place.googlePlaceId, 0) ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img
-                        src={getPlacePhotoUrl(place.googlePlaceId, 0)!}
-                        alt={place.name}
-                        className="h-full w-full object-cover"
-                      />
-                    ) : (
-                      <div className="flex h-full min-h-48 items-center justify-center">
-                        <MapPin className="h-10 w-10 text-neutral-300" />
-                      </div>
-                    )}
-                  </div>
-                  {photoIndices.slice(1).map((index) => {
-                    const url = getPlacePhotoUrl(place.googlePlaceId, index);
-                    return (
-                      <div
-                        key={index}
-                        className="overflow-hidden rounded-xl bg-neutral-100"
-                      >
-                        {url ? (
-                          // eslint-disable-next-line @next/next/no-img-element
-                          <img
-                            src={url}
-                            alt=""
-                            className="aspect-square w-full object-cover"
-                          />
-                        ) : (
-                          <div className="flex aspect-square items-center justify-center">
-                            <MapPin className="h-5 w-5 text-neutral-300" />
-                          </div>
-                        )}
-                      </div>
-                    );
-                  })}
-                </>
+                <PlacePhotoCarousel
+                  key={photoUrls.join("|")}
+                  photos={photoUrls}
+                  title={place.name}
+                  FallbackIcon={MapPin}
+                  className="rounded-2xl"
+                />
               )}
             </div>
 

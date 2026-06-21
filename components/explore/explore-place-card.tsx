@@ -1,10 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Heart, MapPin, Star } from "lucide-react";
 import { Spinner } from "@/components/ui/spinner";
 import { cn } from "@/lib/utils";
 import { getPlacePhotoUrl } from "@/lib/places/utils";
+import { PlacePhotoCarousel } from "@/components/places/place-photo-carousel";
 import { AddToTripPicker, type TripOption } from "@/components/explore/add-to-trip-picker";
 import type { PlaceSearchResult } from "@/lib/places/google-places";
 
@@ -43,7 +44,14 @@ export function ExplorePlaceCard({
   onSelect,
 }: ExplorePlaceCardProps) {
   const [saving, setSaving] = useState(false);
-  const imageUrl = getPlacePhotoUrl(place.googlePlaceId);
+  const photoUrls = useMemo(
+    () =>
+      [0, 1, 2, 3, 4].flatMap((index) => {
+        const url = getPlacePhotoUrl(place.googlePlaceId, index);
+        return url ? [url] : [];
+      }),
+    [place.googlePlaceId],
+  );
   const locationParts = place.address?.split(",").slice(-2).join(",").trim();
   const reviewLabel = formatReviewCount(place.reviewCount);
 
@@ -66,19 +74,12 @@ export function ExplorePlaceCard({
       tabIndex={0}
     >
       <div className="relative overflow-hidden rounded-2xl bg-neutral-100">
-        {imageUrl ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={imageUrl}
-            alt={place.name}
-            className="aspect-[4/3] w-full object-cover transition-transform duration-300 group-hover:scale-[1.02]"
-            loading="lazy"
-          />
-        ) : (
-          <div className="flex aspect-[4/3] w-full items-center justify-center bg-linear-to-br from-neutral-100 to-neutral-200/60">
-            <MapPin className="h-8 w-8 text-neutral-300" />
-          </div>
-        )}
+        <PlacePhotoCarousel
+          photos={photoUrls}
+          title={place.name}
+          FallbackIcon={MapPin}
+          imageClassName="transition-transform duration-300 group-hover:scale-[1.02]"
+        />
 
         <div className="absolute right-2 top-2 flex gap-1.5">
           <button

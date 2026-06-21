@@ -502,7 +502,7 @@ export function ExploreView({
 
         <div
           className={cn(
-            "relative min-h-[50vh] flex-1 md:min-h-0",
+            "relative min-h-[50vh] flex-1 overflow-hidden md:min-h-0",
             mobileView === "map" ? "block" : "hidden md:block",
           )}
         >
