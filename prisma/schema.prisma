@@ -129,7 +129,6 @@ model PlaceCache {
   website          String?
   openingHours     Json?
   priceLevel       String?
-  editorialSummary String?         @db.Text
   lastFetchedAt    DateTime        @default(now())
   items            ItineraryItem[]
   ideas            TripIdea[]

@@ -1,11 +1,10 @@
 "use client";
 
 import {
-  ChevronDown,
-  ChevronUp,
   Clock,
   Copy,
   Check,
+  DollarSign,
   Globe,
   MapPin,
   Navigation,
@@ -32,7 +31,6 @@ export type PlaceInfoData = {
   website?: string | null;
   openingHours?: unknown;
   priceLevel?: string | null;
-  editorialSummary?: string | null;
   reviews?: PlaceReview[];
   latitude?: number | null;
   longitude?: number | null;
@@ -47,12 +45,12 @@ type PlaceInfoSectionsProps = {
   categoryLabel?: string;
 };
 
-const PRICE_LEVEL_MAP: Record<string, { symbol: string; label: string }> = {
-  PRICE_LEVEL_FREE: { symbol: "Free", label: "Free" },
-  PRICE_LEVEL_INEXPENSIVE: { symbol: "$", label: "Inexpensive" },
-  PRICE_LEVEL_MODERATE: { symbol: "$$", label: "Moderate" },
-  PRICE_LEVEL_EXPENSIVE: { symbol: "$$$", label: "Expensive" },
-  PRICE_LEVEL_VERY_EXPENSIVE: { symbol: "$$$$", label: "Very expensive" },
+const PRICE_LEVEL_MAP: Record<string, string> = {
+  PRICE_LEVEL_FREE: "Free",
+  PRICE_LEVEL_INEXPENSIVE: "Inexpensive",
+  PRICE_LEVEL_MODERATE: "Moderate",
+  PRICE_LEVEL_EXPENSIVE: "Expensive",
+  PRICE_LEVEL_VERY_EXPENSIVE: "Very expensive",
 };
 
 function parseOpeningHours(hours: unknown): string[] {
@@ -85,13 +83,27 @@ function StarDisplay({ rating }: { rating: number }) {
 function InfoRow({
   icon,
   children,
+  align = "center",
 }: {
   icon: React.ReactNode;
   children: React.ReactNode;
+  align?: "start" | "center";
 }) {
   return (
-    <div className="flex items-start gap-3">
-      <span className="mt-0.5 shrink-0 text-neutral-400">{icon}</span>
+    <div
+      className={cn(
+        "flex gap-3",
+        align === "start" ? "items-start" : "items-center",
+      )}
+    >
+      <span
+        className={cn(
+          "shrink-0 text-neutral-400",
+          align === "start" && "mt-0.5",
+        )}
+      >
+        {icon}
+      </span>
       <div className="min-w-0 flex-1 text-sm text-neutral-700">{children}</div>
     </div>
   );
@@ -108,12 +120,11 @@ function OverviewSection({
   destination: string;
   categoryLabel?: string;
 }) {
-  const [hoursExpanded, setHoursExpanded] = useState(false);
-
-  const description = overrideDescription ?? info.editorialSummary;
+  const description = overrideDescription;
   const hours = parseOpeningHours(info.openingHours);
-  const priceInfo = info.priceLevel ? PRICE_LEVEL_MAP[info.priceLevel] : null;
-  const hasInfoRows = priceInfo || info.phone || info.website || hours.length > 0;
+  const priceLabel = info.priceLevel ? PRICE_LEVEL_MAP[info.priceLevel] : null;
+  const hasInfoRows =
+    priceLabel || info.phone || info.website || hours.length > 0;
 
   const websiteDisplay = info.website
     ? (() => {
@@ -134,18 +145,9 @@ function OverviewSection({
 
       {hasInfoRows && (
         <div className="space-y-3 rounded-xl border border-neutral-100 bg-neutral-50/70 px-4 py-3.5">
-          {priceInfo && (
-            <InfoRow
-              icon={
-                <span className="text-xs font-bold leading-none">
-                  {priceInfo.symbol.length <= 2 ? priceInfo.symbol : "$"}
-                </span>
-              }
-            >
-              <span className="font-medium text-neutral-900">
-                {priceInfo.symbol}
-              </span>
-              <span className="ml-2 text-neutral-500">{priceInfo.label}</span>
+          {priceLabel && (
+            <InfoRow icon={<DollarSign className="h-4 w-4" />}>
+              <span className="font-medium text-neutral-900">{priceLabel}</span>
             </InfoRow>
           )}
 
@@ -174,34 +176,21 @@ function OverviewSection({
           )}
 
           {hours.length > 0 && (
-            <InfoRow icon={<Clock className="h-4 w-4" />}>
-              <button
-                type="button"
-                onClick={() => setHoursExpanded((v) => !v)}
-                className="flex items-center gap-1 font-medium text-neutral-900 hover:text-neutral-700"
-              >
-                Hours
-                {hoursExpanded ? (
-                  <ChevronUp className="h-3.5 w-3.5 text-neutral-400" />
-                ) : (
-                  <ChevronDown className="h-3.5 w-3.5 text-neutral-400" />
-                )}
-              </button>
-              {hoursExpanded && (
-                <ul className="mt-2 space-y-1 text-xs text-neutral-600">
-                  {hours.map((h, i) => {
-                    const [day, ...rest] = h.split(": ");
-                    return (
-                      <li key={i} className="flex gap-2">
-                        <span className="w-24 shrink-0 font-medium text-neutral-700">
-                          {day}
-                        </span>
-                        <span>{rest.join(": ") || "Closed"}</span>
-                      </li>
-                    );
-                  })}
-                </ul>
-              )}
+            <InfoRow icon={<Clock className="h-4 w-4" />} align="start">
+              <p className="font-medium text-neutral-900">Hours</p>
+              <ul className="mt-2 space-y-1 text-xs text-neutral-600">
+                {hours.map((h, i) => {
+                  const [day, ...rest] = h.split(": ");
+                  return (
+                    <li key={i} className="flex gap-2">
+                      <span className="w-24 shrink-0 font-medium text-neutral-700">
+                        {day}
+                      </span>
+                      <span>{rest.join(": ") || "Closed"}</span>
+                    </li>
+                  );
+                })}
+              </ul>
             </InfoRow>
           )}
         </div>
@@ -327,7 +316,7 @@ function LocationSection({
             <button
               type="button"
               onClick={handleCopy}
-              className="mt-1 flex items-center gap-1 text-xs text-neutral-400 transition-colors hover:text-neutral-600"
+              className="mt-1 flex items-center gap-1 text-xs text-neutral-400 transition-colors hover:text-neutral-600 cursor-pointer"
             >
               {copied ? (
                 <>

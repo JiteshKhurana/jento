@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
-import { getPlacePhotoUrl } from "@/lib/places/utils";
+import { buildGoogleMapsUrl, getPlacePhotoUrl } from "@/lib/places/utils";
 import {
   AddToTripPicker,
   type TripOption,
@@ -30,7 +30,6 @@ type PlaceDetails = PlaceSearchResult & {
   website?: string | null;
   openingHours?: unknown;
   priceLevel?: string | null;
-  editorialSummary?: string | null;
 };
 
 type PlaceDetailDialogProps = {
@@ -113,10 +112,13 @@ export function PlaceDetailDialog({
   const reviews = details?.reviews ?? [];
   const categoryLabel = guessCategory(display.address);
 
-  const mapsUrl =
-    display.latitude != null && display.longitude != null
-      ? `https://www.google.com/maps/search/?api=1&query=${display.latitude},${display.longitude}`
-      : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(display.name)}`;
+  const mapsUrl = buildGoogleMapsUrl({
+    googlePlaceId: place.googlePlaceId,
+    name: display.name,
+    address: display.address,
+    latitude: display.latitude,
+    longitude: display.longitude,
+  });
 
   const placeInfo: PlaceInfoData = {
     name: display.name,
@@ -127,7 +129,6 @@ export function PlaceDetailDialog({
     website: details?.website,
     openingHours: details?.openingHours,
     priceLevel: details?.priceLevel,
-    editorialSummary: details?.editorialSummary,
     reviews,
     latitude: display.latitude,
     longitude: display.longitude,
@@ -272,7 +273,7 @@ export function PlaceDetailDialog({
                   type="button"
                   onClick={() => setActiveTab(tab)}
                   className={cn(
-                    "pb-3 text-sm font-medium capitalize transition-colors",
+                    "cursor-pointer pb-3 text-sm font-medium capitalize transition-colors",
                     activeTab === tab
                       ? "border-b-2 border-neutral-900 text-neutral-900"
                       : "text-neutral-400 hover:text-neutral-600",

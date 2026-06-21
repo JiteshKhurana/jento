@@ -38,7 +38,6 @@ export type PlaceDetails = PlaceSearchResult & {
   website?: string;
   openingHours?: string[];
   priceLevel?: string;
-  editorialSummary?: string;
   primaryTypeDisplayName?: string;
 };
 
@@ -140,7 +139,7 @@ export async function getPlaceDetails(
     headers: {
       "X-Goog-Api-Key": apiKey,
       "X-Goog-FieldMask":
-        "id,displayName,formattedAddress,location,rating,userRatingCount,photos,reviews,internationalPhoneNumber,regularOpeningHours,websiteUri,priceLevel,primaryTypeDisplayName,editorialSummary",
+        "id,displayName,formattedAddress,location,rating,userRatingCount,photos,reviews,internationalPhoneNumber,regularOpeningHours,websiteUri,priceLevel,primaryTypeDisplayName",
     },
   });
 
@@ -181,7 +180,6 @@ export async function getPlaceDetails(
     openingHours:
       place.regularOpeningHours?.weekdayDescriptions ?? undefined,
     priceLevel: place.priceLevel ?? undefined,
-    editorialSummary: place.editorialSummary?.text ?? undefined,
     primaryTypeDisplayName:
       place.primaryTypeDisplayName?.text ?? undefined,
   };
@@ -300,7 +298,6 @@ export async function getOrFetchPlaceCache(
       website: details.website,
       openingHours: details.openingHours ?? [],
       priceLevel: details.priceLevel,
-      editorialSummary: details.editorialSummary,
       lastFetchedAt: new Date(),
     },
     create: {
@@ -317,7 +314,6 @@ export async function getOrFetchPlaceCache(
       website: details.website,
       openingHours: details.openingHours ?? [],
       priceLevel: details.priceLevel,
-      editorialSummary: details.editorialSummary,
     },
   });
 }

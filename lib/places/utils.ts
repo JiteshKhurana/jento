@@ -50,3 +50,36 @@ export function resolveItemCoordinates(
   if (lat == null || lng == null) return null;
   return { lat, lng };
 }
+
+type GoogleMapsUrlOptions = {
+  googlePlaceId?: string | null;
+  name?: string | null;
+  address?: string | null;
+  latitude?: number | null;
+  longitude?: number | null;
+};
+
+export function buildGoogleMapsUrl({
+  googlePlaceId,
+  name,
+  address,
+  latitude,
+  longitude,
+}: GoogleMapsUrlOptions): string | null {
+  if (googlePlaceId) {
+    const query = encodeURIComponent(name || address || "Place");
+    const placeId = encodeURIComponent(toStoragePlaceId(googlePlaceId));
+    return `https://www.google.com/maps/search/?api=1&query=${query}&query_place_id=${placeId}`;
+  }
+
+  const textQuery = name || address;
+  if (textQuery) {
+    return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(textQuery)}`;
+  }
+
+  if (latitude != null && longitude != null) {
+    return `https://www.google.com/maps/search/?api=1&query=${latitude},${longitude}`;
+  }
+
+  return null;
+}

@@ -51,7 +51,7 @@ import { Spinner } from "@/components/ui/spinner";
 import { cn } from "@/lib/utils";
 import { ItemEditor } from "@/components/itinerary/item-editor";
 import { DayAudioButton } from "@/components/itinerary/day-audio-button";
-import { buildStaticMapUrl, placeHasPhotos } from "@/lib/places/utils";
+import { buildGoogleMapsUrl, buildStaticMapUrl, placeHasPhotos } from "@/lib/places/utils";
 
 export type ItineraryItemData = {
   id: string;
@@ -251,12 +251,13 @@ function ItemBlock({
     onUpdate?.();
   }
 
-  const mapsUrl =
-    item.latitude != null && item.longitude != null
-      ? `https://www.google.com/maps/search/?api=1&query=${item.latitude},${item.longitude}`
-      : item.placeCache?.name
-        ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(item.placeCache.name)}`
-        : null;
+  const mapsUrl = buildGoogleMapsUrl({
+    googlePlaceId: item.googlePlaceId ?? item.placeCache?.googlePlaceId,
+    name: item.title || item.placeCache?.name,
+    address: item.placeCache?.address,
+    latitude: item.latitude,
+    longitude: item.longitude,
+  });
 
   if (editing && !readOnly) {
     return (
