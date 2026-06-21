@@ -23,7 +23,6 @@ import {
   ExternalLink,
   Navigation,
   GripVertical,
-  Star,
   MapPin,
   BedDouble,
   UtensilsCrossed,
@@ -51,7 +50,11 @@ import { Spinner } from "@/components/ui/spinner";
 import { cn } from "@/lib/utils";
 import { ItemEditor } from "@/components/itinerary/item-editor";
 import { DayAudioButton } from "@/components/itinerary/day-audio-button";
-import { buildGoogleMapsUrl, buildStaticMapUrl, placeHasPhotos } from "@/lib/places/utils";
+import {
+  buildStaticMapUrl,
+  placeHasPhotos,
+  resolveItemCoordinates,
+} from "@/lib/places/utils";
 import { resolveItemBookUrl } from "@/lib/booking/links";
 
 export type ItineraryItemData = {
@@ -194,6 +197,59 @@ function resolveImageUrl(
   return null;
 }
 
+function haversineDistance(
+  lat1: number,
+  lng1: number,
+  lat2: number,
+  lng2: number,
+): number {
+  const R = 6371;
+  const dLat = ((lat2 - lat1) * Math.PI) / 180;
+  const dLng = ((lng2 - lng1) * Math.PI) / 180;
+  const a =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos((lat1 * Math.PI) / 180) *
+      Math.cos((lat2 * Math.PI) / 180) *
+      Math.sin(dLng / 2) ** 2;
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+}
+
+function buildDirectionsUrl(
+  from: ItineraryItemData,
+  to: ItineraryItemData,
+): string | null {
+  const fromCoords = resolveItemCoordinates(from);
+  const toCoords = resolveItemCoordinates(to);
+  const params = new URLSearchParams({ api: "1" });
+
+  const fromPlaceId = from.googlePlaceId ?? from.placeCache?.googlePlaceId;
+  if (fromPlaceId) {
+    params.set("origin", from.title || from.placeCache?.name || "");
+    params.set("origin_place_id", fromPlaceId.replace(/^places\//, ""));
+  } else if (fromCoords) {
+    params.set("origin", `${fromCoords.lat},${fromCoords.lng}`);
+  } else {
+    const text =
+      from.title || from.placeCache?.name || from.placeCache?.address;
+    if (!text) return null;
+    params.set("origin", text);
+  }
+
+  const toPlaceId = to.googlePlaceId ?? to.placeCache?.googlePlaceId;
+  if (toPlaceId) {
+    params.set("destination", to.title || to.placeCache?.name || "");
+    params.set("destination_place_id", toPlaceId.replace(/^places\//, ""));
+  } else if (toCoords) {
+    params.set("destination", `${toCoords.lat},${toCoords.lng}`);
+  } else {
+    const text = to.title || to.placeCache?.name || to.placeCache?.address;
+    if (!text) return null;
+    params.set("destination", text);
+  }
+
+  return `https://www.google.com/maps/dir/?${params}`;
+}
+
 type ItemBlockProps = {
   item: ItineraryItemData;
   tripId: string;
@@ -254,14 +310,6 @@ function ItemBlock({
     }
     onUpdate?.();
   }
-
-  const mapsUrl = buildGoogleMapsUrl({
-    googlePlaceId: item.googlePlaceId ?? item.placeCache?.googlePlaceId,
-    name: item.title || item.placeCache?.name,
-    address: item.placeCache?.address,
-    latitude: item.latitude,
-    longitude: item.longitude,
-  });
 
   const bookUrl = resolveItemBookUrl(item.type, item.title, {
     destination,
@@ -393,44 +441,19 @@ function ItemBlock({
               </p>
             )}
           </div>
-          {item.placeCache?.rating != null && (
-            <div className="shrink-0 flex items-center gap-0.5 text-xs font-semibold text-neutral-700">
-              <Star className="h-3 w-3 fill-amber-400 text-amber-400" />
-              {item.placeCache.rating.toFixed(1)}
-            </div>
+          {bookUrl && (
+            <a
+              href={bookUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="shrink-0 flex items-center gap-1 rounded-lg bg-neutral-100 px-2.5 py-1.5 text-[11px] font-medium text-neutral-700 transition-colors hover:bg-neutral-200"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <ExternalLink className="h-3 w-3" />
+              Book
+            </a>
           )}
         </div>
-
-        {/* Quick actions */}
-        {(mapsUrl || bookUrl) && (
-          <div
-            className="mt-2.5 flex items-center gap-2 border-t border-neutral-100 pt-2"
-            onClick={(e) => e.stopPropagation()}
-          >
-            {mapsUrl && (
-              <a
-                href={mapsUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-1 rounded-lg bg-neutral-50 px-2.5 py-1.5 text-[11px] font-medium text-neutral-600 transition-colors hover:bg-teal-50 hover:text-teal-700"
-              >
-                <Navigation className="h-3 w-3" />
-                Directions
-              </a>
-            )}
-            {bookUrl && (
-              <a
-                href={bookUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-1 rounded-lg bg-neutral-100 px-2.5 py-1.5 text-[11px] font-medium text-neutral-700 transition-colors hover:bg-neutral-200"
-              >
-                <ExternalLink className="h-3 w-3" />
-                Book
-              </a>
-            )}
-          </div>
-        )}
       </div>
     </div>
   );
@@ -733,6 +756,22 @@ function DayItems({
         {day.items.map((item, index) => {
           const dotColor = getCategoryDotColor(item.type);
           const isLast = index === itemCount - 1;
+          const nextItem = !isLast ? day.items[index + 1] : null;
+
+          const fromCoords = !isLast ? resolveItemCoordinates(item) : null;
+          const toCoords = nextItem ? resolveItemCoordinates(nextItem) : null;
+          const distanceKm =
+            fromCoords && toCoords
+              ? haversineDistance(
+                  fromCoords.lat,
+                  fromCoords.lng,
+                  toCoords.lat,
+                  toCoords.lng,
+                )
+              : null;
+          const directionsUrl = nextItem
+            ? buildDirectionsUrl(item, nextItem)
+            : null;
 
           return (
             <div
@@ -778,25 +817,50 @@ function DayItems({
                 )}
               </div>
 
-              <div className="min-w-0 flex-1 pb-4">
-                {sortable ? (
-                  <SortableItem
-                    item={item}
-                    tripId={tripId}
-                    destination={destination}
-                    onUpdate={onUpdate}
-                    onSelectItem={onSelectItem}
-                    readOnly={readOnly}
-                  />
-                ) : (
-                  <ItemBlock
-                    item={item}
-                    tripId={tripId}
-                    destination={destination}
-                    onUpdate={onUpdate}
-                    onSelectItem={onSelectItem}
-                    readOnly={readOnly}
-                  />
+              <div className="min-w-0 flex-1">
+                <div className="pb-4">
+                  {sortable ? (
+                    <SortableItem
+                      item={item}
+                      tripId={tripId}
+                      destination={destination}
+                      onUpdate={onUpdate}
+                      onSelectItem={onSelectItem}
+                      readOnly={readOnly}
+                    />
+                  ) : (
+                    <ItemBlock
+                      item={item}
+                      tripId={tripId}
+                      destination={destination}
+                      onUpdate={onUpdate}
+                      onSelectItem={onSelectItem}
+                      readOnly={readOnly}
+                    />
+                  )}
+                </div>
+                {!isLast && (distanceKm !== null || directionsUrl) && (
+                  <div className="mb-3 flex items-center gap-2">
+                    {distanceKm !== null && (
+                      <span className="inline-flex items-center gap-1 rounded-full bg-neutral-100 px-2.5 py-1 text-[11px] font-medium text-neutral-500">
+                        <Route className="h-3 w-3" />
+                        {distanceKm < 1
+                          ? `~${Math.round(distanceKm * 1000)} m`
+                          : `~${distanceKm.toFixed(1)} km`}
+                      </span>
+                    )}
+                    {directionsUrl && (
+                      <a
+                        href={directionsUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1 rounded-full border border-neutral-200 bg-white px-2.5 py-1 text-[11px] font-medium text-neutral-500 transition-colors hover:bg-neutral-50 hover:text-neutral-700"
+                      >
+                        <Navigation className="h-3 w-3" />
+                        Directions
+                      </a>
+                    )}
+                  </div>
                 )}
               </div>
             </div>

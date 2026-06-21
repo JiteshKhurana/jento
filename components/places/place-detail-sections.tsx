@@ -124,8 +124,7 @@ function OverviewSection({
   const hours = parseOpeningHours(info.openingHours);
   const priceLabel = info.priceLevel ? PRICE_LEVEL_MAP[info.priceLevel] : null;
   const showHours = hours.length > 0 || info.openNow != null;
-  const hasInfoRows =
-    priceLabel || info.phone || info.website || showHours;
+  const hasInfoRows = priceLabel || info.phone || info.website || showHours;
 
   const websiteDisplay = info.website
     ? (() => {
@@ -192,7 +191,7 @@ function OverviewSection({
                           : "bg-neutral-200 text-neutral-600",
                       )}
                     >
-                      {info.openNow ? "Open now" : "Closed now"}
+                      {info.openNow ? "Open now" : "Closed"}
                     </span>
                   )}
                 </div>
