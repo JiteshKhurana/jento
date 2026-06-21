@@ -11,6 +11,7 @@ type ExploreMapProps = {
   center?: { lat: number; lng: number } | null;
   selectedPlaceId?: string | null;
   onSelectPlace?: (placeId: string) => void;
+  pinStyle?: "category" | "saved";
 };
 
 let mapsOptionsSet = false;
@@ -61,6 +62,7 @@ export function ExploreMap({
   center,
   selectedPlaceId,
   onSelectPlace,
+  pinStyle = "category",
 }: ExploreMapProps) {
   const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
   const mapRef = useRef<HTMLDivElement>(null);
@@ -236,6 +238,7 @@ export function ExploreMap({
             destination={destination}
             selectedPlaceId={selectedPlaceId}
             onSelectPlace={onSelectPlace}
+            pinStyle={pinStyle}
           />
           <MapControls map={googleMap} />
         </>

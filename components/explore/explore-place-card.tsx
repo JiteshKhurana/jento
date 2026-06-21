@@ -87,7 +87,7 @@ export function ExplorePlaceCard({
             onClick={handleSave}
             disabled={saving}
             className={cn(
-              "flex h-8 w-8 items-center justify-center rounded-full shadow-sm transition-colors",
+              "flex h-8 w-8 cursor-pointer items-center justify-center rounded-full shadow-sm transition-colors disabled:cursor-not-allowed",
               saved
                 ? "bg-red-500 text-white hover:bg-red-600"
                 : "bg-white/95 text-neutral-700 hover:bg-white",

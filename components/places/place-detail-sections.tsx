@@ -332,7 +332,7 @@ function LocationSection({
         <div className="flex items-start gap-3">
           <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-neutral-400" />
           <div className="min-w-0 flex-1">
-            <p className="text-sm text-neutral-700">{info.address}</p>
+            <p className="wrap-break-word text-sm text-neutral-700">{info.address}</p>
             <button
               type="button"
               onClick={handleCopy}

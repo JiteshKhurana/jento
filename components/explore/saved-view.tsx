@@ -186,6 +186,7 @@ export function SavedView({
             center={mapCenter}
             selectedPlaceId={mapPlaceId}
             onSelectPlace={handleMapSelectPlace}
+            pinStyle="saved"
           />
         </div>
       </div>

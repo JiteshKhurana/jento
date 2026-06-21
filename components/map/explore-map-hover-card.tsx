@@ -29,7 +29,7 @@ export function ExploreMapHoverCard({
   className,
 }: ExploreMapHoverCardProps) {
   const [details, setDetails] = useState<PlaceDetails | null>(null);
-  const { label, Icon } = getPlaceCategoryFromAddress(place.address);
+  const { label, Icon } = getPlaceCategoryFromAddress(place.address, place.name);
 
   useEffect(() => {
     let cancelled = false;

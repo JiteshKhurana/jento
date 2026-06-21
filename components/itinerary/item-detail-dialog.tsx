@@ -2,18 +2,16 @@
 
 import { useEffect, useState } from "react";
 import { Clock, ExternalLink, MapPin, Navigation, Star, X } from "lucide-react";
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
-} from "@/components/ui/carousel";
+import { PlacePhotoCarousel } from "@/components/places/place-photo-carousel";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 import { resolveItemBookUrl } from "@/lib/booking/links";
-import { buildGoogleMapsUrl, getPlacePhotoUrl, placeHasPhotos } from "@/lib/places/utils";
+import {
+  buildGoogleMapsUrl,
+  getPlacePhotoUrl,
+  placeHasPhotos,
+} from "@/lib/places/utils";
 import {
   PlaceInfoSections,
   type PlaceInfoData,
@@ -221,13 +219,13 @@ function ItemDetailDialogContent({
           </div>
         </div>
 
-        <div className="min-h-0 flex-1 overflow-y-auto">
-          <div className="px-4 pb-4 pt-5">
+        <div className="min-h-0 min-w-0 flex-1 overflow-y-auto">
+          <div className="min-w-0 px-4 pb-4 pt-5">
             <DialogTitle className="text-2xl font-bold text-neutral-900">
               {item.title}
             </DialogTitle>
 
-            <div className="mt-2 flex flex-wrap items-center gap-3 text-sm text-neutral-500">
+            <div className="mt-2 flex min-w-0 flex-wrap items-center gap-3 text-sm text-neutral-500">
               <span className="rounded-full bg-neutral-100 px-2.5 py-0.5 text-xs font-medium text-neutral-700">
                 {categoryLabel}
               </span>
@@ -250,44 +248,19 @@ function ItemDetailDialogContent({
                   {item.duration}
                 </span>
               )}
-              {address && (
-                <span className="flex items-center gap-1">
-                  <MapPin className="h-3.5 w-3.5 shrink-0" />
-                  <span className="truncate">{address}</span>
-                </span>
-              )}
             </div>
 
-            <div className="mt-4">
+            <div className="mt-4 overflow-hidden rounded-2xl">
               {loading ? (
                 <Skeleton className="aspect-4/3 w-full rounded-2xl" />
               ) : hasPhotos && photoUrls.length > 0 ? (
-                <Carousel opts={{ loop: false }} className="w-full">
-                  <CarouselContent className="-ml-2">
-                    {photoUrls.map((url, i) => (
-                      <CarouselItem key={url} className="pl-2">
-                        <div className="overflow-hidden rounded-2xl bg-neutral-100">
-                          {/* eslint-disable-next-line @next/next/no-img-element */}
-                          <img
-                            src={url}
-                            alt={
-                              i === 0
-                                ? item.title
-                                : `${item.title} photo ${i + 1}`
-                            }
-                            className="aspect-4/3 w-full object-cover"
-                          />
-                        </div>
-                      </CarouselItem>
-                    ))}
-                  </CarouselContent>
-                  {photoUrls.length > 1 && (
-                    <>
-                      <CarouselPrevious className="left-2 border-neutral-200 bg-white/90 hover:bg-white" />
-                      <CarouselNext className="right-2 border-neutral-200 bg-white/90 hover:bg-white" />
-                    </>
-                  )}
-                </Carousel>
+                <PlacePhotoCarousel
+                  key={photoUrls.join("|")}
+                  photos={photoUrls}
+                  title={item.title}
+                  FallbackIcon={MapPin}
+                  className="rounded-2xl"
+                />
               ) : lat != null && lng != null ? (
                 <div className="flex h-36 items-center justify-center rounded-2xl bg-linear-to-br from-neutral-100 to-neutral-200/60">
                   <MapPin className="h-10 w-10 text-neutral-300" />

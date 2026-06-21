@@ -1,5 +1,6 @@
 import {
   BedDouble,
+  Landmark,
   MapPin,
   UtensilsCrossed,
   Zap,
@@ -56,6 +57,19 @@ export function getMapItemCategory(type: string): MapItemCategory {
       pinActiveClass: "border-teal-700 bg-teal-700 text-white",
     };
   }
+  if (
+    t.includes("location") ||
+    t.includes("neighborhood") ||
+    t.includes("locality") ||
+    t.includes("district")
+  ) {
+    return {
+      label: "Location",
+      Icon: Landmark,
+      pinClass: "border-orange-300 bg-orange-50 text-orange-800",
+      pinActiveClass: "border-orange-700 bg-orange-700 text-white",
+    };
+  }
   return {
     label: "Attraction",
     Icon: MapPin,
@@ -109,13 +123,43 @@ export function getMapItemLocation(
   return destination?.trim() || null;
 }
 
-export function getPlaceCategoryFromAddress(address?: string): MapItemCategory {
-  const lower = (address ?? "").toLowerCase();
-  if (lower.includes("hotel") || lower.includes("resort")) {
-    return getMapItemCategory("stay");
-  }
-  if (lower.includes("restaurant") || lower.includes("cafe")) {
+function categoryFromTextHints(text: string): MapItemCategory | null {
+  const lower = text.toLowerCase();
+  if (
+    /\b(restaurant|cafe|coffee shop|bistro|bakery|bar|pub|eatery|diner|pizzeria)\b/.test(
+      lower,
+    )
+  ) {
     return getMapItemCategory("restaurant");
   }
-  return getMapItemCategory("attraction");
+  if (
+    /\b(hotel|resort|hostel|motel|inn|lodging|accommodation|stay|bnb|bed and breakfast)\b/.test(
+      lower,
+    )
+  ) {
+    return getMapItemCategory("stay");
+  }
+  if (
+    /\b(neighborhood|district|quarter|ward|borough|locality|township|village|suburb)\b/.test(
+      lower,
+    )
+  ) {
+    return getMapItemCategory("location");
+  }
+  if (
+    /\b(museum|gallery|park|monument|landmark|cathedral|temple|palace|castle|garden|zoo|aquarium|stadium|theater|theatre)\b/.test(
+      lower,
+    )
+  ) {
+    return getMapItemCategory("activity");
+  }
+  return null;
+}
+
+export function getPlaceCategoryFromAddress(
+  address?: string,
+  name?: string,
+): MapItemCategory {
+  const hintText = [name, address].filter(Boolean).join(" ");
+  return categoryFromTextHints(hintText) ?? getMapItemCategory("attraction");
 }

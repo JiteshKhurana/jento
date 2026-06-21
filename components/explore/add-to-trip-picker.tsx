@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Plus } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import { Spinner } from "@/components/ui/spinner";
 import {
   Popover,
@@ -71,17 +72,17 @@ export function AddToTripPicker({
 
   const trigger =
     variant === "button" ? (
-      <Button variant="outline" size="sm" className={className}>
+      <Button variant="outline" size="sm" className={cn("cursor-pointer", className)}>
         <Plus className="h-4 w-4" />
         Add to trip
       </Button>
     ) : (
       <button
         type="button"
-        className={
-          className ??
-          "flex h-8 w-8 items-center justify-center rounded-full bg-white/95 text-neutral-900 shadow-sm transition-colors hover:bg-white"
-        }
+        className={cn(
+          "flex h-8 w-8 cursor-pointer items-center justify-center rounded-full bg-white/95 text-neutral-900 shadow-sm transition-colors hover:bg-white",
+          className,
+        )}
         aria-label="Add to trip"
       >
         <Plus className="h-4 w-4" />
@@ -96,7 +97,7 @@ export function AddToTripPicker({
           <p className="text-sm text-neutral-600">
             Create a trip first to save places.
           </p>
-          <Button asChild size="sm" className="mt-3 w-full">
+          <Button asChild size="sm" className="mt-3 w-full cursor-pointer">
             <Link href="/trips/new">Create trip</Link>
           </Button>
         </PopoverContent>
@@ -122,7 +123,7 @@ export function AddToTripPicker({
                 type="button"
                 disabled={added || loading}
                 onClick={() => handleAddToTrip(trip.id)}
-                className="flex w-full items-center gap-2 rounded-lg px-2 py-2 text-left text-sm hover:bg-neutral-100 disabled:opacity-60"
+                className="flex w-full cursor-pointer items-center gap-2 rounded-lg px-2 py-2 text-left text-sm hover:bg-neutral-100 disabled:cursor-not-allowed disabled:opacity-60"
               >
                 <div className="min-w-0 flex-1">
                   <p className="truncate font-medium text-neutral-900">

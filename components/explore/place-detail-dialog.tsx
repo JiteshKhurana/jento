@@ -109,13 +109,13 @@ export function PlaceDetailDialog({
 
   const photoUrls = useMemo(
     () =>
-      place
+      placeId
         ? [0, 1, 2, 3, 4].flatMap((index) => {
-            const url = getPlacePhotoUrl(place.googlePlaceId, index);
+            const url = getPlacePhotoUrl(placeId, index);
             return url ? [url] : [];
           })
         : [],
-    [place?.googlePlaceId],
+    [placeId],
   );
 
   if (!place) return null;
@@ -202,15 +202,15 @@ export function PlaceDetailDialog({
           </div>
         </div>
 
-        <div className="min-h-0 flex-1 overflow-y-auto">
-          <div className="px-4 pb-4 pt-5">
+        <div className="min-h-0 min-w-0 flex-1 overflow-y-auto">
+          <div className="min-w-0 px-4 pb-4 pt-5">
             <DialogTitle className="text-2xl font-bold text-neutral-900">
               {display.name}
             </DialogTitle>
-            <div className="mt-2 flex flex-wrap items-center gap-3 text-sm text-neutral-500">
+            <div className="mt-2 flex min-w-0 flex-wrap items-center gap-3 text-sm text-neutral-500">
               {display.rating != null && (
                 <span className="flex items-center gap-1">
-                  <Star className="h-4 w-4 fill-neutral-900 text-neutral-900" />
+                  <Star className="h-4 w-4 fill-amber-400 text-amber-400" />
                   <span className="font-medium text-neutral-900">
                     {display.rating.toFixed(1)}
                   </span>
@@ -219,7 +219,7 @@ export function PlaceDetailDialog({
                   )}
                 </span>
               )}
-              <span>
+              <span className="min-w-0 max-w-full wrap-break-word">
                 {display.address?.split(",").slice(-2).join(",").trim() ||
                   destination}
               </span>
