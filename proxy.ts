@@ -5,10 +5,12 @@ const isPublicRoute = createRouteMatcher([
   "/quiz(.*)",
   "/sign-in(.*)",
   "/sign-up(.*)",
+  "/explore(.*)",
   "/trips/(.+)",
   "/api/trips/(.+)",
   "/api/places/(.+)",
   "/api/locations/search",
+  "/api/locations/reverse",
   "/api/webhooks/clerk",
 ]);
 

@@ -146,6 +146,7 @@ export function SavedView({
                   "Saved"
                 }
                 trips={trips}
+                isSignedIn
                 saved
                 addedTripIds={
                   addedByPlace.get(place.googlePlaceId) ?? new Set()
@@ -226,6 +227,7 @@ export function SavedView({
         open={detailOpen}
         onOpenChange={setDetailOpen}
         trips={trips}
+        isSignedIn
         saved
         addedTripIds={
           selectedPlace

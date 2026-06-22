@@ -47,6 +47,7 @@ type ExploreLocation = {
 };
 
 type ExploreViewProps = {
+  isSignedIn: boolean;
   trips: TripOption[];
   initialSavedIds: string[];
   defaultLocation: ExploreLocation;
@@ -112,6 +113,7 @@ function exploreLocationToChip(location: ExploreLocation): SelectedLocation {
 }
 
 export function ExploreView({
+  isSignedIn,
   trips,
   initialSavedIds,
   defaultLocation,
@@ -485,6 +487,7 @@ export function ExploreView({
                 place={place}
                 destination={location.name}
                 trips={trips}
+                isSignedIn={isSignedIn}
                 saved={savedIds.has(place.googlePlaceId)}
                 addedTripIds={
                   addedByPlace.get(place.googlePlaceId) ?? new Set()
@@ -565,6 +568,7 @@ export function ExploreView({
         open={detailOpen}
         onOpenChange={setDetailOpen}
         trips={trips}
+        isSignedIn={isSignedIn}
         saved={
           selectedPlace ? savedIds.has(selectedPlace.googlePlaceId) : false
         }

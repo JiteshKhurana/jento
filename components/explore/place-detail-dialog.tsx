@@ -40,6 +40,7 @@ type PlaceDetailDialogProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   trips: TripOption[];
+  isSignedIn: boolean;
   saved: boolean;
   addedTripIds: Set<string>;
   onSaveToggle: (place: PlaceSearchResult, saved: boolean) => Promise<void>;
@@ -60,6 +61,7 @@ export function PlaceDetailDialog({
   open,
   onOpenChange,
   trips,
+  isSignedIn,
   saved,
   addedTripIds,
   onSaveToggle,
@@ -165,31 +167,35 @@ export function PlaceDetailDialog({
         <div className="shrink-0 border-b border-neutral-100 px-4 py-3">
           <div className="flex items-center justify-between gap-3">
             <div className="flex items-center gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                disabled={saving}
-                onClick={handleSave}
-                className={cn(
-                  "cursor-pointer",
-                  saved && "border-red-200 text-red-600",
-                )}
-              >
-                {saving ? (
-                  <Spinner size="sm" />
-                ) : (
-                  <Heart className={cn("h-4 w-4", saved && "fill-current")} />
-                )}
-                {saved ? "Saved" : "Save"}
-              </Button>
-              <AddToTripPicker
-                place={place}
-                trips={trips}
-                addedTripIds={addedTripIds}
-                onAdded={onTripAdded}
-                variant="button"
-                className="cursor-pointer"
-              />
+              {isSignedIn && (
+                <>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    disabled={saving}
+                    onClick={handleSave}
+                    className={cn(
+                      "cursor-pointer",
+                      saved && "border-red-200 text-red-600",
+                    )}
+                  >
+                    {saving ? (
+                      <Spinner size="sm" />
+                    ) : (
+                      <Heart className={cn("h-4 w-4", saved && "fill-current")} />
+                    )}
+                    {saved ? "Saved" : "Save"}
+                  </Button>
+                  <AddToTripPicker
+                    place={place}
+                    trips={trips}
+                    addedTripIds={addedTripIds}
+                    onAdded={onTripAdded}
+                    variant="button"
+                    className="cursor-pointer"
+                  />
+                </>
+              )}
             </div>
             <button
               type="button"

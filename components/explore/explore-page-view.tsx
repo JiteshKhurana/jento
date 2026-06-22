@@ -20,6 +20,7 @@ type SavedPlaceRecord = Parameters<
 >[0][number];
 
 type ExplorePageViewProps = {
+  isSignedIn: boolean;
   trips: TripOption[];
   initialSavedIds: string[];
   initialSavedPlaces: SavedPlaceRecord[];
@@ -28,6 +29,7 @@ type ExplorePageViewProps = {
 };
 
 export function ExplorePageView({
+  isSignedIn,
   trips,
   initialSavedIds,
   initialSavedPlaces,
@@ -55,13 +57,14 @@ export function ExplorePageView({
       <div className="shrink-0 border-b border-border px-4 py-3 md:px-6">
         <TabsList>
           <TabsTrigger value="explore">Explore</TabsTrigger>
-          <TabsTrigger value="saved">Saved</TabsTrigger>
+          {isSignedIn && <TabsTrigger value="saved">Saved</TabsTrigger>}
         </TabsList>
       </div>
 
       <div className="flex min-h-0 flex-1 flex-col">
         {tab === "explore" ? (
           <ExploreView
+            isSignedIn={isSignedIn}
             trips={trips}
             initialSavedIds={initialSavedIds}
             defaultLocation={defaultLocation}

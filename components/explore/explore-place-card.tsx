@@ -13,6 +13,7 @@ type ExplorePlaceCardProps = {
   place: PlaceSearchResult;
   destination: string;
   trips: TripOption[];
+  isSignedIn: boolean;
   saved: boolean;
   addedTripIds: Set<string>;
   onSaveToggle: (place: PlaceSearchResult, saved: boolean) => Promise<void>;
@@ -37,6 +38,7 @@ export function ExplorePlaceCard({
   place,
   destination,
   trips,
+  isSignedIn,
   saved,
   addedTripIds,
   onSaveToggle,
@@ -82,32 +84,36 @@ export function ExplorePlaceCard({
         />
 
         <div className="absolute right-2 top-2 flex gap-1.5">
-          <button
-            type="button"
-            onClick={handleSave}
-            disabled={saving}
-            className={cn(
-              "flex h-8 w-8 cursor-pointer items-center justify-center rounded-full shadow-sm transition-colors disabled:cursor-not-allowed",
-              saved
-                ? "bg-red-500 text-white hover:bg-red-600"
-                : "bg-white/95 text-neutral-700 hover:bg-white",
-            )}
-            aria-label={saved ? "Unsave place" : "Save place"}
-          >
-            {saving ? (
-              <Spinner size="sm" />
-            ) : (
-              <Heart className={cn("h-4 w-4", saved && "fill-current")} />
-            )}
-          </button>
-          <div onClick={(e) => e.stopPropagation()} onKeyDown={(e) => e.stopPropagation()}>
-            <AddToTripPicker
-              place={place}
-              trips={trips}
-              addedTripIds={addedTripIds}
-              onAdded={onTripAdded}
-            />
-          </div>
+          {isSignedIn && (
+            <>
+              <button
+                type="button"
+                onClick={handleSave}
+                disabled={saving}
+                className={cn(
+                  "flex h-8 w-8 cursor-pointer items-center justify-center rounded-full shadow-sm transition-colors disabled:cursor-not-allowed",
+                  saved
+                    ? "bg-red-500 text-white hover:bg-red-600"
+                    : "bg-white/95 text-neutral-700 hover:bg-white",
+                )}
+                aria-label={saved ? "Unsave place" : "Save place"}
+              >
+                {saving ? (
+                  <Spinner size="sm" />
+                ) : (
+                  <Heart className={cn("h-4 w-4", saved && "fill-current")} />
+                )}
+              </button>
+              <div onClick={(e) => e.stopPropagation()} onKeyDown={(e) => e.stopPropagation()}>
+                <AddToTripPicker
+                  place={place}
+                  trips={trips}
+                  addedTripIds={addedTripIds}
+                  onAdded={onTripAdded}
+                />
+              </div>
+            </>
+          )}
         </div>
       </div>
 
@@ -126,7 +132,7 @@ export function ExplorePlaceCard({
         </div>
         <p className="mt-0.5 text-xs text-neutral-500">{guessCategory(place.address)}</p>
         <p className="text-xs text-neutral-400">{locationParts || destination}</p>
-        {saved && (
+        {isSignedIn && saved && (
           <p className="mt-1 text-xs text-red-500">Saved</p>
         )}
       </div>

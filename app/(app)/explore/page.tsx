@@ -16,21 +16,24 @@ type PageProps = {
 export default async function ExplorePage({ searchParams }: PageProps) {
   const { tab } = await searchParams;
   const { userId: clerkId } = await auth();
-  if (!clerkId) return null;
+  const isSignedIn = Boolean(clerkId);
 
-  let user = await prisma.user.findUnique({ where: { clerkId } });
+  let user = null;
+  if (clerkId) {
+    user = await prisma.user.findUnique({ where: { clerkId } });
 
-  if (!user) {
-    const clerkUser = await currentUser();
-    if (clerkUser) {
-      user = await prisma.user.create({
-        data: {
-          clerkId,
-          email: clerkUser.emailAddresses[0]?.emailAddress ?? null,
-          name: clerkUser.fullName ?? null,
-          profileImageUrl: clerkUser.imageUrl ?? null,
-        },
-      });
+    if (!user) {
+      const clerkUser = await currentUser();
+      if (clerkUser) {
+        user = await prisma.user.create({
+          data: {
+            clerkId,
+            email: clerkUser.emailAddresses[0]?.emailAddress ?? null,
+            name: clerkUser.fullName ?? null,
+            profileImageUrl: clerkUser.imageUrl ?? null,
+          },
+        });
+      }
     }
   }
 
@@ -49,10 +52,11 @@ export default async function ExplorePage({ searchParams }: PageProps) {
   return (
     <AppShell fullHeight className="overflow-hidden bg-background">
       <ExplorePageView
+        isSignedIn={isSignedIn}
         trips={trips}
         initialSavedIds={savedIds}
         initialSavedPlaces={savedPlaces}
-        initialTab={tab === "saved" ? "saved" : "explore"}
+        initialTab={isSignedIn && tab === "saved" ? "saved" : "explore"}
         defaultLocation={{
           name: recentTrip?.destination ?? "Paris",
           label: recentTrip?.destination ?? "Paris, France",
