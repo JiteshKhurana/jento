@@ -470,8 +470,8 @@ export function NewTripDialog({ open, onOpenChange }: NewTripDialogProps) {
               Where to, {firstName}?
             </DialogTitle>
 
-            <div className="mt-8 space-y-6">
-              <div className="space-y-3">
+            <div className="mt-8 space-y-8">
+              <div className="space-y-4">
                 <div className="flex flex-wrap items-center justify-between gap-3">
                   <Label
                     htmlFor="depart-current"
@@ -521,7 +521,7 @@ export function NewTripDialog({ open, onOpenChange }: NewTripDialogProps) {
                 )}
               </div>
 
-              <div className="space-y-3">
+              <div className="space-y-4">
                 <Label>Destination</Label>
 
                 <div className="space-y-2">
@@ -565,7 +565,7 @@ export function NewTripDialog({ open, onOpenChange }: NewTripDialogProps) {
                 </div>
               </div>
 
-              <div className="space-y-3">
+              <div className="space-y-4">
                 <Label>Timing</Label>
                 <div className="flex gap-2">
                   {(["dates", "flexible"] as const).map((mode) => (
@@ -644,38 +644,51 @@ export function NewTripDialog({ open, onOpenChange }: NewTripDialogProps) {
                 ) : null}
               </div>
 
-              <div className="space-y-3">
+              <div className="space-y-4">
                 <Label>Who&apos;s going?</Label>
-                <div className="flex flex-wrap gap-2">
-                  {(
-                    ["solo", "couple", "friends", "family", "group"] as const
-                  ).map((type) => (
-                    <button
-                      key={type}
-                      type="button"
-                      onClick={() => setTravelerType(type)}
+                <div className="flex gap-2">
+                  <Select
+                    value={travelerType ?? undefined}
+                    onValueChange={(value) => {
+                      const type = value as TravelerType;
+                      setTravelerType(type);
+                      if (!travelerTypeRequiresCount(type)) {
+                        setTravelerCount("");
+                      }
+                    }}
+                  >
+                    <SelectTrigger
                       className={cn(
-                        "rounded-full border px-4 py-2 text-sm font-medium transition-colors",
-                        travelerType === type
-                          ? "border-neutral-900 bg-neutral-900 text-white"
-                          : "border-neutral-200 text-neutral-600 hover:border-neutral-300",
+                        "h-11",
+                        travelerTypeRequiresCount(travelerType)
+                          ? "w-[140px] shrink-0"
+                          : "flex-1",
                       )}
                     >
-                      {TRAVELER_LABELS[type]}
-                    </button>
-                  ))}
+                      <SelectValue placeholder="Select travelers" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {(
+                        ["solo", "couple", "friends", "family", "group"] as const
+                      ).map((type) => (
+                        <SelectItem key={type} value={type}>
+                          {TRAVELER_LABELS[type]}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  {travelerTypeRequiresCount(travelerType) && (
+                    <Input
+                      type="number"
+                      min={2}
+                      max={50}
+                      placeholder="How many people?"
+                      value={travelerCount}
+                      onChange={(e) => setTravelerCount(e.target.value)}
+                      className="flex-1"
+                    />
+                  )}
                 </div>
-                {travelerTypeRequiresCount(travelerType) && (
-                  <Input
-                    type="number"
-                    min={2}
-                    max={50}
-                    placeholder="How many people?"
-                    value={travelerCount}
-                    onChange={(e) => setTravelerCount(e.target.value)}
-                    className="max-w-[160px]"
-                  />
-                )}
 
                 <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
                   <div className="flex items-center gap-2.5">
@@ -708,7 +721,7 @@ export function NewTripDialog({ open, onOpenChange }: NewTripDialogProps) {
                 </div>
               </div>
 
-              <div className="space-y-3">
+              <div className="space-y-4">
                 <Label>Budget per person</Label>
                 <div className="flex gap-2">
                   <Select
@@ -737,7 +750,7 @@ export function NewTripDialog({ open, onOpenChange }: NewTripDialogProps) {
                 </div>
               </div>
 
-              <div className="space-y-3">
+              <div className="space-y-4">
                 <Label>Trip pace</Label>
                 <div className="flex flex-wrap gap-2">
                   {(["relaxed", "moderate", "fast"] as const).map((option) => (
@@ -763,7 +776,7 @@ export function NewTripDialog({ open, onOpenChange }: NewTripDialogProps) {
                 </p>
               </div>
 
-              <div className="space-y-3">
+              <div className="space-y-4">
                 <Label htmlFor="end-day-by">End the day by what time?</Label>
                 <Input
                   id="end-day-by"
@@ -778,7 +791,7 @@ export function NewTripDialog({ open, onOpenChange }: NewTripDialogProps) {
                 </p>
               </div>
 
-              <div className="space-y-3">
+              <div className="space-y-4">
                 <Label>Food preference</Label>
                 <div className="flex flex-wrap gap-2">
                   {(["pure_veg", "veg", "non_veg", "any"] as const).map(
@@ -806,7 +819,7 @@ export function NewTripDialog({ open, onOpenChange }: NewTripDialogProps) {
                 </p>
               </div>
 
-              <div className="space-y-3">
+              <div className="space-y-4">
                 <Label htmlFor="trip-preferences">Anything else?</Label>
                 <Textarea
                   id="trip-preferences"

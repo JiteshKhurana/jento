@@ -228,7 +228,7 @@ export function LocationChip({ location, onRemove }: LocationChipProps) {
       <button
         type="button"
         onClick={onRemove}
-        className="rounded-full p-1 text-neutral-400 transition-colors hover:bg-neutral-200 hover:text-neutral-700"
+        className="rounded-full p-1 text-neutral-400 transition-colors hover:bg-neutral-200 hover:text-neutral-700 cursor-pointer"
         aria-label={`Remove ${location.name}`}
       >
         <X className="h-4 w-4" />
@@ -242,7 +242,7 @@ export function AddLocationButton({ onClick }: { onClick: () => void }) {
     <button
       type="button"
       onClick={onClick}
-      className="inline-flex items-center gap-1.5 rounded-full border border-neutral-200 bg-white px-3 py-1.5 text-sm text-neutral-600 transition-colors hover:border-neutral-300 hover:bg-neutral-50"
+      className="inline-flex items-center gap-1.5 rounded-full border border-neutral-200 bg-white px-3 py-1.5 text-sm text-neutral-600 transition-colors hover:border-neutral-300 hover:bg-neutral-50 cursor-pointer"
     >
       <Plus className="h-3.5 w-3.5" />
       Add location
