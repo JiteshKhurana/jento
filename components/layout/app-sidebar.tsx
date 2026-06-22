@@ -1,6 +1,6 @@
 "use client";
 
-import { UserButton } from "@clerk/nextjs";
+import { UserButton, useUser } from "@clerk/nextjs";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -48,6 +48,39 @@ function SidebarCollapseButton() {
         {expanded ? <PanelLeftClose /> : <PanelLeft />}
         <span>{expanded ? "Collapse" : "Expand"}</span>
       </SidebarMenuButton>
+    </SidebarMenuItem>
+  );
+}
+
+function SidebarUserProfile() {
+  const { user, isLoaded } = useUser();
+
+  if (!isLoaded || !user) return null;
+
+  const displayName = user.fullName ?? user.username ?? "User";
+  const email = user.primaryEmailAddress?.emailAddress;
+
+  return (
+    <SidebarMenuItem>
+      <div className="flex items-center gap-2 px-2 py-1.5 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0">
+        <UserButton
+          appearance={{
+            elements: {
+              avatarBox: "h-8 w-8 shrink-0",
+            },
+          }}
+        />
+        <div className="min-w-0 flex-1 group-data-[collapsible=icon]:hidden">
+          <p className="truncate text-sm font-medium leading-tight">
+            {displayName}
+          </p>
+          {email ? (
+            <p className="truncate text-xs leading-tight text-muted-foreground">
+              {email}
+            </p>
+          ) : null}
+        </div>
+      </div>
     </SidebarMenuItem>
   );
 }
@@ -146,17 +179,7 @@ export function AppSidebar() {
         <SidebarMenu>
           <SidebarThemeToggle />
           <SidebarCollapseButton />
-          <SidebarMenuItem>
-            <div className="flex items-center gap-2 px-2 py-1.5 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0">
-              <UserButton
-                appearance={{
-                  elements: {
-                    avatarBox: "h-8 w-8",
-                  },
-                }}
-              />
-            </div>
-          </SidebarMenuItem>
+          <SidebarUserProfile />
         </SidebarMenu>
       </SidebarFooter>
 
