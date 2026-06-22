@@ -10,10 +10,11 @@ interface LandingHeaderProps {
   userId: string | null;
 }
 
-const navLinks = [
-  { href: "/trips", label: "My Trips" },
-  { href: "/explore", label: "Explore" },
-] as const;
+const primaryActionClassName =
+  "rounded-full bg-black px-4 py-2 text-base font-medium text-white transition-colors hover:bg-neutral-800 dark:bg-white dark:text-black dark:hover:bg-neutral-200";
+
+const exploreLinkClassName =
+  "rounded-full bg-neutral-100 px-4 py-2 text-base text-black/80 transition-colors hover:text-black dark:bg-[#2F2F2F] dark:text-white/80 dark:hover:text-white";
 
 export function LandingHeader({ userId }: LandingHeaderProps) {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -55,24 +56,12 @@ export function LandingHeader({ userId }: LandingHeaderProps) {
           </span>
         </Link>
 
-        <nav className="hidden items-center gap-6 rounded-full bg-neutral-100 px-4 py-2 text-base text-black/80 dark:bg-[#2F2F2F] dark:text-white/80 md:flex">
-          {navLinks.map(({ href, label }) => (
-            <Link
-              key={href}
-              href={href}
-              className="transition-colors hover:text-black dark:hover:text-white"
-            >
-              {label}
-            </Link>
-          ))}
-        </nav>
-
         <div className="flex shrink-0 items-center gap-1">
           <ModeToggle />
-          <Link
-            href={userId ? "/trips" : "/sign-in"}
-            className="rounded-full bg-black px-4 py-2 text-base font-medium text-white transition-colors hover:bg-neutral-800 dark:bg-white dark:text-black dark:hover:bg-neutral-200"
-          >
+          <Link href="/explore" className={exploreLinkClassName}>
+            Explore
+          </Link>
+          <Link href={userId ? "/trips" : "/sign-in"} className={primaryActionClassName}>
             {userId ? "My Trips" : "Sign in"}
           </Link>
         </div>
