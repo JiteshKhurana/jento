@@ -10,7 +10,7 @@ import {
   format,
   startOfDay,
 } from "date-fns";
-import { CalendarDays, X } from "lucide-react";
+import { CalendarDays, Lightbulb, X } from "lucide-react";
 import type { DateRange } from "react-day-picker";
 import {
   AddLocationButton,
@@ -63,6 +63,10 @@ import {
   type TripPace,
 } from "@/lib/trips/intake";
 import { getCurrentLocation } from "@/lib/locations/get-current-location";
+import {
+  formatRecommendedDaysLabel,
+  type RecommendedDaysResult,
+} from "@/lib/trips/recommended-days";
 
 type TimingMode = "flexible" | "dates";
 
@@ -124,6 +128,9 @@ export function NewTripDialog({ open, onOpenChange }: NewTripDialogProps) {
   const [createError, setCreateError] = useState<string | null>(null);
   const [heroImage, setHeroImage] = useState<HeroImage>(FALLBACK_HERO_IMAGE);
   const [heroImageLoading, setHeroImageLoading] = useState(false);
+  const [recommendedDays, setRecommendedDays] =
+    useState<RecommendedDaysResult | null>(null);
+  const [recommendedDaysLoading, setRecommendedDaysLoading] = useState(false);
 
   useEffect(() => {
     if (!open) return;
@@ -163,6 +170,48 @@ export function NewTripDialog({ open, onOpenChange }: NewTripDialogProps) {
   }, [open, locations]);
 
   useEffect(() => {
+    if (!open || locations.length === 0) return;
+
+    const controller = new AbortController();
+    let active = true;
+
+    Promise.resolve().then(() => {
+      if (!active) return;
+      setRecommendedDays(null);
+      setRecommendedDaysLoading(true);
+    });
+
+    fetch("/api/trips/recommended-days", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      signal: controller.signal,
+      body: JSON.stringify({
+        destinations: locations.map((location) => ({
+          name: location.name,
+          label: location.label,
+          countryCode: location.countryCode,
+        })),
+        isRoadTrip,
+      }),
+    })
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data: RecommendedDaysResult | null) => {
+        if (!active) return;
+        if (data?.days) setRecommendedDays(data);
+        else setRecommendedDays(null);
+      })
+      .catch(() => {})
+      .finally(() => {
+        if (active) setRecommendedDaysLoading(false);
+      });
+
+    return () => {
+      active = false;
+      controller.abort();
+    };
+  }, [open, locations, isRoadTrip]);
+
+  useEffect(() => {
     if (open) return;
 
     // Defer state resets so they're scheduled after the current render
@@ -193,6 +242,8 @@ export function NewTripDialog({ open, onOpenChange }: NewTripDialogProps) {
       setCreateError(null);
       setHeroImage(FALLBACK_HERO_IMAGE);
       setHeroImageLoading(false);
+      setRecommendedDays(null);
+      setRecommendedDaysLoading(false);
     });
   }, [open]);
 
@@ -316,7 +367,9 @@ export function NewTripDialog({ open, onOpenChange }: NewTripDialogProps) {
         );
       }
       if (travelingWithPets) {
-        initialParts.push("Traveling with pets — prefer pet-friendly stays and activities.");
+        initialParts.push(
+          "Traveling with pets — prefer pet-friendly stays and activities.",
+        );
       }
       if (travelingWithInfants) {
         initialParts.push(
@@ -431,6 +484,11 @@ export function NewTripDialog({ open, onOpenChange }: NewTripDialogProps) {
       : format(dateRange.from, "MMM d, yyyy")
     : "Pick dates";
 
+  const showRecommendedDays =
+    open && locations.length > 0 && (recommendedDaysLoading || recommendedDays);
+  const displayedRecommendedDays =
+    open && locations.length > 0 ? recommendedDays : null;
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
@@ -514,7 +572,9 @@ export function NewTripDialog({ open, onOpenChange }: NewTripDialogProps) {
                           setDepartureSearchQuery("");
                         }}
                         placeholder="City, airport, or address"
-                        autoFocus={open && !departFromCurrent && !departureLocation}
+                        autoFocus={
+                          open && !departFromCurrent && !departureLocation
+                        }
                       />
                     )}
                   </div>
@@ -538,7 +598,9 @@ export function NewTripDialog({ open, onOpenChange }: NewTripDialogProps) {
                       value={searchQuery}
                       onChange={setSearchQuery}
                       onSelect={addLocation}
-                      autoFocus={open && locations.length === 0 && departFromCurrent}
+                      autoFocus={
+                        open && locations.length === 0 && departFromCurrent
+                      }
                     />
                   )}
                 </div>
@@ -563,6 +625,41 @@ export function NewTripDialog({ open, onOpenChange }: NewTripDialogProps) {
                     />
                   </div>
                 </div>
+
+                {showRecommendedDays && (
+                    <div className="rounded-xl border border-amber-100 bg-amber-50/80 px-3.5 py-3">
+                      {recommendedDaysLoading ? (
+                        <div className="flex items-center gap-2 text-sm text-neutral-600">
+                          <Spinner className="h-4 w-4" />
+                          Calculating recommended stay…
+                        </div>
+                      ) : displayedRecommendedDays ? (
+                        <div className="flex items-start gap-2">
+                          <Lightbulb className="mt-0.5 h-4 w-4 shrink-0 text-amber-600" />
+                          <div className="min-w-0 flex-1">
+                            <p className="text-sm font-medium text-neutral-900">
+                              Recommended:{" "}
+                              {formatRecommendedDaysLabel(displayedRecommendedDays)}
+                            </p>
+                            <p className="mt-0.5 text-xs text-neutral-600">
+                              {displayedRecommendedDays.summary}
+                            </p>
+                            {displayedRecommendedDays.perDestination &&
+                              displayedRecommendedDays.perDestination.length > 1 && (
+                                <p className="mt-1 text-xs text-neutral-500">
+                                  {displayedRecommendedDays.perDestination
+                                    .map(
+                                      (stop) =>
+                                        `${stop.name}: ${stop.days} ${stop.days === 1 ? "day" : "days"}`,
+                                    )
+                                    .join(" · ")}
+                                </p>
+                              )}
+                          </div>
+                        </div>
+                      ) : null}
+                    </div>
+                  )}
               </div>
 
               <div className="space-y-4">
@@ -669,7 +766,13 @@ export function NewTripDialog({ open, onOpenChange }: NewTripDialogProps) {
                     </SelectTrigger>
                     <SelectContent>
                       {(
-                        ["solo", "couple", "friends", "family", "group"] as const
+                        [
+                          "solo",
+                          "couple",
+                          "friends",
+                          "family",
+                          "group",
+                        ] as const
                       ).map((type) => (
                         <SelectItem key={type} value={type}>
                           {TRAVELER_LABELS[type]}
