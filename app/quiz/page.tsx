@@ -1,11 +1,5 @@
-import { VacationPersonalityQuiz } from "@/components/home/vacation-personality-quiz";
-
-export const metadata = {
-  title: "Vacation Personality Quiz — Jento",
-  description:
-    "Take a quick quiz to find out what kind of vacation person you are.",
-};
+import { redirect } from "next/navigation";
 
 export default function QuizPage() {
-  return <VacationPersonalityQuiz />;
+  redirect("/#quiz");
 }

@@ -115,7 +115,15 @@ function getResult(scores: Record<VacationType, number>): VacationType {
   )[0][0];
 }
 
-export function VacationPersonalityQuiz() {
+interface VacationPersonalityQuizProps {
+  embedded?: boolean;
+  onBack?: () => void;
+}
+
+export function VacationPersonalityQuiz({
+  embedded = false,
+  onBack,
+}: VacationPersonalityQuizProps = {}) {
   const [step, setStep] = useState(0);
   const [scores, setScores] = useState<Record<VacationType, number>>({
     beach: 0,
@@ -161,76 +169,114 @@ export function VacationPersonalityQuiz() {
     setScores({ beach: 0, adventure: 0, culture: 0, food: 0 });
   }
 
+  const backControl =
+    embedded && onBack ? (
+      <button
+        type="button"
+        onClick={onBack}
+        className="mb-6 inline-flex cursor-pointer items-center gap-2 text-sm text-black/70 transition-colors hover:text-black dark:text-white/70 dark:hover:text-white"
+      >
+        <ArrowLeft className="h-4 w-4" />
+        Back
+      </button>
+    ) : !embedded ? (
+      <Link
+        href="/"
+        className="mb-8 inline-flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
+      >
+        <ArrowLeft className="h-4 w-4" />
+        Back to home
+      </Link>
+    ) : null;
+
+  const questionLabelClass = embedded
+    ? "text-sm font-medium uppercase tracking-widest text-black/60 dark:text-white/60"
+    : "text-sm font-medium uppercase tracking-widest text-muted-foreground";
+
+  const headingClass = embedded
+    ? "font-francois text-2xl leading-[1.14] text-black dark:text-white sm:text-3xl lg:text-4xl"
+    : "font-francois text-3xl leading-[1.14] text-foreground sm:text-4xl";
+
+  const bodyClass = embedded
+    ? "text-base leading-7 text-black/80 dark:text-white/80 sm:text-lg"
+    : "text-lg leading-8 text-muted-foreground";
+
+  const optionClass = embedded
+    ? "cursor-pointer rounded-2xl border border-black/10 bg-white/90 px-5 py-4 text-left text-base text-black transition-colors hover:border-black/20 hover:bg-white dark:border-white/20 dark:bg-black/40 dark:text-white dark:hover:border-white/30 dark:hover:bg-black/55"
+    : "cursor-pointer rounded-2xl border border-border bg-card px-5 py-4 text-left text-base text-foreground transition-colors hover:border-foreground/30 hover:bg-accent";
+
+  const content = (
+    <>
+      {backControl}
+
+      {!finished && (
+        <div className="space-y-6 sm:space-y-8">
+          <div className="space-y-2">
+            <p className={questionLabelClass}>
+              Question {step + 1} of {QUESTIONS.length}
+            </p>
+            <h2 className={headingClass}>{QUESTIONS[step].question}</h2>
+          </div>
+
+          <div className="grid gap-3">
+            {QUESTIONS[step].options.map((option) => (
+              <button
+                key={option.label}
+                type="button"
+                onClick={() => handleAnswer(option)}
+                className={optionClass}
+              >
+                {option.label}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {finished && result && (
+        <div className="space-y-6 sm:space-y-8">
+          <div className="space-y-3">
+            <p className={questionLabelClass}>Your vacation personality</p>
+            <h2 className={headingClass}>{result.title}</h2>
+            <p className={bodyClass}>{result.description}</p>
+          </div>
+
+          <div className="flex flex-wrap gap-3">
+            <Button
+              asChild
+              className={
+                embedded
+                  ? "font-inter cursor-pointer rounded-full bg-black px-6 font-semibold text-white hover:bg-neutral-800 dark:bg-white dark:text-black dark:hover:bg-neutral-200"
+                  : "font-francois cursor-pointer rounded-full px-6"
+              }
+            >
+              <Link href="/explore">Find destinations</Link>
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              className={
+                embedded
+                  ? "font-inter cursor-pointer rounded-full border-black/20 bg-transparent font-semibold text-black hover:bg-black/5 hover:text-black dark:border-white/20 dark:text-white dark:hover:bg-white/10 dark:hover:text-white"
+                  : "font-francois cursor-pointer rounded-full hover:text-foreground dark:hover:text-black"
+              }
+              onClick={restart}
+            >
+              Take Quiz again
+            </Button>
+          </div>
+        </div>
+      )}
+    </>
+  );
+
+  if (embedded) {
+    return <div className="relative z-10 w-full px-8 py-10 sm:px-10 sm:py-12 lg:px-14 lg:py-14">{content}</div>;
+  }
+
   return (
     <div className="min-h-screen bg-background px-6 py-10">
-      <div className="mx-auto max-w-2xl">
-        <Link
-          href="/"
-          className="mb-8 inline-flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
-        >
-          <ArrowLeft className="h-4 w-4" />
-          Back to home
-        </Link>
-
-        {!finished && (
-          <div className="space-y-8">
-            <div className="space-y-2">
-              <p className="text-sm font-medium uppercase tracking-widest text-muted-foreground">
-                Question {step + 1} of {QUESTIONS.length}
-              </p>
-              <h1 className="font-francois text-3xl leading-[1.14] text-foreground sm:text-4xl">
-                {QUESTIONS[step].question}
-              </h1>
-            </div>
-
-            <div className="grid gap-3">
-              {QUESTIONS[step].options.map((option) => (
-                <button
-                  key={option.label}
-                  type="button"
-                  onClick={() => handleAnswer(option)}
-                  className="rounded-2xl border border-border bg-card px-5 py-4 text-left text-base text-foreground transition-colors hover:border-foreground/30 hover:bg-accent"
-                >
-                  {option.label}
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {finished && result && (
-          <div className="space-y-8">
-            <div className="space-y-3">
-              <p className="text-sm font-medium uppercase tracking-widest text-muted-foreground">
-                Your vacation personality
-              </p>
-              <h1 className="font-francois text-3xl leading-[1.14] text-foreground sm:text-4xl">
-                {result.title}
-              </h1>
-              <p className="text-lg leading-8 text-muted-foreground">
-                {result.description}
-              </p>
-            </div>
-
-            <div className="flex flex-wrap gap-3">
-              <Button
-                asChild
-                className="font-francois rounded-full px-6"
-              >
-                <Link href="/explore">Find destinations</Link>
-              </Button>
-              <Button
-                type="button"
-                variant="outline"
-                className="font-francois rounded-full"
-                onClick={restart}
-              >
-                Take Quiz again
-              </Button>
-            </div>
-          </div>
-        )}
-      </div>
+      <div className="mx-auto max-w-2xl">{content}</div>
     </div>
   );
 }
