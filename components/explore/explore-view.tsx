@@ -2,11 +2,12 @@
 
 import dynamic from "next/dynamic";
 import { useCallback, useEffect, useState, useSyncExternalStore } from "react";
-import { ChevronDown, LocateFixed, Map as MapIcon, Search } from "lucide-react";
+import { LocateFixed, Map as MapIcon, Search } from "lucide-react";
 import { ExploreFilters } from "@/components/explore/explore-filters";
 import type { BudgetTier } from "@/lib/trips/intake";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { LoadingState } from "@/components/ui/spinner";
 import { ExplorePlaceCard } from "@/components/explore/explore-place-card";
@@ -20,6 +21,7 @@ import type { PlaceSearchResult } from "@/lib/places/google-places";
 import type { TripOption } from "@/components/explore/add-to-trip-picker";
 import {
   DestinationAutocomplete,
+  LocationChip,
   type SelectedLocation,
 } from "@/components/trips/destination-autocomplete";
 
@@ -98,6 +100,17 @@ function getExploreLocationSnapshot(
   return cachedLocationSnapshot;
 }
 
+function exploreLocationToChip(location: ExploreLocation): SelectedLocation {
+  return {
+    id: `${location.name}-${location.label}`,
+    name: location.name,
+    label: location.label,
+    countryCode: "",
+    latitude: location.latitude?.toString(),
+    longitude: location.longitude?.toString(),
+  };
+}
+
 export function ExploreView({
   trips,
   initialSavedIds,
@@ -108,7 +121,7 @@ export function ExploreView({
     () => getExploreLocationSnapshot(defaultLocation),
     () => defaultLocation,
   );
-  const [locationPickerOpen, setLocationPickerOpen] = useState(false);
+  const [showLocationSearch, setShowLocationSearch] = useState(false);
   const [locationQuery, setLocationQuery] = useState("");
   const [locating, setLocating] = useState(false);
   const [locationError, setLocationError] = useState<string | null>(null);
@@ -211,7 +224,7 @@ export function ExploreView({
       });
     }
     storeLocation(next);
-    setLocationPickerOpen(false);
+    setShowLocationSearch(false);
     setLocationQuery("");
   }
 
@@ -225,7 +238,7 @@ export function ExploreView({
       });
     }
     storeLocation(next);
-    setLocationPickerOpen(false);
+    setShowLocationSearch(false);
     setLocationError(null);
   }
 
@@ -379,42 +392,43 @@ export function ExploreView({
   const feedContent = (
     <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
       <div className="shrink-0 space-y-3 border-b border-border px-4 py-4 md:px-6">
-        <div className="flex items-center gap-2">
-          <button
-            type="button"
-            onClick={() => setLocationPickerOpen((open) => !open)}
-            className="flex items-center gap-1 text-xl font-bold text-foreground"
-          >
-            {location.name}
-            <ChevronDown className="h-5 w-5 text-muted-foreground" />
-          </button>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={handleUseMyLocation}
-            disabled={locating}
-            className="ml-auto text-muted-foreground cursor-pointer"
-          >
-            <LocateFixed className="h-4 w-4" />
-            {locating ? "Locating…" : "Near me"}
-          </Button>
-        </div>
-
-        {locationError && (
-          <p className="text-sm text-red-600">{locationError}</p>
-        )}
-
-        {locationPickerOpen && (
-          <div className="space-y-2 rounded-xl border border-border bg-surface p-3">
-            <DestinationAutocomplete
-              value={locationQuery}
-              onChange={setLocationQuery}
-              onSelect={handleLocationSelect}
-              placeholder="Search cities, states, or countries…"
-              autoFocus
-            />
+        <div className="space-y-4">
+          <div className="flex items-center justify-between gap-3">
+            <Label>Location</Label>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleUseMyLocation}
+              disabled={locating}
+              className="text-muted-foreground cursor-pointer"
+            >
+              <LocateFixed className="h-4 w-4" />
+              {locating ? "Locating…" : "Near me"}
+            </Button>
           </div>
-        )}
+
+          {locationError && (
+            <p className="text-sm text-red-600">{locationError}</p>
+          )}
+
+          <div className="space-y-2">
+            <LocationChip
+              location={exploreLocationToChip(location)}
+              onRemove={() => setShowLocationSearch(true)}
+              actionLabel={showLocationSearch ? undefined : "Change location"}
+            />
+
+            {showLocationSearch && (
+              <DestinationAutocomplete
+                value={locationQuery}
+                onChange={setLocationQuery}
+                onSelect={handleLocationSelect}
+                placeholder="Search cities, states, or countries…"
+                autoFocus
+              />
+            )}
+          </div>
+        </div>
 
         <div className="flex gap-2">
           <div className="relative flex-1">

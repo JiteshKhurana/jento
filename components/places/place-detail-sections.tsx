@@ -144,7 +144,7 @@ function OverviewSection({
       </p>
 
       {hasInfoRows && (
-        <div className="space-y-3 rounded-xl border border-neutral-100 bg-neutral-50/70 px-4 py-3.5">
+        <div className="space-y-3 rounded-xl px-4 py-3.5">
           {priceLabel && (
             <InfoRow icon={<DollarSign className="h-4 w-4" />}>
               <span className="font-medium text-neutral-900">{priceLabel}</span>
@@ -332,7 +332,9 @@ function LocationSection({
         <div className="flex items-start gap-3">
           <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-neutral-400" />
           <div className="min-w-0 flex-1">
-            <p className="wrap-break-word text-sm text-neutral-700">{info.address}</p>
+            <p className="wrap-break-word text-sm text-neutral-700">
+              {info.address}
+            </p>
             <button
               type="button"
               onClick={handleCopy}

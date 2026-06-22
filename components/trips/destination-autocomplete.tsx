@@ -209,9 +209,14 @@ export function DestinationAutocomplete({
 type LocationChipProps = {
   location: SelectedLocation;
   onRemove: () => void;
+  actionLabel?: string;
 };
 
-export function LocationChip({ location, onRemove }: LocationChipProps) {
+export function LocationChip({
+  location,
+  onRemove,
+  actionLabel,
+}: LocationChipProps) {
   return (
     <div className="flex items-center gap-2 rounded-xl border border-neutral-200 bg-neutral-50 px-3 py-2.5">
       <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-neutral-200/80">
@@ -225,19 +230,35 @@ export function LocationChip({ location, onRemove }: LocationChipProps) {
           <p className="truncate text-xs text-neutral-500">{location.label}</p>
         )}
       </div>
-      <button
-        type="button"
-        onClick={onRemove}
-        className="rounded-full p-1 text-neutral-400 transition-colors hover:bg-neutral-200 hover:text-neutral-700 cursor-pointer"
-        aria-label={`Remove ${location.name}`}
-      >
-        <X className="h-4 w-4" />
-      </button>
+      {actionLabel ? (
+        <button
+          type="button"
+          onClick={onRemove}
+          className="shrink-0 rounded-full border border-neutral-200 bg-white px-3 py-1 text-xs font-medium text-neutral-600 transition-colors hover:border-neutral-300 hover:bg-neutral-100 cursor-pointer"
+        >
+          {actionLabel}
+        </button>
+      ) : (
+        <button
+          type="button"
+          onClick={onRemove}
+          className="rounded-full p-1 text-neutral-400 transition-colors hover:bg-neutral-200 hover:text-neutral-700 cursor-pointer"
+          aria-label={`Remove ${location.name}`}
+        >
+          <X className="h-4 w-4" />
+        </button>
+      )}
     </div>
   );
 }
 
-export function AddLocationButton({ onClick }: { onClick: () => void }) {
+export function AddLocationButton({
+  onClick,
+  label = "Add location",
+}: {
+  onClick: () => void;
+  label?: string;
+}) {
   return (
     <button
       type="button"
@@ -245,7 +266,7 @@ export function AddLocationButton({ onClick }: { onClick: () => void }) {
       className="inline-flex items-center gap-1.5 rounded-full border border-neutral-200 bg-white px-3 py-1.5 text-sm text-neutral-600 transition-colors hover:border-neutral-300 hover:bg-neutral-50 cursor-pointer"
     >
       <Plus className="h-3.5 w-3.5" />
-      Add location
+      {label}
     </button>
   );
 }
