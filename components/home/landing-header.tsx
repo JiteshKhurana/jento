@@ -13,7 +13,6 @@ interface LandingHeaderProps {
 const navLinks = [
   { href: "/trips", label: "My Trips" },
   { href: "/explore", label: "Explore" },
-  { href: "/inspire", label: "Inspiration" },
 ] as const;
 
 export function LandingHeader({ userId }: LandingHeaderProps) {

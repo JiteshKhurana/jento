@@ -30,7 +30,6 @@ import {
 const navLinks = [
   { href: "/trips", label: "My trips", icon: Map },
   { href: "/explore", label: "Explore", icon: Search },
-  // { href: "/inspire", label: "Inspire", icon: Sparkles },
 ] as const;
 
 function SidebarCollapseButton() {

@@ -8,16 +8,9 @@ import { LandingJustAskSection } from "@/components/home/landing-just-ask-sectio
 import { LandingPersonalTouchSection } from "@/components/home/landing-personal-touch-section";
 import { LandingItinerarySteps } from "@/components/home/landing-itinerary-steps";
 import { LandingPageSections } from "@/components/home/landing-page-sections";
-import { FEATURED_DESTINATIONS } from "@/lib/inspire/templates";
-import { getUnsplashPhoto } from "@/lib/unsplash/photos";
 
 export default async function HomePage() {
   const { userId } = await auth();
-
-  const previewDestinations = FEATURED_DESTINATIONS.slice(0, 4);
-  const previewPhotos = await Promise.all(
-    previewDestinations.map((d) => getUnsplashPhoto(d.unsplashQuery)),
-  );
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -29,11 +22,7 @@ export default async function HomePage() {
         <LandingCuratedSection />
         <LandingJustAskSection />
         <LandingPersonalTouchSection />
-        <LandingPageSections
-          userId={userId ?? null}
-          previewPhotos={previewPhotos}
-          previewDestinations={previewDestinations}
-        />
+        <LandingPageSections userId={userId ?? null} />
       </main>
 
       {/* ── Footer ─────────────────────────────────────────── */}

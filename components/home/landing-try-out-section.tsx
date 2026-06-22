@@ -23,7 +23,7 @@ export function LandingTryOutSection({ userId }: LandingTryOutSectionProps) {
 
   async function handleSelect(location: SelectedLocation) {
     if (!userId) {
-      router.push(`/sign-up?redirect=${encodeURIComponent("/inspire")}`);
+      router.push(`/sign-up?redirect=${encodeURIComponent("/")}`);
       return;
     }
 

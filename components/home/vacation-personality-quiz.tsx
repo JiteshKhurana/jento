@@ -217,7 +217,7 @@ export function VacationPersonalityQuiz() {
                 asChild
                 className="font-francois rounded-full px-6"
               >
-                <Link href="/inspire">Find destinations</Link>
+                <Link href="/explore">Find destinations</Link>
               </Button>
               <Button
                 type="button"
