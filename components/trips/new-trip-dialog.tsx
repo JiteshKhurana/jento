@@ -143,11 +143,7 @@ export function NewTripDialog({ open, onOpenChange }: NewTripDialogProps) {
   const tripDays = useMemo(() => {
     if (timingMode === "flexible") {
       const days = Number(flexibleDays);
-      if (
-        flexibleDays.trim() !== "" &&
-        days > 0 &&
-        days <= MAX_TRIP_DAYS
-      ) {
+      if (flexibleDays.trim() !== "" && days > 0 && days <= MAX_TRIP_DAYS) {
         return days;
       }
       return null;
@@ -155,10 +151,8 @@ export function NewTripDialog({ open, onOpenChange }: NewTripDialogProps) {
     if (timingMode === "dates" && dateRange?.from) {
       const end = dateRange.to ?? dateRange.from;
       return (
-        differenceInCalendarDays(
-          startOfDay(end),
-          startOfDay(dateRange.from),
-        ) + 1
+        differenceInCalendarDays(startOfDay(end), startOfDay(dateRange.from)) +
+        1
       );
     }
     return null;
@@ -765,43 +759,46 @@ export function NewTripDialog({ open, onOpenChange }: NewTripDialogProps) {
                 </div>
 
                 {showRecommendedDays && (
-                    <div className="rounded-xl border border-amber-100 bg-amber-50/80 px-3.5 py-3">
-                      {recommendedDaysLoading ? (
-                        <div className="flex items-center gap-2 text-sm text-neutral-600">
-                          <Spinner className="h-4 w-4" />
-                          Calculating recommended stay…
+                  <div className="rounded-xl border border-amber-100 bg-amber-50/80 px-3.5 py-3">
+                    {recommendedDaysLoading ? (
+                      <div className="flex items-center gap-2 text-sm text-neutral-600">
+                        <Spinner className="h-4 w-4" />
+                        Calculating recommended stay…
+                      </div>
+                    ) : displayedRecommendedDays ? (
+                      <div className="flex items-start gap-2">
+                        <Lightbulb className="mt-0.5 h-4 w-4 shrink-0 text-amber-600" />
+                        <div className="min-w-0 flex-1">
+                          <p className="text-sm font-medium text-neutral-900">
+                            Recommended:{" "}
+                            {formatRecommendedDaysLabel(
+                              displayedRecommendedDays,
+                            )}
+                          </p>
+                          <p className="mt-0.5 text-xs text-neutral-600">
+                            {displayedRecommendedDays.summary}
+                          </p>
+                          {displayedRecommendedDays.perDestination &&
+                            displayedRecommendedDays.perDestination.length >
+                              1 && (
+                              <p className="mt-1 text-xs text-neutral-500">
+                                {displayedRecommendedDays.perDestination
+                                  .map(
+                                    (stop) =>
+                                      `${stop.name}: ${stop.days} ${stop.days === 1 ? "day" : "days"}`,
+                                  )
+                                  .join(" · ")}
+                              </p>
+                            )}
                         </div>
-                      ) : displayedRecommendedDays ? (
-                        <div className="flex items-start gap-2">
-                          <Lightbulb className="mt-0.5 h-4 w-4 shrink-0 text-amber-600" />
-                          <div className="min-w-0 flex-1">
-                            <p className="text-sm font-medium text-neutral-900">
-                              Recommended:{" "}
-                              {formatRecommendedDaysLabel(displayedRecommendedDays)}
-                            </p>
-                            <p className="mt-0.5 text-xs text-neutral-600">
-                              {displayedRecommendedDays.summary}
-                            </p>
-                            {displayedRecommendedDays.perDestination &&
-                              displayedRecommendedDays.perDestination.length > 1 && (
-                                <p className="mt-1 text-xs text-neutral-500">
-                                  {displayedRecommendedDays.perDestination
-                                    .map(
-                                      (stop) =>
-                                        `${stop.name}: ${stop.days} ${stop.days === 1 ? "day" : "days"}`,
-                                    )
-                                    .join(" · ")}
-                                </p>
-                              )}
-                          </div>
-                        </div>
-                      ) : null}
-                    </div>
-                  )}
+                      </div>
+                    ) : null}
+                  </div>
+                )}
               </div>
 
               <div className="space-y-4">
-                <Label>Timing</Label>
+                <Label>Duration</Label>
                 <div className="flex gap-2">
                   {(["dates", "flexible"] as const).map((mode) => (
                     <button
@@ -987,7 +984,9 @@ export function NewTripDialog({ open, onOpenChange }: NewTripDialogProps) {
                       recommendedBudgetLoading
                         ? "Calculating…"
                         : recommendedBudget
-                          ? formatRecommendedBudgetPlaceholder(recommendedBudget)
+                          ? formatRecommendedBudgetPlaceholder(
+                              recommendedBudget,
+                            )
                           : "e.g. 1500"
                     }
                     value={budgetAmount}
