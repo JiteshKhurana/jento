@@ -47,6 +47,7 @@ import {
   type TransportMode,
 } from "@/lib/itinerary/day-insights";
 import { Spinner } from "@/components/ui/spinner";
+import { Switch } from "@/components/ui/switch";
 import { cn } from "@/lib/utils";
 import { ItemEditor } from "@/components/itinerary/item-editor";
 import { DayAudioButton } from "@/components/itinerary/day-audio-button";
@@ -685,6 +686,7 @@ type DayItemsProps = {
   onSelectItem?: (itemId: string) => void;
   sortable: boolean;
   readOnly?: boolean;
+  showDistances?: boolean;
 };
 
 function DayItems({
@@ -696,6 +698,7 @@ function DayItems({
   onSelectItem,
   sortable,
   readOnly = false,
+  showDistances = true,
 }: DayItemsProps) {
   const [reordering, setReordering] = useState(false);
   const dndId = useId();
@@ -839,7 +842,9 @@ function DayItems({
                     />
                   )}
                 </div>
-                {!isLast && (distanceKm !== null || directionsUrl) && (
+                {!isLast &&
+                  showDistances &&
+                  (distanceKm !== null || directionsUrl) && (
                   <div className="mb-3 flex items-center gap-2">
                     {distanceKm !== null && (
                       <span className="inline-flex items-center gap-1 rounded-full bg-neutral-100 px-2.5 py-1 text-[11px] font-medium text-neutral-500">
@@ -914,6 +919,7 @@ export function DayTimeline({
   budgetCurrency = DEFAULT_BUDGET_CURRENCY,
   destination,
 }: DayTimelineProps) {
+  const [showDistances, setShowDistances] = useState(true);
   const mounted = useSyncExternalStore(
     () => () => {},
     () => true,
@@ -1003,6 +1009,16 @@ export function DayTimeline({
                   destination={destination}
                   dayColor={getDayColor(day.dayNumber)}
                 />
+                {day.items.length > 1 && (
+                  <div className="mb-4 flex items-center gap-2">
+                    <span className="text-sm text-neutral-600">Distances</span>
+                    <Switch
+                      checked={showDistances}
+                      onCheckedChange={setShowDistances}
+                      aria-label="Show distances between stops"
+                    />
+                  </div>
+                )}
               </>
             )}
 
@@ -1015,6 +1031,7 @@ export function DayTimeline({
               onSelectItem={onSelectItem}
               sortable={mounted && !readOnly}
               readOnly={readOnly}
+              showDistances={showDistances}
             />
           </section>
         );

@@ -241,6 +241,8 @@ export function TripPlanner({
 
   const bookingsPanel = <BookingsPanel tripId={trip.id} readOnly={!isOwner} />;
 
+  const totalItems = days.reduce((n, d) => n + d.items.length, 0);
+
   const itineraryPanel = (
     <div className="relative min-h-full">
       {refreshing && (
@@ -302,8 +304,6 @@ export function TripPlanner({
       />
     </div>
   );
-
-  const totalItems = days.reduce((n, d) => n + d.items.length, 0);
 
   return (
     <AppShell fullHeight className="overflow-hidden bg-background">
