@@ -30,7 +30,7 @@ export function LandingHeader({ userId }: LandingHeaderProps) {
     <div className="sticky top-0 z-50 flex justify-center px-4 py-4 md:px-8 md:py-6">
       <header
         className={cn(
-          "flex w-full max-w-6xl items-center justify-between gap-4 rounded-full bg-white px-5 py-2.5 shadow-[0_0_10px_rgba(0,0,0,0.15)] transition-[background-color,backdrop-filter] duration-300 dark:bg-black dark:shadow-[0_0_10px_rgba(255,255,255,0.08)] sm:px-8 md:px-12 lg:px-20",
+          "flex w-full max-w-304 items-center justify-between gap-4 rounded-full bg-white px-4 py-2.5 shadow-[0_0_10px_rgba(0,0,0,0.15)] transition-[background-color,backdrop-filter] duration-300 dark:bg-black dark:shadow-[0_0_10px_rgba(255,255,255,0.08)] sm:px-6 md:px-8 lg:px-12",
           isScrolled && "bg-white/50 backdrop-blur-lg dark:bg-black/50",
         )}
       >
@@ -61,7 +61,10 @@ export function LandingHeader({ userId }: LandingHeaderProps) {
           <Link href="/explore" className={exploreLinkClassName}>
             Explore
           </Link>
-          <Link href={userId ? "/trips" : "/sign-in"} className={primaryActionClassName}>
+          <Link
+            href={userId ? "/trips" : "/sign-in"}
+            className={primaryActionClassName}
+          >
             {userId ? "My Trips" : "Sign in"}
           </Link>
         </div>

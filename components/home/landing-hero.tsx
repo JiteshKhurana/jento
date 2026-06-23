@@ -60,7 +60,7 @@ export function LandingHero({ userId }: LandingHeroProps) {
               <br />
               More exploring.
             </h1>
-            <p className="text-white/90 text-base sm:text-lg lg:text-xl lg:leading-7 max-w-[420px]">
+            <p className="whitespace-nowrap text-white/90 text-base sm:text-lg lg:text-xl lg:leading-7">
               AI-powered itineraries curated for any destination.
             </p>
           </motion.div>

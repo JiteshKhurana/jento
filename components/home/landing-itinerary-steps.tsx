@@ -55,7 +55,7 @@ export function LandingItinerarySteps() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: "-60px" }}
                 transition={{ duration: 0.6, delay: i * 0.08, ease }}
-                className="flex h-[220px] w-[140px] shrink-0 flex-col items-center justify-center gap-7 rounded-[120px] bg-[#f9c993] px-4 py-5 dark:bg-[#FF8800]/40 sm:h-[250px] sm:w-[160px] sm:gap-8 sm:rounded-[140px] md:h-[273px] md:w-[186px] md:gap-9 md:rounded-[162px] lg:w-[188px]"
+                className="flex h-[220px] w-[140px] shrink-0 flex-col items-center justify-center gap-7 rounded-[120px] bg-[#FFC480] px-4 py-5 dark:bg-[#663600] sm:h-[250px] sm:w-[160px] sm:gap-8 sm:rounded-[140px] md:h-[273px] md:w-[186px] md:gap-9 md:rounded-[162px] lg:w-[188px]"
               >
                 <p className="whitespace-pre-line text-center text-sm font-medium leading-6 text-black dark:text-white sm:text-base md:text-[18px] md:leading-6">
                   {label}

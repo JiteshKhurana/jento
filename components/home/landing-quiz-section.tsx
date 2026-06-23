@@ -24,11 +24,7 @@ export function LandingQuizSection() {
         </h2>
 
         <div className="w-full rounded-4xl">
-          <div className="relative flex min-h-[280px] flex-col overflow-hidden rounded-[30px] sm:min-h-[320px] lg:min-h-[420px] lg:flex-row lg:items-center">
-            <div
-              className="absolute inset-0 bg-[linear-gradient(to_left,#FF8800_0%,rgba(255,136,0,0.4)_100%)] opacity-40"
-              aria-hidden
-            />
+          <div className="relative flex min-h-[280px] flex-col overflow-hidden rounded-[30px] bg-[linear-gradient(to_left,#FFB867_0%,#F7E3CD_100%)] dark:bg-[linear-gradient(to_left,#C16700_0%,#291600_100%)] sm:min-h-[320px] lg:min-h-[420px] lg:flex-row lg:items-center">
 
             {started ? (
               <VacationPersonalityQuiz
