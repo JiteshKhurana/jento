@@ -33,6 +33,7 @@ import {
   Car,
   TrainFront,
   Bike,
+  Shuffle,
 } from "lucide-react";
 import { format } from "date-fns";
 import { DEFAULT_BUDGET_CURRENCY, getCurrencySymbol } from "@/lib/trips/intake";
@@ -271,6 +272,20 @@ function ItemBlock({
   readOnly = false,
 }: ItemBlockProps) {
   const [editing, setEditing] = useState(false);
+  const [suggestingAlternative, setSuggestingAlternative] = useState(false);
+
+  async function handleSuggestAlternative(e: React.MouseEvent) {
+    e.stopPropagation();
+    setSuggestingAlternative(true);
+    try {
+      await fetch(`/api/trips/${tripId}/items/${item.id}/suggest-alternative`, {
+        method: "POST",
+      });
+      onUpdate?.();
+    } finally {
+      setSuggestingAlternative(false);
+    }
+  }
 
   const imageUrl = resolveImageUrl(
     item.googlePlaceId,
@@ -345,16 +360,36 @@ function ItemBlock({
       tabIndex={onSelectItem ? 0 : undefined}
       onKeyDown={(e) => e.key === "Enter" && onSelectItem?.(item.id)}
     >
+      {/* Loading overlay while fetching alternative */}
+      {suggestingAlternative && (
+        <div className="absolute inset-0 z-30 flex flex-col items-center justify-center gap-2 rounded-2xl bg-white/85 backdrop-blur-[2px]">
+          <Shuffle className="h-5 w-5 animate-pulse text-violet-500" />
+          <span className="text-[11px] font-medium text-neutral-500">
+            Finding alternative…
+          </span>
+        </div>
+      )}
+
       {/* Drag handle + actions — shown on hover */}
       {!readOnly && (
         <div className="absolute right-2 top-2 z-20 flex items-center gap-1 opacity-0 transition-opacity group-hover:opacity-100">
+          <button
+            type="button"
+            onClick={handleSuggestAlternative}
+            disabled={suggestingAlternative}
+            title="Suggest alternative"
+            className="flex h-7 w-7 cursor-pointer items-center justify-center rounded-full bg-white/90 text-neutral-500 shadow-sm backdrop-blur-sm hover:text-violet-600 disabled:cursor-not-allowed disabled:opacity-50"
+            aria-label="Suggest alternative"
+          >
+            <Shuffle className="h-3.5 w-3.5" />
+          </button>
           <button
             type="button"
             onClick={(e) => {
               e.stopPropagation();
               setEditing(true);
             }}
-            className="flex h-7 w-7 items-center justify-center rounded-full bg-white/90 text-neutral-500 shadow-sm backdrop-blur-sm hover:text-neutral-900"
+            className="flex h-7 w-7 cursor-pointer items-center justify-center rounded-full bg-white/90 text-neutral-500 shadow-sm backdrop-blur-sm hover:text-neutral-900"
             aria-label="Edit"
           >
             <svg
