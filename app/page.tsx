@@ -12,7 +12,7 @@ export default async function HomePage() {
   const { userId } = await auth();
 
   return (
-    <div className="flex min-h-screen flex-col">
+    <div className="bg-hero flex min-h-screen flex-col">
       <LandingHeader userId={userId ?? null} />
 
       <main className="flex flex-1 flex-col">

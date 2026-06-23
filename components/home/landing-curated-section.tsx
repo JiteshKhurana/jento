@@ -40,8 +40,8 @@ export function LandingCuratedSection() {
                 Curated for you
               </h2>
               <p className="text-base leading-7 text-black dark:text-white sm:text-lg sm:leading-8 lg:text-[20px] lg:leading-8">
-                Tell us your preferences, and we&apos;ll build a trip you&apos;ll
-                love.
+                Tell us your preferences, and we&apos;ll build a trip
+                you&apos;ll love.
               </p>
             </div>
           </motion.div>

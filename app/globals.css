@@ -178,20 +178,28 @@ body {
   background-image: none;
 }
 
-.dark .bg-hero {
-  background-color: #000000;
-  background-image: none;
+/* Landing page radial glow — Figma: 1211×1211 at (-746, -482) */
+.bg-hero {
+  --landing-glow-x: -140.5px;
+  --landing-glow-y: 123.5px;
+  --landing-glow-size: 605.5px;
+  background-color: #f8f8f8;
+  background-image: radial-gradient(
+    var(--landing-glow-size) var(--landing-glow-size) at var(--landing-glow-x)
+      var(--landing-glow-y),
+    #ffb867 0%,
+    #f8f8f8 100%
+  );
 }
 
-/* Subtle monochrome hero gradient — used on landing pages */
-.bg-hero {
-  background-color: #fafafa;
-  background-image:
-    radial-gradient(at 8% 12%, rgb(229 229 229 / 0.5) 0px, transparent 52%),
-    radial-gradient(at 88% 8%, rgb(212 212 212 / 0.35) 0px, transparent 46%),
-    radial-gradient(at 55% 90%, rgb(245 245 245 / 0.6) 0px, transparent 48%),
-    radial-gradient(at 28% 68%, rgb(163 163 163 / 0.12) 0px, transparent 42%),
-    radial-gradient(at 72% 50%, rgb(229 229 229 / 0.2) 0px, transparent 40%);
+.dark .bg-hero {
+  background-color: #000000;
+  background-image: radial-gradient(
+    var(--landing-glow-size) var(--landing-glow-size) at var(--landing-glow-x)
+      var(--landing-glow-y),
+    #c16700 0%,
+    #000000 100%
+  );
 }
 
 /* ── Glass / Frosted ─────────────────────────────────── */
