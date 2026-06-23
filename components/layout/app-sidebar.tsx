@@ -58,7 +58,6 @@ function SidebarUserProfile() {
   if (!isLoaded || !user) return null;
 
   const displayName = user.fullName ?? user.username ?? "User";
-  const email = user.primaryEmailAddress?.emailAddress;
 
   return (
     <SidebarMenuItem>
@@ -70,16 +69,9 @@ function SidebarUserProfile() {
             },
           }}
         />
-        <div className="min-w-0 flex-1 group-data-[collapsible=icon]:hidden">
-          <p className="truncate text-sm font-medium leading-tight">
-            {displayName}
-          </p>
-          {email ? (
-            <p className="truncate text-xs leading-tight text-muted-foreground">
-              {email}
-            </p>
-          ) : null}
-        </div>
+        <p className="min-w-0 flex-1 truncate text-sm font-medium leading-tight group-data-[collapsible=icon]:hidden">
+          {displayName}
+        </p>
       </div>
     </SidebarMenuItem>
   );
@@ -120,9 +112,9 @@ export function AppSidebar() {
               size="lg"
               asChild
               tooltip="Jento"
-              className="justify-center"
+              className="group-data-[collapsible=icon]:justify-center"
             >
-              <Link href="/trips" className="justify-center">
+              <Link href="/trips">
                 <Image
                   src="/logoblack.svg"
                   alt=""
