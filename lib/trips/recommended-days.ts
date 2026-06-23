@@ -1,6 +1,6 @@
-import { google } from "@ai-sdk/google";
 import { generateObject } from "ai";
 import { z } from "zod";
+import { gemmaStructuredModel } from "@/lib/ai/gemma-structured";
 import { getGeminiApiKey } from "@/lib/env";
 import { MAX_TRIP_DAYS } from "@/lib/trips/dates";
 
@@ -17,6 +17,8 @@ export type RecommendedDaysResult = {
   summary: string;
   perDestination?: Array<{ name: string; days: number }>;
 };
+
+const SUMMARY_MAX_LENGTH = 140;
 
 const recommendedDaysSchema = z.object({
   days: z
@@ -41,8 +43,9 @@ const recommendedDaysSchema = z.object({
     .describe("Upper bound when a range is more appropriate"),
   summary: z
     .string()
-    .max(140)
-    .describe("One short sentence explaining the recommendation"),
+    .describe(
+      "One short sentence (under 140 characters) explaining the recommendation",
+    ),
   perDestination: z
     .array(
       z.object({
@@ -53,6 +56,18 @@ const recommendedDaysSchema = z.object({
     .optional()
     .describe("Per-stop breakdown for multi-destination trips"),
 });
+
+function normalizeSummary(summary: string): string {
+  const trimmed = summary.trim();
+  if (trimmed.length <= SUMMARY_MAX_LENGTH) return trimmed;
+
+  const truncated = trimmed.slice(0, SUMMARY_MAX_LENGTH - 1).trimEnd();
+  const lastSpace = truncated.lastIndexOf(" ");
+  if (lastSpace > SUMMARY_MAX_LENGTH * 0.6) {
+    return `${truncated.slice(0, lastSpace)}…`;
+  }
+  return `${truncated}…`;
+}
 
 function clampDays(days: number): number {
   return Math.min(MAX_TRIP_DAYS, Math.max(1, Math.round(days)));
@@ -83,7 +98,7 @@ function fallbackRecommendedDays(
   return {
     days,
     perDestination: destinations.length > 1 ? perDestination : undefined,
-    summary,
+    summary: normalizeSummary(summary),
   };
 }
 
@@ -107,7 +122,7 @@ function normalizeResult(
     days,
     minDays: minDays && minDays < days ? minDays : undefined,
     maxDays: maxDays && maxDays > days ? maxDays : undefined,
-    summary: result.summary.trim(),
+    summary: normalizeSummary(result.summary),
     perDestination,
   };
 }
@@ -120,6 +135,9 @@ export async function getRecommendedDays(
 
   const apiKey = getGeminiApiKey();
   if (!apiKey) {
+    console.log(
+      "[recommended-days] Using fallback calculation (no Gemini API key)",
+    );
     return fallbackRecommendedDays(destinations, isRoadTrip);
   }
 
@@ -129,8 +147,9 @@ export async function getRecommendedDays(
 
   try {
     const { object } = await generateObject({
-      model: google("gemini-3.1-flash-lite"),
+      model: gemmaStructuredModel(),
       schema: recommendedDaysSchema,
+      temperature: 0,
       system: `You are an expert travel planner recommending how many days to spend at destinations.
 
 Rules:
@@ -140,7 +159,7 @@ Rules:
 - For multiple destinations on a road trip, recommend days per stop and a sensible total in days.
 - For multiple destinations that are not a road trip, recommend a total trip length and optional per-destination split.
 - Use minDays/maxDays only when a tight range is more honest than one number (e.g. 4-6 days).
-- summary must be one concise sentence, friendly and practical.`,
+- summary must be one concise sentence under 140 characters, friendly and practical.`,
       prompt: `Destinations:
 ${destinationList}
 
@@ -149,8 +168,14 @@ Trip style: ${isRoadTrip ? "road trip with multiple stops" : destinations.length
 How many days do you recommend?`,
     });
 
+    console.log("[recommended-days] Using AI recommendation (Gemma 4 31B)");
+
     return normalizeResult(object, destinations);
-  } catch {
+  } catch (err) {
+    console.log(
+      "[recommended-days] Using fallback calculation (AI request failed)",
+      err,
+    );
     return fallbackRecommendedDays(destinations, isRoadTrip);
   }
 }

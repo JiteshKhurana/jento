@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useUser } from "@clerk/nextjs";
@@ -63,6 +63,10 @@ import {
   type TripPace,
 } from "@/lib/trips/intake";
 import { getCurrentLocation } from "@/lib/locations/get-current-location";
+import {
+  formatRecommendedBudgetPlaceholder,
+  type RecommendedBudgetResult,
+} from "@/lib/trips/recommended-budget";
 import {
   formatRecommendedDaysLabel,
   type RecommendedDaysResult,
@@ -131,6 +135,34 @@ export function NewTripDialog({ open, onOpenChange }: NewTripDialogProps) {
   const [recommendedDays, setRecommendedDays] =
     useState<RecommendedDaysResult | null>(null);
   const [recommendedDaysLoading, setRecommendedDaysLoading] = useState(false);
+  const [recommendedBudget, setRecommendedBudget] =
+    useState<RecommendedBudgetResult | null>(null);
+  const [recommendedBudgetLoading, setRecommendedBudgetLoading] =
+    useState(false);
+
+  const tripDays = useMemo(() => {
+    if (timingMode === "flexible") {
+      const days = Number(flexibleDays);
+      if (
+        flexibleDays.trim() !== "" &&
+        days > 0 &&
+        days <= MAX_TRIP_DAYS
+      ) {
+        return days;
+      }
+      return null;
+    }
+    if (timingMode === "dates" && dateRange?.from) {
+      const end = dateRange.to ?? dateRange.from;
+      return (
+        differenceInCalendarDays(
+          startOfDay(end),
+          startOfDay(dateRange.from),
+        ) + 1
+      );
+    }
+    return null;
+  }, [timingMode, flexibleDays, dateRange]);
 
   useEffect(() => {
     if (!open) return;
@@ -212,6 +244,96 @@ export function NewTripDialog({ open, onOpenChange }: NewTripDialogProps) {
   }, [open, locations, isRoadTrip]);
 
   useEffect(() => {
+    if (!open || locations.length === 0 || tripDays === null) return;
+    if (!departFromCurrent && !departureLocation) return;
+
+    const controller = new AbortController();
+    let active = true;
+
+    async function loadRecommendedBudget() {
+      setRecommendedBudget(null);
+      setRecommendedBudgetLoading(true);
+
+      let departure: {
+        name: string;
+        label: string;
+        countryCode?: string;
+        latitude?: string;
+        longitude?: string;
+      } | null = null;
+
+      if (departFromCurrent) {
+        const currentLocation = await getCurrentLocation();
+        if (!active) return;
+        if (currentLocation) {
+          departure = {
+            name: currentLocation.name,
+            label: currentLocation.label,
+            latitude: currentLocation.latitude,
+            longitude: currentLocation.longitude,
+          };
+        }
+      } else if (departureLocation) {
+        departure = {
+          name: departureLocation.name,
+          label: departureLocation.label,
+          countryCode: departureLocation.countryCode,
+          latitude: departureLocation.latitude,
+          longitude: departureLocation.longitude,
+        };
+      }
+
+      try {
+        const res = await fetch("/api/trips/recommended-budget", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          signal: controller.signal,
+          body: JSON.stringify({
+            destinations: locations.map((location) => ({
+              name: location.name,
+              label: location.label,
+              countryCode: location.countryCode,
+              latitude: location.latitude,
+              longitude: location.longitude,
+            })),
+            departure,
+            days: tripDays,
+            currency: budgetCurrency,
+            isRoadTrip,
+          }),
+        });
+
+        if (!active) return;
+
+        const data: RecommendedBudgetResult | null = res.ok
+          ? await res.json()
+          : null;
+        if (data?.amount) setRecommendedBudget(data);
+        else setRecommendedBudget(null);
+      } catch {
+        // Ignore aborted or failed requests.
+      } finally {
+        if (active) setRecommendedBudgetLoading(false);
+      }
+    }
+
+    void loadRecommendedBudget();
+
+    return () => {
+      active = false;
+      controller.abort();
+    };
+  }, [
+    open,
+    locations,
+    tripDays,
+    budgetCurrency,
+    isRoadTrip,
+    departFromCurrent,
+    departureLocation,
+  ]);
+
+  useEffect(() => {
     if (open) return;
 
     // Defer state resets so they're scheduled after the current render
@@ -244,6 +366,8 @@ export function NewTripDialog({ open, onOpenChange }: NewTripDialogProps) {
       setHeroImageLoading(false);
       setRecommendedDays(null);
       setRecommendedDaysLoading(false);
+      setRecommendedBudget(null);
+      setRecommendedBudgetLoading(false);
     });
   }, [open]);
 
@@ -262,6 +386,20 @@ export function NewTripDialog({ open, onOpenChange }: NewTripDialogProps) {
       if (next.length === 0) setShowSearch(true);
       return next;
     });
+  }
+
+  function handleFlexibleDaysChange(value: string) {
+    if (value === "") {
+      setFlexibleDays("");
+      return;
+    }
+    const num = Number(value);
+    if (Number.isNaN(num) || num < 0) return;
+    if (num > MAX_TRIP_DAYS) {
+      setFlexibleDays(String(MAX_TRIP_DAYS));
+      return;
+    }
+    setFlexibleDays(value);
   }
 
   function handleDateRangeSelect(range: DateRange | undefined) {
@@ -704,7 +842,7 @@ export function NewTripDialog({ open, onOpenChange }: NewTripDialogProps) {
                       max={MAX_TRIP_DAYS}
                       placeholder="e.g. 7"
                       value={flexibleDays}
-                      onChange={(e) => setFlexibleDays(e.target.value)}
+                      onChange={(e) => handleFlexibleDaysChange(e.target.value)}
                       className="max-w-[140px]"
                     />
                   </div>
@@ -845,7 +983,13 @@ export function NewTripDialog({ open, onOpenChange }: NewTripDialogProps) {
                   <Input
                     type="number"
                     min={1}
-                    placeholder="e.g. 1500"
+                    placeholder={
+                      recommendedBudgetLoading
+                        ? "Calculating…"
+                        : recommendedBudget
+                          ? formatRecommendedBudgetPlaceholder(recommendedBudget)
+                          : "e.g. 1500"
+                    }
                     value={budgetAmount}
                     onChange={(e) => setBudgetAmount(e.target.value)}
                     className="flex-1"
