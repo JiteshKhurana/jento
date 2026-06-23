@@ -24,7 +24,7 @@ export function LandingPlannedYourWaySection() {
         />
 
         <div className="absolute inset-0 flex items-start px-8 pt-24 sm:px-10 sm:pt-28 lg:px-14 lg:pt-32">
-          <h2 className="font-francois text-left text-[28px] leading-[1.14] text-black sm:text-[38px] sm:leading-[46px] lg:text-[48px] lg:leading-[56px]">
+          <h2 className="font-francois text-left text-[28px] leading-[1.14] text-black dark:text-black! sm:text-[38px] sm:leading-[46px] lg:text-[48px] lg:leading-[56px]">
             Your trip,
             <br />
             planned your way.

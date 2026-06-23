@@ -57,9 +57,7 @@ export function LandingTryOutSection({ userId }: LandingTryOutSectionProps) {
           tripId: trip.id,
         });
       }
-      router.push(
-        `/trips/${trip.id}?q=${encodeURIComponent(initialMessage)}`,
-      );
+      router.push(`/trips/${trip.id}?q=${encodeURIComponent(initialMessage)}`);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to create trip");
       setCreating(false);
@@ -67,28 +65,24 @@ export function LandingTryOutSection({ userId }: LandingTryOutSectionProps) {
   }
 
   return (
-    <section className="my-16 px-3 py-24 sm:my-20 sm:px-5 md:my-24 md:px-6 md:py-32 lg:my-28 lg:py-40">
+    <section className="relative isolate z-0 my-16 px-3 py-24 sm:my-20 sm:px-5 md:my-24 md:px-6 md:py-32 lg:my-28 lg:py-40">
       <motion.div
         initial={{ opacity: 0, y: 32 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, margin: "-80px" }}
         transition={{ duration: 0.65, ease }}
-        className="relative mx-auto flex w-full max-w-3xl flex-col items-center gap-8 text-center"
+        className="relative z-10 mx-auto flex w-full max-w-3xl flex-col items-center gap-8 text-center"
       >
         <div
           aria-hidden
-          className="pointer-events-none absolute left-1/2 top-1/2 size-[min(100%,48rem)] -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-full opacity-40 sm:size-224 lg:size-256"
-          style={{
-            background:
-              "radial-gradient(circle closest-side at center, rgb(255 162 0 / 100%) 0%, rgb(255 162 0 / 0%) 100%)",
-          }}
+          className="pointer-events-none absolute left-1/2 top-1/2 z-0 size-[min(100%,48rem)] -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-full sm:size-224 lg:size-256 bg-[radial-gradient(circle_closest-side_at_center,#FFB867_0%,#F8F8F8_100%)] dark:bg-[radial-gradient(circle_closest-side_at_center,#C16700_0%,#000000_100%)]"
         />
 
-        <h2 className="relative font-francois text-3xl leading-[1.14] text-foreground sm:text-4xl lg:text-5xl">
+        <h2 className="relative z-10 font-francois text-3xl leading-[1.14] text-foreground sm:text-4xl lg:text-5xl">
           Try Out Now
         </h2>
 
-        <div className="relative w-full max-w-2xl">
+        <div className="relative z-10 w-full max-w-2xl">
           <DestinationAutocomplete
             value={searchQuery}
             onChange={setSearchQuery}
@@ -97,7 +91,7 @@ export function LandingTryOutSection({ userId }: LandingTryOutSectionProps) {
             leadingIcon="search"
             leadingIconClassName="dark:text-white"
             disabled={creating}
-            inputClassName="h-14 rounded-full border-0 bg-card text-base text-foreground shadow-sm ring-1 ring-border placeholder:text-muted-foreground dark:placeholder:text-white focus-visible:border-ring focus-visible:ring-ring/60"
+            inputClassName="h-14 rounded-full border-0 bg-card text-base text-foreground shadow-sm ring-1 ring-border placeholder:text-muted-foreground dark:placeholder:text-white focus-visible:border-black focus-visible:ring-black/60"
           />
           {error && <p className="mt-3 text-sm text-red-600">{error}</p>}
         </div>
