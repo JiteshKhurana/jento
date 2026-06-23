@@ -53,8 +53,43 @@ export function getAvailableFollowUpPrompts(
   hasItinerary: boolean,
   usedMessages: string[],
 ): ChatFollowUp[] {
-  const used = new Set(usedMessages.map((message) => message.trim()));
-  return getFollowUpPrompts(hasItinerary).filter(
-    (prompt) => !used.has(prompt.message.trim()),
+  return filterUsedFollowUpPrompts(
+    getFollowUpPrompts(hasItinerary),
+    usedMessages,
   );
+}
+
+export function filterUsedFollowUpPrompts(
+  prompts: ChatFollowUp[],
+  usedMessages: string[],
+): ChatFollowUp[] {
+  const used = new Set(usedMessages.map((message) => message.trim()));
+  return prompts.filter((prompt) => !used.has(prompt.message.trim()));
+}
+
+export function parseFollowUpPromptsFromMetadata(
+  metadata: unknown,
+): ChatFollowUp[] | null {
+  if (!metadata || typeof metadata !== "object") return null;
+
+  const prompts = (metadata as { followUpPrompts?: unknown }).followUpPrompts;
+  if (!Array.isArray(prompts)) return null;
+
+  const valid = prompts.filter(
+    (prompt): prompt is ChatFollowUp =>
+      typeof prompt === "object" &&
+      prompt !== null &&
+      typeof (prompt as ChatFollowUp).label === "string" &&
+      typeof (prompt as ChatFollowUp).message === "string",
+  );
+
+  return valid.length > 0 ? valid : null;
+}
+
+export function getInitialFollowUpPromptsFromMessages(
+  messages: Array<{ role: string; metadata?: unknown }>,
+): ChatFollowUp[] | null {
+  const last = messages.at(-1);
+  if (!last || last.role.toLowerCase() !== "assistant") return null;
+  return parseFollowUpPromptsFromMetadata(last.metadata);
 }

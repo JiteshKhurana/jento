@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import type { MessageRole } from "@/app/generated/prisma/enums";
+import type { ChatFollowUp } from "@/lib/chat/follow-up-prompts";
 
 async function saveMessageIfNew(
   tripId: string,
@@ -28,6 +29,30 @@ export function saveUserMessageIfNew(tripId: string, content: string) {
 
 export function saveAssistantMessageIfNew(tripId: string, content: string) {
   return saveMessageIfNew(tripId, "ASSISTANT", content);
+}
+
+export async function saveFollowUpPromptsToLastAssistant(
+  tripId: string,
+  prompts: ChatFollowUp[],
+) {
+  const lastAssistant = await prisma.chatMessage.findFirst({
+    where: { tripId, role: "ASSISTANT" },
+    orderBy: { createdAt: "desc" },
+    select: { id: true, metadata: true },
+  });
+  if (!lastAssistant) return;
+
+  const existing =
+    typeof lastAssistant.metadata === "object" && lastAssistant.metadata !== null
+      ? lastAssistant.metadata
+      : {};
+
+  await prisma.chatMessage.update({
+    where: { id: lastAssistant.id },
+    data: {
+      metadata: { ...existing, followUpPrompts: prompts },
+    },
+  });
 }
 
 type FinishStep = {

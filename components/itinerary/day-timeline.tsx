@@ -463,7 +463,7 @@ function ItemBlock({
         <div className="flex items-start justify-between gap-2">
           <div className="flex-1 min-w-0">
             <div className="flex flex-wrap items-center gap-1.5">
-              <h4 className="font-semibold leading-snug text-neutral-900 truncate">
+              <h4 className="truncate font-semibold leading-snug text-black dark:text-white">
                 {item.title}
               </h4>
               <span
@@ -473,7 +473,7 @@ function ItemBlock({
               </span>
             </div>
             {item.description && (
-              <p className="mt-0.5 line-clamp-2 text-[11px] leading-relaxed text-neutral-400">
+              <p className="mt-0.5 line-clamp-2 text-[11px] leading-relaxed text-neutral-600 dark:text-neutral-400">
                 {item.description}
               </p>
             )}
@@ -584,7 +584,7 @@ function DayExpenseBreakdown({
         <span className="text-xs font-semibold text-neutral-500 uppercase tracking-wide">
           Estimated daily spend
         </span>
-        <span className="text-sm font-bold" style={{ color: dayColor }}>
+        <span className="text-sm font-bold text-black dark:text-white">
           ~{fmt(totalToShow)}/person
         </span>
       </div>
@@ -657,10 +657,7 @@ function DayActivityInsight({
         <span className="text-xs font-semibold uppercase tracking-wide text-neutral-500">
           Day on foot
         </span>
-        <span
-          className="flex items-center gap-1.5 text-sm font-bold"
-          style={{ color: dayColor }}
-        >
+        <span className="flex items-center gap-1.5 text-sm font-bold text-black dark:text-white">
           <Footprints className="h-3.5 w-3.5" />
           {formatStepCount(insights.estimatedSteps)} steps
         </span>
@@ -993,39 +990,32 @@ export function DayTimeline({
         return (
           <section key={day.id} id={`day-${day.dayNumber}`}>
             {/* Day header banner */}
-            <div
-              className="mb-4 flex items-center gap-3 rounded-xl px-4 py-3"
-              style={{ backgroundColor: `${getDayColor(day.dayNumber)}15` }}
-            >
-              <div
-                className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-sm font-black text-white"
-                style={{ backgroundColor: getDayColor(day.dayNumber) }}
-              >
+            <div className="mb-4 flex items-center gap-3 rounded-xl bg-neutral-100 px-4 py-3 dark:bg-neutral-900">
+              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-neutral-900 text-sm font-black text-white dark:bg-white dark:text-neutral-900">
                 {day.dayNumber}
               </div>
               <div className="flex-1 min-w-0">
-                <h3 className="font-semibold text-neutral-900 truncate">
+                <h3 className="truncate font-semibold text-black dark:text-white">
                   {day.title}
                 </h3>
                 {dayDate && (
-                  <p className="truncate text-xs font-medium text-neutral-500">
+                  <p className="truncate text-xs font-medium text-neutral-600 dark:text-neutral-400">
                     {format(dayDate, "EEEE, MMM d")}
                   </p>
                 )}
                 {day.summary && (
-                  <p className="truncate text-xs text-neutral-500">
+                  <p className="truncate text-xs text-neutral-600 dark:text-neutral-400">
                     {day.summary}
                   </p>
                 )}
               </div>
-              <span className="shrink-0 text-xs font-medium text-neutral-400">
+              <span className="shrink-0 text-xs font-medium text-neutral-500 dark:text-neutral-400">
                 {day.items.length} {day.items.length === 1 ? "stop" : "stops"}
               </span>
               <DayAudioButton
                 tripId={tripId}
                 dayNumber={day.dayNumber}
                 contentKey={`${day.title}|${day.summary ?? ""}|${day.items.map((i) => i.id).join(",")}`}
-                color={getDayColor(day.dayNumber)}
               />
             </div>
 

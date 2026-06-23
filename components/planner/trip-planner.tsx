@@ -29,6 +29,7 @@ import {
   parseTripPreferences,
   type TripPreferences,
 } from "@/lib/trips/preferences";
+import type { ChatFollowUp } from "@/lib/chat/follow-up-prompts";
 
 const TripMap = dynamic(
   () => import("@/components/map/trip-map").then((m) => m.TripMap),
@@ -54,6 +55,7 @@ type TripPlannerProps = {
     itineraries: Array<{ days: ItineraryDayData[] }>;
   };
   initialQuery?: string | null;
+  initialFollowUpPrompts?: ChatFollowUp[] | null;
   isOwner?: boolean;
 };
 
@@ -81,6 +83,7 @@ async function fetchItineraryDays(tripId: string) {
 export function TripPlanner({
   trip: initialTrip,
   initialQuery = null,
+  initialFollowUpPrompts = null,
   isOwner = true,
 }: TripPlannerProps) {
   const [trip, setTrip] = useState(initialTrip);
@@ -223,6 +226,7 @@ export function TripPlanner({
       trip={{ destination: trip.destination, preferences: trip.preferences }}
       initialQuery={chatInitialQuery}
       initialMessages={filteredMessages}
+      initialFollowUpPrompts={initialFollowUpPrompts}
       hasItinerary={days.length > 0}
       onItineraryUpdate={isOwner ? refreshItinerary : undefined}
       readOnly={!isOwner}
@@ -240,8 +244,6 @@ export function TripPlanner({
   );
 
   const bookingsPanel = <BookingsPanel tripId={trip.id} readOnly={!isOwner} />;
-
-  const totalItems = days.reduce((n, d) => n + d.items.length, 0);
 
   const itineraryPanel = (
     <div className="relative min-h-full">
@@ -396,16 +398,7 @@ export function TripPlanner({
                       )}
                     >
                       {view === "chat" && "Chat"}
-                      {view === "itinerary" && (
-                        <>
-                          Itinerary
-                          {totalItems > 0 && (
-                            <span className="ml-1.5 rounded-full bg-neutral-100 px-1.5 py-0.5 text-[10px] font-semibold text-neutral-700">
-                              {totalItems}
-                            </span>
-                          )}
-                        </>
-                      )}
+                      {view === "itinerary" && "Itinerary"}
                       {view === "ideas" && "Ideas"}
                       {view === "bookings" && (
                         <span className="flex items-center justify-center gap-1">
@@ -530,11 +523,6 @@ export function TripPlanner({
                 </TabsTrigger>
                 <TabsTrigger value="itinerary" className="rounded-lg text-xs">
                   Itinerary
-                  {totalItems > 0 && (
-                    <span className="ml-1 rounded-full bg-neutral-100 px-1 py-0 text-[10px] font-bold text-neutral-700">
-                      {totalItems}
-                    </span>
-                  )}
                 </TabsTrigger>
                 <TabsTrigger value="ideas" className="rounded-lg text-xs">
                   Ideas

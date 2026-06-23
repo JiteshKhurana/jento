@@ -11,6 +11,7 @@ import { ChatMarkdown } from "@/components/chat/chat-markdown";
 import { ThinkingIndicator } from "@/components/chat/thinking-indicator";
 import { FollowUpPrompts } from "@/components/chat/follow-up-prompts";
 import {
+  filterUsedFollowUpPrompts,
   getAvailableFollowUpPrompts,
   type ChatFollowUp,
 } from "@/lib/chat/follow-up-prompts";
@@ -30,6 +31,7 @@ type ChatPanelProps = {
   trip?: TripContext;
   initialQuery?: string | null;
   initialMessages?: Array<{ role: string; content: string }>;
+  initialFollowUpPrompts?: ChatFollowUp[] | null;
   hasItinerary?: boolean;
   onItineraryUpdate?: () => void;
   readOnly?: boolean;
@@ -55,6 +57,7 @@ export function ChatPanel({
   trip,
   initialQuery = null,
   initialMessages = [],
+  initialFollowUpPrompts = null,
   hasItinerary = false,
   onItineraryUpdate,
   readOnly = false,
@@ -63,11 +66,12 @@ export function ChatPanel({
   const [input, setInput] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [dynamicPrompts, setDynamicPrompts] = useState<ChatFollowUp[] | null>(
-    null,
+    initialFollowUpPrompts,
   );
   const [promptsLoading, setPromptsLoading] = useState(false);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const sentInitialQuery = useRef(false);
+  const fetchedLegacyPrompts = useRef(Boolean(initialFollowUpPrompts?.length));
   const onItineraryUpdateRef = useRef(onItineraryUpdate);
 
   useEffect(() => {
@@ -170,7 +174,12 @@ export function ChatPanel({
     () => getAvailableFollowUpPrompts(hasItinerary, usedUserMessages),
     [hasItinerary, usedUserMessages],
   );
-  const followUpPrompts = dynamicPrompts ?? staticFollowUpPrompts;
+  const followUpPrompts = useMemo(() => {
+    const base = dynamicPrompts ?? staticFollowUpPrompts;
+    return dynamicPrompts
+      ? filterUsedFollowUpPrompts(base, usedUserMessages)
+      : base;
+  }, [dynamicPrompts, staticFollowUpPrompts, usedUserMessages]);
   const lastMessage = messages.at(-1);
   const showFollowUps =
     !readOnly &&
@@ -180,6 +189,30 @@ export function ChatPanel({
     lastMessage?.role === "assistant" &&
     getMessageText(lastMessage).length > 0 &&
     (promptsLoading || followUpPrompts.length > 0);
+
+  useEffect(() => {
+    if (fetchedLegacyPrompts.current || readOnly || !trip) return;
+    if (initialFollowUpPrompts?.length) return;
+    if (status !== "ready") return;
+
+    const last = messages.at(-1);
+    if (!last || last.role !== "assistant") return;
+    if (!getMessageText(last)) return;
+
+    fetchedLegacyPrompts.current = true;
+    const plainMessages = messages.map((m) => ({
+      role: m.role,
+      content: getMessageText(m),
+    }));
+    fetchDynamicPrompts(plainMessages);
+  }, [
+    fetchDynamicPrompts,
+    initialFollowUpPrompts,
+    messages,
+    readOnly,
+    status,
+    trip,
+  ]);
 
   useEffect(() => {
     if (

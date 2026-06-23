@@ -312,25 +312,22 @@ body {
 }
 
 /* Category badge colors */
-.badge-restaurant {
+.badge-restaurant,
+.badge-attraction,
+.badge-hotel,
+.badge-activity,
+.badge-transport {
   background-color: #f5f5f5;
   color: #404040;
 }
-.badge-attraction {
-  background-color: #eff6ff;
-  color: #1d4ed8;
-}
-.badge-hotel {
-  background-color: #faf5ff;
-  color: #7e22ce;
-}
-.badge-activity {
-  background-color: #f0fdf4;
-  color: #15803d;
-}
-.badge-transport {
-  background-color: #f0f9ff;
-  color: #0369a1;
+
+.dark .badge-restaurant,
+.dark .badge-attraction,
+.dark .badge-hotel,
+.dark .badge-activity,
+.dark .badge-transport {
+  background-color: #262626;
+  color: #d4d4d4;
 }
 
 /* ── Chat input ──────────────────────────────────────── */

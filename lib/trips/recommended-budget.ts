@@ -21,26 +21,38 @@ export type RecommendedBudgetInput = {
 };
 
 export type RecommendedBudgetResult = {
-  amount: number;
+  minAmount: number;
+  maxAmount: number;
   summary: string;
 };
 
 const SUMMARY_MAX_LENGTH = 140;
 
-const recommendedBudgetSchema = z.object({
-  amount: z
-    .number()
-    .int()
-    .min(1)
-    .describe(
-      "Recommended total budget per person for the trip, in the requested currency",
-    ),
-  summary: z
-    .string()
-    .describe(
-      "One short sentence (under 140 characters) explaining the recommendation",
-    ),
-});
+const recommendedBudgetSchema = z
+  .object({
+    minAmount: z
+      .number()
+      .int()
+      .min(1)
+      .describe(
+        "Budget-conscious total per person (hostels/budget stays, street food, free or low-cost sights)",
+      ),
+    maxAmount: z
+      .number()
+      .int()
+      .min(1)
+      .describe(
+        "Luxury total per person (premium hotels, fine dining, premium experiences and transport)",
+      ),
+    summary: z
+      .string()
+      .describe(
+        "One short sentence (under 140 characters) explaining the budget-to-luxury range",
+      ),
+  })
+  .refine((data) => data.maxAmount >= data.minAmount, {
+    message: "maxAmount must be greater than or equal to minAmount",
+  });
 
 function normalizeSummary(summary: string): string {
   const trimmed = summary.trim();
@@ -210,9 +222,12 @@ function estimateTransportCost(input: RecommendedBudgetInput): number {
   );
 }
 
+type DailyRateTier = "low" | "mid" | "high";
+
 function fallbackDailyRate(
   currency: string,
   destinations: RecommendedBudgetLocation[],
+  tier?: DailyRateTier,
 ): number {
   const label = destinations
     .map((d) => d.label)
@@ -228,7 +243,7 @@ function fallbackDailyRate(
       label,
     );
 
-  const rates: Record<string, { low: number; mid: number; high: number }> = {
+  const rates: Record<string, Record<DailyRateTier, number>> = {
     INR: { low: 2500, mid: 4500, high: 9000 },
     USD: { low: 60, mid: 120, high: 250 },
     EUR: { low: 55, mid: 110, high: 230 },
@@ -239,18 +254,30 @@ function fallbackDailyRate(
     SGD: { low: 80, mid: 150, high: 300 },
   };
 
-  const tier = isHighCost ? "high" : isLowCost ? "low" : "mid";
-  return rates[currency]?.[tier] ?? rates.USD[tier];
+  const resolvedTier =
+    tier ?? (isHighCost ? "high" : isLowCost ? "low" : "mid");
+  return rates[currency]?.[resolvedTier] ?? rates.USD[resolvedTier];
 }
 
 function fallbackRecommendedBudget(
   input: RecommendedBudgetInput,
 ): RecommendedBudgetResult {
   const days = Math.min(MAX_TRIP_DAYS, Math.max(1, Math.round(input.days)));
-  const dailyRate = fallbackDailyRate(input.currency, input.destinations);
-  const onTripSpend = dailyRate * days;
+  const budgetDailyRate = fallbackDailyRate(
+    input.currency,
+    input.destinations,
+    "low",
+  );
+  const luxuryDailyRate = fallbackDailyRate(
+    input.currency,
+    input.destinations,
+    "high",
+  );
   const transportCost = estimateTransportCost(input);
-  const amount = clampAmount(onTripSpend + transportCost);
+  const minAmount = clampAmount(budgetDailyRate * days + transportCost);
+  const maxAmount = clampAmount(
+    Math.max(minAmount, luxuryDailyRate * days + transportCost),
+  );
 
   const destinationName =
     input.destinations.length === 1
@@ -266,9 +293,10 @@ function fallbackRecommendedBudget(
     : "before travel to the destination";
 
   return {
-    amount,
+    minAmount,
+    maxAmount,
     summary: normalizeSummary(
-      `A comfortable mid-range budget for ${days} days in ${destinationName}, ${transportNote}.`,
+      `Budget to luxury range for ${days} days in ${destinationName}, ${transportNote}.`,
     ),
   };
 }
@@ -307,16 +335,18 @@ export async function getRecommendedBudget(
       model: gemmaStructuredModel(),
       schema: recommendedBudgetSchema,
       temperature: 0,
-      system: `You are an expert travel planner recommending a realistic per-person trip budget.
+      system: `You are an expert travel planner recommending a realistic per-person trip budget range.
 
 Rules:
-- Return amount as a total per person for the full trip (not per day), in ${input.currency}.
-- Cover mid-range travel: decent stays, local food, main sights, and local transport — not luxury, not ultra-budget backpacking.
+- Return minAmount and maxAmount as totals per person for the full trip (not per day), in ${input.currency}.
+- minAmount: budget-conscious travel — hostels or budget hotels, street food and casual meals, free or low-cost sights, public transport.
+- maxAmount: luxury travel — premium hotels, fine dining, premium experiences, private or premium transport where typical.
+- maxAmount must be greater than or equal to minAmount.
 - ${transportRule}
-- Add on-trip spending on top of that transport cost.
-- amount must be a positive whole number in ${input.currency}.
+- Add on-trip spending on top of transport for both tiers (budget tier uses economy transport; luxury tier may include premium options).
+- Both amounts must be positive whole numbers in ${input.currency}.
 - For multi-destination trips, include inter-city transport within the trip.
-- summary must be one concise sentence under 140 characters, friendly and practical.`,
+- summary must be one concise sentence under 140 characters describing the budget-to-luxury range.`,
       prompt: `${buildDeparturePromptLine(input.departure)}
 
 Destinations:
@@ -326,13 +356,17 @@ Trip length: ${days} days
 Currency: ${input.currency}
 Trip style: ${input.isRoadTrip ? "road trip with multiple stops" : input.destinations.length > 1 ? "multi-city trip" : "single-city trip"}
 
-What total budget per person do you recommend?`,
+What budget-to-luxury range per person do you recommend (minAmount to maxAmount)?`,
     });
 
     console.log("[recommended-budget] Using AI recommendation (Gemma 4 31B)");
 
+    const minAmount = clampAmount(object.minAmount);
+    const maxAmount = clampAmount(Math.max(minAmount, object.maxAmount));
+
     return {
-      amount: clampAmount(object.amount),
+      minAmount,
+      maxAmount,
       summary: normalizeSummary(object.summary),
     };
   } catch (err) {
@@ -347,5 +381,5 @@ What total budget per person do you recommend?`,
 export function formatRecommendedBudgetPlaceholder(
   result: RecommendedBudgetResult,
 ): string {
-  return `Recommended: ${result.amount.toLocaleString()}`;
+  return `Recommended: ${result.minAmount.toLocaleString()} - ${result.maxAmount.toLocaleString()}`;
 }

@@ -3,6 +3,7 @@ import { generateObject } from "ai";
 import { z } from "zod";
 import { NextResponse } from "next/server";
 import { requireCurrentDbUser, requireTripForUser } from "@/lib/auth";
+import { saveFollowUpPromptsToLastAssistant } from "@/lib/chat/persistence";
 import { formatTripDateRange, getExpectedTripDayCount } from "@/lib/trips/dates";
 import { parseTripPreferences } from "@/lib/trips/preferences";
 
@@ -105,6 +106,8 @@ Rules:
       system: systemPrompt,
       prompt: userPrompt,
     });
+
+    await saveFollowUpPromptsToLastAssistant(tripId, object.prompts);
 
     return NextResponse.json(object);
   } catch (err) {

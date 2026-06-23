@@ -302,7 +302,7 @@ export function NewTripDialog({ open, onOpenChange }: NewTripDialogProps) {
         const data: RecommendedBudgetResult | null = res.ok
           ? await res.json()
           : null;
-        if (data?.amount) setRecommendedBudget(data);
+        if (data?.minAmount && data?.maxAmount) setRecommendedBudget(data);
         else setRecommendedBudget(null);
       } catch {
         // Ignore aborted or failed requests.
