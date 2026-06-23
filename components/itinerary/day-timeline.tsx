@@ -337,15 +337,16 @@ function ItemBlock({
 
   if (editing && !readOnly) {
     return (
-      <div className="rounded-2xl border border-neutral-200 bg-neutral-50/30 p-1">
-        <ItemEditor
-          item={item}
-          onSave={handleSave}
-          onDelete={handleDelete}
-          dragHandleProps={dragHandleProps}
-          readOnly={false}
-        />
-      </div>
+      <ItemEditor
+        item={item}
+        badgeClass={badgeClass}
+        badgeLabel={badgeLabel}
+        onSave={handleSave}
+        onDelete={handleDelete}
+        onCancel={() => setEditing(false)}
+        dragHandleProps={dragHandleProps}
+        readOnly={false}
+      />
     );
   }
 

@@ -1,5 +1,9 @@
 import type { ActivityItem } from "@/lib/ai/schemas";
-import { parseDurationMinutes, parseTimeMinutes } from "@/lib/itinerary/time-utils";
+import {
+  formatTimeMinutes,
+  parseDurationMinutes,
+  parseTimeMinutes,
+} from "@/lib/itinerary/time-utils";
 
 const DEFAULT_DURATION: Record<ActivityItem["type"], string> = {
   activity: "2h",
@@ -12,13 +16,7 @@ const MIN_START_MINUTES = 7 * 60;
 const DEFAULT_DAY_START = 9 * 60;
 const GAP_MINUTES = 30;
 
-export function formatTimeMinutes(minutes: number): string {
-  const h24 = Math.floor(minutes / 60) % 24;
-  const m = minutes % 60;
-  const period = h24 >= 12 ? "PM" : "AM";
-  const h12 = h24 === 0 ? 12 : h24 > 12 ? h24 - 12 : h24;
-  return `${h12}:${m.toString().padStart(2, "0")} ${period}`;
-}
+export { formatTimeMinutes } from "@/lib/itinerary/time-utils";
 
 export function defaultDurationForType(type: ActivityItem["type"]): string {
   return DEFAULT_DURATION[type] ?? "1h";

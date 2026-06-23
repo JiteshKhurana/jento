@@ -29,6 +29,50 @@ export function parseDurationMinutes(
   return mins || 60;
 }
 
+export function formatTimeMinutes(minutes: number): string {
+  const h24 = Math.floor(minutes / 60) % 24;
+  const m = minutes % 60;
+  const period = h24 >= 12 ? "PM" : "AM";
+  const h12 = h24 === 0 ? 12 : h24 > 12 ? h24 - 12 : h24;
+  return `${h12}:${m.toString().padStart(2, "0")} ${period}`;
+}
+
+export function toTimeInputValue(timeStr: string | null | undefined): string {
+  const minutes = parseTimeMinutes(timeStr);
+  if (minutes === null) return "";
+  const h = Math.floor(minutes / 60) % 24;
+  const m = minutes % 60;
+  return `${h.toString().padStart(2, "0")}:${m.toString().padStart(2, "0")}`;
+}
+
+export function fromTimeInputValue(value: string): string {
+  if (!value.trim()) return "";
+  const minutes = parseTimeMinutes(value);
+  if (minutes === null) return "";
+  return formatTimeMinutes(minutes);
+}
+
+export function parseDurationHoursValue(
+  duration: string | null | undefined,
+): string {
+  if (!duration) return "";
+  const match = duration.match(/([\d.]+)\s*h/i);
+  return match ? match[1] : "";
+}
+
+export function formatDurationHoursValue(hours: string): string {
+  const trimmed = hours.trim();
+  if (!trimmed) return "";
+  const num = parseFloat(trimmed);
+  if (!Number.isFinite(num) || num <= 0) return "";
+  const normalized = Number.isInteger(num) ? String(num) : String(num);
+  return `${normalized}h`;
+}
+
+export function isValidDurationHoursInput(value: string): boolean {
+  return value === "" || /^\d*\.?\d*$/.test(value);
+}
+
 export function isLodgingType(type: string): boolean {
   const t = type.toLowerCase();
   return (

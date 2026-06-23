@@ -1,10 +1,11 @@
 "use client";
 
-import { useState } from "react";
-import { Pencil, Trash2, GripVertical } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { Clock, GripVertical, Trash2 } from "lucide-react";
 import { Spinner } from "@/components/ui/spinner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import {
   Dialog,
@@ -13,6 +14,13 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  formatDurationHoursValue,
+  fromTimeInputValue,
+  isValidDurationHoursInput,
+  parseDurationHoursValue,
+  toTimeInputValue,
+} from "@/lib/itinerary/time-utils";
 
 type ItemEditorProps = {
   item: {
@@ -22,33 +30,60 @@ type ItemEditorProps = {
     startTime?: string | null;
     duration?: string | null;
   };
+  badgeClass?: string;
+  badgeLabel?: string;
   onSave: (updates: Partial<ItemEditorProps["item"]>) => Promise<void>;
   onDelete: () => Promise<void>;
+  onCancel?: () => void;
   dragHandleProps?: React.HTMLAttributes<HTMLButtonElement>;
   readOnly?: boolean;
 };
 
 export function ItemEditor({
   item,
+  badgeClass,
+  badgeLabel,
   onSave,
   onDelete,
+  onCancel,
   dragHandleProps,
   readOnly = false,
 }: ItemEditorProps) {
-  const [editing, setEditing] = useState(false);
+  const titleRef = useRef<HTMLInputElement>(null);
   const [title, setTitle] = useState(item.title);
   const [description, setDescription] = useState(item.description ?? "");
-  const [startTime, setStartTime] = useState(item.startTime ?? "");
-  const [duration, setDuration] = useState(item.duration ?? "");
+  const [startTimeInput, setStartTimeInput] = useState(() =>
+    toTimeInputValue(item.startTime),
+  );
+  const [durationHours, setDurationHours] = useState(() =>
+    parseDurationHoursValue(item.duration),
+  );
   const [loading, setLoading] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [deleting, setDeleting] = useState(false);
 
+  useEffect(() => {
+    titleRef.current?.focus();
+    titleRef.current?.select();
+  }, []);
+
+  function handleCancel() {
+    setTitle(item.title);
+    setDescription(item.description ?? "");
+    setStartTimeInput(toTimeInputValue(item.startTime));
+    setDurationHours(parseDurationHoursValue(item.duration));
+    onCancel?.();
+  }
+
   async function handleSave() {
     setLoading(true);
-    await onSave({ title, description, startTime, duration });
+    await onSave({
+      title,
+      description,
+      startTime: fromTimeInputValue(startTimeInput),
+      duration: formatDurationHoursValue(durationHours),
+    });
     setLoading(false);
-    setEditing(false);
   }
 
   async function handleConfirmDelete() {
@@ -61,94 +96,162 @@ export function ItemEditor({
     }
   }
 
-  if (editing) {
-    return (
-      <div className="space-y-2 rounded-xl border border-neutral-200 bg-neutral-50 p-3">
-        <Input
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          placeholder="Title"
-        />
-        <div className="grid grid-cols-2 gap-2">
-          <Input
-            value={startTime}
-            onChange={(e) => setStartTime(e.target.value)}
-            placeholder="Start time"
-          />
-          <Input
-            value={duration}
-            onChange={(e) => setDuration(e.target.value)}
-            placeholder="Duration"
-          />
-        </div>
-        <Textarea
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          placeholder="Notes"
-          rows={2}
-        />
-        <div className="flex gap-2">
-          <Button size="sm" onClick={handleSave} disabled={loading}>
-            {loading ? (
-              <>
-                <Spinner size="sm" />
-                Saving…
-              </>
-            ) : (
-              "Save"
-            )}
-          </Button>
-          <Button size="sm" variant="ghost" onClick={() => setEditing(false)}>
-            Cancel
-          </Button>
-        </div>
-      </div>
-    );
-  }
+  const fieldClassName =
+    "h-9 rounded-lg border-neutral-200 bg-white text-sm shadow-none focus-visible:ring-neutral-300/60";
 
   return (
-    <div className="flex items-start gap-2">
+    <div className="relative overflow-hidden rounded-2xl border border-neutral-300/80 bg-white shadow-md ring-2 ring-neutral-900/5">
       {!readOnly && (
-        <button
-          type="button"
-          className="mt-1 cursor-grab text-neutral-300 hover:text-neutral-500"
-          {...dragHandleProps}
-        >
-          <GripVertical className="h-4 w-4" />
-        </button>
-      )}
-      <div className="flex-1">
-        <div className="flex items-center gap-2 text-xs text-neutral-400">
-          {item.startTime && <span>{item.startTime}</span>}
-          {item.duration && <span>· {item.duration}</span>}
-        </div>
-        <p className="font-medium text-neutral-900">{item.title}</p>
-        {item.description && (
-          <p className="mt-0.5 text-xs text-neutral-500">{item.description}</p>
-        )}
-      </div>
-      {!readOnly && (
-        <div className="flex gap-1">
-          <Button
-            size="icon"
-            variant="ghost"
-            className="h-7 w-7"
-            onClick={() => setEditing(true)}
-          >
-            <Pencil className="h-3.5 w-3.5" />
-          </Button>
-          <Button
-            size="icon"
-            variant="ghost"
-            className="h-7 w-7 text-red-500 hover:text-red-600"
+        <div className="absolute right-2 top-2 z-20 flex items-center gap-1">
+          {dragHandleProps && (
+            <button
+              type="button"
+              className="flex h-7 w-7 cursor-grab items-center justify-center rounded-full bg-white/95 text-neutral-400 shadow-sm backdrop-blur-sm active:cursor-grabbing"
+              aria-label="Drag to reorder"
+              {...dragHandleProps}
+            >
+              <GripVertical className="h-3.5 w-3.5" />
+            </button>
+          )}
+          <button
+            type="button"
             onClick={() => setDeleteDialogOpen(true)}
             disabled={loading || deleting}
+            className="flex h-7 w-7 cursor-pointer items-center justify-center rounded-full bg-white/95 text-red-500 shadow-sm backdrop-blur-sm hover:text-red-600 disabled:cursor-not-allowed disabled:opacity-50"
             aria-label="Remove item"
           >
             <Trash2 className="h-3.5 w-3.5" />
-          </Button>
+          </button>
         </div>
       )}
+
+      <div className="p-4 pt-3">
+        <div className="mb-4 flex flex-wrap items-center gap-2 pr-16">
+          <span className="text-[11px] font-semibold uppercase tracking-wide text-neutral-400">
+            Editing stop
+          </span>
+          {badgeLabel && badgeClass && (
+            <span
+              className={`tag-pill shrink-0 text-[10px] py-0 ${badgeClass}`}
+            >
+              {badgeLabel}
+            </span>
+          )}
+        </div>
+
+        <div className="space-y-3">
+          <div className="space-y-1.5">
+            <Label
+              htmlFor={`item-title-${item.id}`}
+              className="text-xs text-neutral-500"
+            >
+              Title
+            </Label>
+            <Input
+              ref={titleRef}
+              id={`item-title-${item.id}`}
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder="Place or activity name"
+              className={`${fieldClassName} font-medium`}
+              onKeyDown={(e) => {
+                if (e.key === "Escape") handleCancel();
+              }}
+            />
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-1.5">
+              <Label
+                htmlFor={`item-start-${item.id}`}
+                className="flex items-center gap-1 text-xs text-neutral-500"
+              >
+                <Clock className="h-3 w-3" />
+                Start time
+              </Label>
+              <Input
+                id={`item-start-${item.id}`}
+                type="time"
+                value={startTimeInput}
+                onChange={(e) => setStartTimeInput(e.target.value)}
+                className={fieldClassName}
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label
+                htmlFor={`item-duration-${item.id}`}
+                className="text-xs text-neutral-500"
+              >
+                Duration
+              </Label>
+              <div className="relative">
+                <Input
+                  id={`item-duration-${item.id}`}
+                  value={durationHours}
+                  onChange={(e) => {
+                    const next = e.target.value;
+                    if (isValidDurationHoursInput(next)) {
+                      setDurationHours(next);
+                    }
+                  }}
+                  inputMode="decimal"
+                  placeholder="2"
+                  className={`${fieldClassName} pr-8`}
+                />
+                <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-sm text-neutral-400">
+                  h
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <div className="space-y-1.5">
+            <Label
+              htmlFor={`item-notes-${item.id}`}
+              className="text-xs text-neutral-500"
+            >
+              Notes
+            </Label>
+            <Textarea
+              id={`item-notes-${item.id}`}
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              placeholder="Add tips, reservations, or reminders…"
+              rows={2}
+              className="min-h-[72px] resize-none rounded-lg border-neutral-200 bg-white text-sm shadow-none focus-visible:ring-neutral-300/60"
+            />
+          </div>
+        </div>
+      </div>
+
+      <div className="flex items-center justify-end gap-2 border-t border-neutral-100 bg-neutral-50/60 px-4 py-3">
+        <Button
+          type="button"
+          size="sm"
+          variant="ghost"
+          className="h-8 px-3 text-neutral-600 cursor-pointer"
+          onClick={handleCancel}
+          disabled={loading || deleting}
+        >
+          Cancel
+        </Button>
+        <Button
+          type="button"
+          size="sm"
+          className="h-8 bg-neutral-900 px-4 text-white hover:bg-neutral-800 cursor-pointer"
+          onClick={handleSave}
+          disabled={loading || !title.trim()}
+        >
+          {loading ? (
+            <>
+              <Spinner size="sm" className="text-white" />
+              Saving…
+            </>
+          ) : (
+            "Save changes"
+          )}
+        </Button>
+      </div>
 
       <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <DialogContent
