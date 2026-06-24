@@ -88,6 +88,8 @@ const FALLBACK_HERO_IMAGE: HeroImage = {
   photographerUrl: "https://unsplash.com?utm_source=jento&utm_medium=referral",
 };
 
+const MAX_DESTINATION_LOCATIONS = 5;
+
 type NewTripDialogProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -367,6 +369,7 @@ export function NewTripDialog({ open, onOpenChange }: NewTripDialogProps) {
 
   function addLocation(location: SelectedLocation) {
     setLocations((prev) => {
+      if (prev.length >= MAX_DESTINATION_LOCATIONS) return prev;
       if (prev.some((l) => l.id === location.id)) return prev;
       return [...prev, location];
     });
@@ -725,23 +728,33 @@ export function NewTripDialog({ open, onOpenChange }: NewTripDialogProps) {
                     />
                   ))}
 
-                  {(showSearch || locations.length === 0) && (
-                    <DestinationAutocomplete
-                      value={searchQuery}
-                      onChange={setSearchQuery}
-                      onSelect={addLocation}
-                      autoFocus={
-                        open && locations.length === 0 && departFromCurrent
-                      }
-                    />
+                  {(showSearch || locations.length === 0) &&
+                    locations.length < MAX_DESTINATION_LOCATIONS && (
+                      <DestinationAutocomplete
+                        value={searchQuery}
+                        onChange={setSearchQuery}
+                        onSelect={addLocation}
+                        autoFocus={
+                          open && locations.length === 0 && departFromCurrent
+                        }
+                      />
+                    )}
+                  {locations.length >= MAX_DESTINATION_LOCATIONS && (
+                    <p className="text-xs text-neutral-500">
+                      Maximum of {MAX_DESTINATION_LOCATIONS} destinations per
+                      trip.
+                    </p>
                   )}
                 </div>
 
                 <div className="flex flex-wrap items-center justify-between gap-3">
-                  {locations.length > 0 && !showSearch && (
-                    <AddLocationButton onClick={() => setShowSearch(true)} />
-                  )}
-                  {locations.length === 0 && <div />}
+                  {locations.length > 0 &&
+                    !showSearch &&
+                    locations.length < MAX_DESTINATION_LOCATIONS && (
+                      <AddLocationButton onClick={() => setShowSearch(true)} />
+                    )}
+                  {(locations.length === 0 ||
+                    locations.length >= MAX_DESTINATION_LOCATIONS) && <div />}
 
                   <div className="flex items-center gap-2.5">
                     <Label
