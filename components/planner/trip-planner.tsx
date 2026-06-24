@@ -3,7 +3,15 @@
 import dynamic from "next/dynamic";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { format } from "date-fns";
-import { Calendar, MapPin } from "lucide-react";
+import {
+  Calendar,
+  CalendarDays,
+  Lightbulb,
+  MapPin,
+  MessageSquare,
+  Plane,
+  Route,
+} from "lucide-react";
 import { AppShell } from "@/components/layout/app-shell";
 import { ChatPanel } from "@/components/chat/chat-panel";
 import { IdeasPanel } from "@/components/ideas/ideas-panel";
@@ -516,64 +524,100 @@ export function TripPlanner({
             defaultValue={isOwner ? "chat" : "itinerary"}
             className="flex min-h-0 flex-1 flex-col"
           >
-            <div className="shrink-0 px-4 pt-3">
-              <TabsList className="grid w-full grid-cols-6 rounded-xl bg-neutral-100 p-1">
-                <TabsTrigger value="chat" className="rounded-lg text-xs">
+            <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
+              <TabsContent
+                value="chat"
+                className="mt-0 min-h-0 flex-1 overflow-hidden data-[state=active]:flex data-[state=inactive]:hidden data-[state=active]:flex-col"
+              >
+                {chatPanel}
+              </TabsContent>
+              <TabsContent
+                ref={itineraryScrollRef}
+                value="itinerary"
+                className="mt-0 min-h-0 flex-1 overflow-auto data-[state=inactive]:hidden"
+              >
+                {itineraryPanel}
+              </TabsContent>
+              <TabsContent
+                value="ideas"
+                className="mt-0 min-h-0 flex-1 overflow-auto data-[state=inactive]:hidden"
+              >
+                {ideasPanel}
+              </TabsContent>
+              <TabsContent
+                value="bookings"
+                className="mt-0 min-h-0 flex-1 overflow-hidden data-[state=active]:flex data-[state=inactive]:hidden data-[state=active]:flex-col"
+              >
+                {bookingsPanel}
+              </TabsContent>
+              <TabsContent
+                value="calendar"
+                className="mt-0 min-h-0 flex-1 overflow-hidden data-[state=inactive]:hidden"
+              >
+                <TripCalendar days={days} tripStartDate={trip.startDate} />
+              </TabsContent>
+              <TabsContent
+                value="map"
+                className="mt-0 min-h-0 flex-1 data-[state=inactive]:hidden"
+              >
+                <TripMap
+                  days={days}
+                  destination={trip.destination}
+                  selectedDay={selectedDay}
+                  showAllPlaces={mapShowAllPlaces}
+                  onShowAllPlaces={() => setMapShowAllPlaces(true)}
+                  selectedItemId={selectedItemId}
+                  onSelectItem={handleSelectItem}
+                />
+              </TabsContent>
+            </div>
+
+            <div className="shrink-0 border-t border-border bg-card px-1 pt-1.5 pb-[max(0.5rem,env(safe-area-inset-bottom))]">
+              <TabsList className="grid h-auto w-full grid-cols-6 gap-0.5 rounded-none bg-transparent p-0">
+                <TabsTrigger
+                  value="chat"
+                  className="flex flex-col gap-0.5 rounded-lg px-0 py-1.5 text-[10px] leading-tight data-[state=active]:bg-neutral-100 data-[state=active]:shadow-none"
+                >
+                  <MessageSquare className="h-4 w-4" />
                   Chat
                 </TabsTrigger>
-                <TabsTrigger value="itinerary" className="rounded-lg text-xs">
+                <TabsTrigger
+                  value="itinerary"
+                  className="flex flex-col gap-0.5 rounded-lg px-0 py-1.5 text-[10px] leading-tight data-[state=active]:bg-neutral-100 data-[state=active]:shadow-none"
+                >
+                  <Route className="h-4 w-4" />
                   Itinerary
                 </TabsTrigger>
-                <TabsTrigger value="ideas" className="rounded-lg text-xs">
+                <TabsTrigger
+                  value="ideas"
+                  className="flex flex-col gap-0.5 rounded-lg px-0 py-1.5 text-[10px] leading-tight data-[state=active]:bg-neutral-100 data-[state=active]:shadow-none"
+                >
+                  <Lightbulb className="h-4 w-4" />
                   Ideas
                 </TabsTrigger>
-                <TabsTrigger value="bookings" className="rounded-lg text-xs">
+                <TabsTrigger
+                  value="bookings"
+                  className="flex flex-col gap-0.5 rounded-lg px-0 py-1.5 text-[10px] leading-tight data-[state=active]:bg-neutral-100 data-[state=active]:shadow-none"
+                >
+                  <Plane className="h-4 w-4" />
                   Bookings
                 </TabsTrigger>
-                <TabsTrigger value="calendar" className="rounded-lg text-xs">
-                  Cal
+                <TabsTrigger
+                  value="calendar"
+                  className="flex flex-col gap-0.5 rounded-lg px-0 py-1.5 text-[10px] leading-tight data-[state=active]:bg-neutral-100 data-[state=active]:shadow-none"
+                >
+                  <CalendarDays className="h-4 w-4" />
+                  Calendar
                 </TabsTrigger>
-                <TabsTrigger value="map" className="rounded-lg text-xs">
+                <TabsTrigger
+                  value="map"
+                  className="flex flex-col gap-0.5 rounded-lg px-0 py-1.5 text-[10px] leading-tight data-[state=active]:bg-neutral-100 data-[state=active]:shadow-none"
+                >
+                  <MapPin className="h-4 w-4" />
                   Map
                 </TabsTrigger>
               </TabsList>
             </div>
-            <TabsContent
-              value="chat"
-              className="mt-0 min-h-0 flex-1 overflow-hidden data-[state=active]:flex data-[state=inactive]:hidden data-[state=active]:flex-col"
-            >
-              {chatPanel}
-            </TabsContent>
-            <TabsContent
-              ref={itineraryScrollRef}
-              value="itinerary"
-              className="flex-1 overflow-auto"
-            >
-              {itineraryPanel}
-            </TabsContent>
-            <TabsContent value="ideas" className="flex-1 overflow-auto">
-              {ideasPanel}
-            </TabsContent>
-            <TabsContent
-              value="bookings"
-              className="mt-0 min-h-0 flex-1 overflow-hidden data-[state=active]:flex data-[state=inactive]:hidden data-[state=active]:flex-col"
-            >
-              {bookingsPanel}
-            </TabsContent>
-            <TabsContent value="calendar" className="flex-1 overflow-hidden">
-              <TripCalendar days={days} tripStartDate={trip.startDate} />
-            </TabsContent>
-            <TabsContent value="map" className="flex-1">
-              <TripMap
-                days={days}
-                destination={trip.destination}
-                selectedDay={selectedDay}
-                showAllPlaces={mapShowAllPlaces}
-                onShowAllPlaces={() => setMapShowAllPlaces(true)}
-                selectedItemId={selectedItemId}
-                onSelectItem={handleSelectItem}
-              />
-            </TabsContent>
           </Tabs>
         </div>
       )}
