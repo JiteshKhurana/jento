@@ -5,7 +5,6 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { format } from "date-fns";
 import {
   Calendar,
-  CalendarDays,
   Lightbulb,
   MapPin,
   MessageSquare,
@@ -589,7 +588,7 @@ export function TripPlanner({
             </div>
 
             <div className="shrink-0 border-t border-border bg-card px-1 pt-1.5 pb-[max(0.5rem,env(safe-area-inset-bottom))]">
-              <TabsList className="grid h-auto w-full grid-cols-6 gap-0.5 rounded-none bg-transparent p-0">
+              <TabsList className="grid h-auto w-full grid-cols-4 gap-0.5 rounded-none bg-transparent p-0">
                 <TabsTrigger
                   value="chat"
                   className="flex flex-col gap-0.5 rounded-lg px-0 py-1.5 text-[10px] leading-tight data-[state=active]:bg-neutral-100 data-[state=active]:shadow-none"
@@ -617,20 +616,6 @@ export function TripPlanner({
                 >
                   <Plane className="h-4 w-4" />
                   Bookings
-                </TabsTrigger>
-                <TabsTrigger
-                  value="calendar"
-                  className="flex flex-col gap-0.5 rounded-lg px-0 py-1.5 text-[10px] leading-tight data-[state=active]:bg-neutral-100 data-[state=active]:shadow-none"
-                >
-                  <CalendarDays className="h-4 w-4" />
-                  Calendar
-                </TabsTrigger>
-                <TabsTrigger
-                  value="map"
-                  className="flex flex-col gap-0.5 rounded-lg px-0 py-1.5 text-[10px] leading-tight data-[state=active]:bg-neutral-100 data-[state=active]:shadow-none"
-                >
-                  <MapPin className="h-4 w-4" />
-                  Map
                 </TabsTrigger>
               </TabsList>
             </div>
