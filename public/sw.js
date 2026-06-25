@@ -16,7 +16,7 @@ self.addEventListener("install", (event) => {
       .then((cache) => cache.addAll(SHELL_URLS))
       .catch(() => {
         // Pre-caching is best-effort; don't block install on failure
-      })
+      }),
   );
 });
 
@@ -25,14 +25,16 @@ self.addEventListener("activate", (event) => {
     Promise.all([
       self.clients.claim(),
       // Delete caches from previous versions
-      caches.keys().then((keys) =>
-        Promise.all(
-          keys
-            .filter((key) => !ALL_CACHES.includes(key))
-            .map((key) => caches.delete(key))
-        )
-      ),
-    ])
+      caches
+        .keys()
+        .then((keys) =>
+          Promise.all(
+            keys
+              .filter((key) => !ALL_CACHES.includes(key))
+              .map((key) => caches.delete(key)),
+          ),
+        ),
+    ]),
   );
 });
 
@@ -103,7 +105,10 @@ async function cacheFirstImage(request) {
     return response;
   } catch {
     // Return a cached icon as fallback for broken images
-    return (await caches.match("/icons/icon-192.png")) || new Response("", { status: 404 });
+    return (
+      (await caches.match("/icons/icon-192.png")) ||
+      new Response("", { status: 404 })
+    );
   }
 }
 
@@ -119,7 +124,9 @@ async function networkFirstPage(request) {
     const cached = await caches.match(request);
     if (cached) return cached;
     // Ultimate fallback: return the root page from cache
-    return (await caches.match("/")) || new Response("Offline", { status: 503 });
+    return (
+      (await caches.match("/")) || new Response("Offline", { status: 503 })
+    );
   }
 }
 
@@ -145,14 +152,17 @@ self.addEventListener("push", (event) => {
   };
 
   event.waitUntil(
-    self.registration.showNotification(data.title || "Jento", options)
+    self.registration.showNotification(data.title || "Jento", options),
   );
 });
 
 // Notification click handler — focus existing tab or open new one
 self.addEventListener("notificationclick", (event) => {
   event.notification.close();
-  const targetUrl = new URL(event.notification.data?.url || "/", self.location.origin).href;
+  const targetUrl = new URL(
+    event.notification.data?.url || "/",
+    self.location.origin,
+  ).href;
 
   event.waitUntil(
     clients
@@ -164,6 +174,6 @@ self.addEventListener("notificationclick", (event) => {
           }
         }
         if (clients.openWindow) return clients.openWindow(targetUrl);
-      })
+      }),
   );
 });
