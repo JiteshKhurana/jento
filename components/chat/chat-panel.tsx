@@ -2,7 +2,7 @@
 
 import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport } from "ai";
-import { AlertCircle, ArrowUp } from "lucide-react";
+import { AlertCircle, ArrowUp, CalendarDays, MapPin } from "lucide-react";
 import { Spinner } from "@/components/ui/spinner";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -17,6 +17,7 @@ import {
 } from "@/lib/chat/follow-up-prompts";
 import { MAX_CHATS_PER_TRIP, getChatLimitMessage } from "@/lib/chat/limits";
 import type { TripPreferences } from "@/lib/trips/preferences";
+import { cn } from "@/lib/utils";
 
 // Module-level Set to ensure chat_limit_reached fires once per trip per session
 const chatLimitTrackedTrips = new Set<string>();
@@ -35,6 +36,9 @@ type ChatPanelProps = {
   hasItinerary?: boolean;
   onItineraryUpdate?: () => void;
   readOnly?: boolean;
+  onCalendarClick?: () => void;
+  onMapClick?: () => void;
+  activeRightView?: "map" | "calendar";
 };
 
 function getMessageText(message: {
@@ -61,6 +65,9 @@ export function ChatPanel({
   hasItinerary = false,
   onItineraryUpdate,
   readOnly = false,
+  onCalendarClick,
+  onMapClick,
+  activeRightView,
 }: ChatPanelProps) {
   const router = useRouter();
   const [input, setInput] = useState("");
@@ -374,33 +381,70 @@ export function ChatPanel({
           onSubmit={handleSubmit}
           className="shrink-0 border-t border-neutral-100 bg-white px-4 py-4"
         >
-          <div className="chat-input-shadow mx-auto flex max-w-lg items-end gap-2 rounded-2xl border border-neutral-200/80 bg-white p-2">
-            <textarea
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              placeholder="Message Jento…"
-              className="max-h-32 min-h-[44px] flex-1 resize-none border-0 bg-transparent px-3 py-2.5 text-[15px] placeholder:text-neutral-400 focus:outline-none"
-              rows={1}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" && !e.shiftKey) {
-                  e.preventDefault();
-                  handleSubmit(e);
-                }
-              }}
-            />
-            <Button
-              type="submit"
-              size="icon"
-              className="h-9 w-9 shrink-0 rounded-full"
-              disabled={isLoading || !input.trim()}
-              aria-label={isLoading ? "Sending message…" : "Send message"}
-            >
-              {isLoading ? (
-                <Spinner size="sm" className="text-current" />
-              ) : (
-                <ArrowUp className="h-4 w-4" />
-              )}
-            </Button>
+          <div className="mx-auto flex max-w-lg items-end gap-2">
+            <div className="chat-input-shadow flex flex-1 items-end gap-2 rounded-2xl border border-neutral-200/80 bg-white p-2">
+              <textarea
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                placeholder="Message Jento…"
+                className="max-h-32 min-h-[44px] flex-1 resize-none border-0 bg-transparent px-3 py-2.5 text-[15px] placeholder:text-neutral-400 focus:outline-none"
+                rows={1}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && !e.shiftKey) {
+                    e.preventDefault();
+                    handleSubmit(e);
+                  }
+                }}
+              />
+              <Button
+                type="submit"
+                size="icon"
+                className="h-9 w-9 shrink-0 rounded-full"
+                disabled={isLoading || !input.trim()}
+                aria-label={isLoading ? "Sending message…" : "Send message"}
+              >
+                {isLoading ? (
+                  <Spinner size="sm" className="text-current" />
+                ) : (
+                  <ArrowUp className="h-4 w-4" />
+                )}
+              </Button>
+            </div>
+
+            {(onMapClick || onCalendarClick) && (
+              <div className="mb-2 flex shrink-0 items-center gap-1.5">
+                {onMapClick && (
+                  <button
+                    type="button"
+                    onClick={onMapClick}
+                    aria-label="Show map"
+                    className={cn(
+                      "flex h-9 w-9 items-center justify-center rounded-full transition-all",
+                      activeRightView === "map"
+                        ? "bg-neutral-900 text-white shadow-sm"
+                        : "bg-neutral-100 text-neutral-500 hover:bg-neutral-200 hover:text-neutral-700",
+                    )}
+                  >
+                    <MapPin className="h-4 w-4" />
+                  </button>
+                )}
+                {onCalendarClick && (
+                  <button
+                    type="button"
+                    onClick={onCalendarClick}
+                    aria-label="Show calendar"
+                    className={cn(
+                      "flex h-9 w-9 items-center justify-center rounded-full transition-all",
+                      activeRightView === "calendar"
+                        ? "bg-neutral-900 text-white shadow-sm"
+                        : "bg-neutral-100 text-neutral-500 hover:bg-neutral-200 hover:text-neutral-700",
+                    )}
+                  >
+                    <CalendarDays className="h-4 w-4" />
+                  </button>
+                )}
+              </div>
+            )}
           </div>
         </form>
       )}
