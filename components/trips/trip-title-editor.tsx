@@ -61,7 +61,11 @@ export function TripTitleEditor({
   }
 
   if (readOnly) {
-    return <h1 className="text-base font-semibold text-neutral-900">{title}</h1>;
+    return (
+      <h1 className="truncate text-base font-semibold text-neutral-900">
+        {title}
+      </h1>
+    );
   }
 
   if (editing) {
@@ -96,12 +100,12 @@ export function TripTitleEditor({
         setEditing(true);
       }}
       className={cn(
-        "group flex cursor-pointer items-center gap-1.5 rounded-md text-left text-base font-semibold text-neutral-900",
+        "group flex min-w-0 max-w-full cursor-pointer items-center gap-1.5 rounded-md text-left text-base font-semibold text-neutral-900",
         "hover:text-neutral-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-300/60",
       )}
       aria-label="Edit trip title"
     >
-      <span>{title}</span>
+      <span className="truncate">{title}</span>
       <Pencil className="h-3.5 w-3.5 shrink-0 text-neutral-400 opacity-0 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100" />
     </button>
   );

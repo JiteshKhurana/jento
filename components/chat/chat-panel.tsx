@@ -39,6 +39,8 @@ type ChatPanelProps = {
   onCalendarClick?: () => void;
   onMapClick?: () => void;
   activeRightView?: "map" | "calendar";
+  onScroll?: (e: React.UIEvent<HTMLDivElement>) => void;
+  scrollContainerClassName?: string;
 };
 
 function getMessageText(message: {
@@ -68,6 +70,8 @@ export function ChatPanel({
   onCalendarClick,
   onMapClick,
   activeRightView,
+  onScroll,
+  scrollContainerClassName,
 }: ChatPanelProps) {
   const router = useRouter();
   const [input, setInput] = useState("");
@@ -291,7 +295,8 @@ export function ChatPanel({
     <div className="flex h-full min-h-0 flex-col bg-white">
       <div
         ref={scrollContainerRef}
-        className="min-h-0 flex-1 overflow-y-auto px-5 py-6"
+        onScroll={onScroll}
+        className={cn("min-h-0 flex-1 overflow-y-auto px-5 py-6", scrollContainerClassName)}
       >
         <div className="mx-auto max-w-lg space-y-6">
           {messages.length === 0 && !isLoading && (
