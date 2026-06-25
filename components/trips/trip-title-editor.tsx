@@ -24,10 +24,6 @@ export function TripTitleEditor({
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    if (!editing) setDraft(title);
-  }, [title, editing]);
-
-  useEffect(() => {
     if (editing) inputRef.current?.select();
   }, [editing]);
 
@@ -95,7 +91,10 @@ export function TripTitleEditor({
   return (
     <button
       type="button"
-      onClick={() => setEditing(true)}
+      onClick={() => {
+        setDraft(title);
+        setEditing(true);
+      }}
       className={cn(
         "group flex cursor-pointer items-center gap-1.5 rounded-md text-left text-base font-semibold text-neutral-900",
         "hover:text-neutral-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-300/60",
