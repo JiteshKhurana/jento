@@ -7,7 +7,6 @@ import { ExplorePlaceCard } from "@/components/explore/explore-place-card";
 import { PlaceDetailDialog } from "@/components/explore/place-detail-dialog";
 import { Button } from "@/components/ui/button";
 import { LoadingState } from "@/components/ui/spinner";
-import { cn } from "@/lib/utils";
 import type { PlaceSearchResult } from "@/lib/places/google-places";
 import { savedPlacesToSearchResults } from "@/lib/saved-places/utils";
 import type { TripOption } from "@/components/explore/add-to-trip-picker";
@@ -31,14 +30,12 @@ type SavedPlaceRecord = Parameters<
 type SavedViewProps = {
   trips: TripOption[];
   initialSavedPlaces: SavedPlaceRecord[];
-  mobileView: "feed" | "map";
   onSwitchToExplore?: () => void;
 };
 
 export function SavedView({
   trips,
   initialSavedPlaces,
-  mobileView,
   onSwitchToExplore,
 }: SavedViewProps) {
   const [savedPlaces, setSavedPlaces] = useState<PlaceSearchResult[]>(() =>
@@ -168,21 +165,11 @@ export function SavedView({
   return (
     <div className="flex min-h-0 flex-1 flex-col">
       <div className="flex min-h-0 flex-1 flex-col md:flex-row">
-        <div
-          className={cn(
-            "flex min-h-0 flex-col md:w-[58%] md:border-r md:border-border",
-            mobileView === "map" && "hidden md:flex",
-          )}
-        >
+        <div className="flex min-h-0 flex-col md:w-[58%] md:border-r md:border-border">
           {feedContent}
         </div>
 
-        <div
-          className={cn(
-            "relative min-h-[50vh] flex-1 overflow-hidden md:min-h-0",
-            mobileView === "map" ? "block" : "hidden md:block",
-          )}
-        >
+        <div className="relative hidden min-h-0 flex-1 overflow-hidden md:block">
           <ExploreMap
             places={savedPlaces}
             center={mapCenter}
