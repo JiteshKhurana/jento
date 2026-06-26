@@ -11,7 +11,7 @@ import {
   Plane,
   Route,
 } from "lucide-react";
-import { AppShell } from "@/components/layout/app-shell";
+import { AppShell, useMobileSidebar } from "@/components/layout/app-shell";
 import { ChatPanel } from "@/components/chat/chat-panel";
 import { IdeasPanel } from "@/components/ideas/ideas-panel";
 import { BookingsPanel } from "@/components/bookings/bookings-panel";
@@ -112,6 +112,7 @@ export function TripPlanner({
   const lastScrollYRef = useRef(0);
   const tabSwitchTimeRef = useRef(0);
   const isDesktop = useIsDesktop();
+  const mobileSidebarOpen = useMobileSidebar();
   const itineraryScrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -274,15 +275,8 @@ export function TripPlanner({
       readOnly={!isOwner}
       {...(isDesktop === false
         ? {
-            onMapClick: () => setMobileActiveTab("map"),
-            onCalendarClick: () => setMobileActiveTab("calendar"),
-            activeRightView:
-              mobileActiveTab === "map"
-                ? "map"
-                : mobileActiveTab === "calendar"
-                  ? "calendar"
-                  : undefined,
-            scrollContainerClassName: "pb-28",
+            floatingInput: true,
+            scrollContainerClassName: "pb-52",
           }
         : {})}
     />
@@ -362,8 +356,43 @@ export function TripPlanner({
     </div>
   );
 
+  const mobileHeaderActions = (
+    <div className="flex items-center gap-1.5">
+      <button
+        type="button"
+        onClick={() => setMobileActiveTab("calendar")}
+        className={cn(
+          "flex h-8 items-center gap-1.5 rounded-full px-3 text-sm font-medium transition-all",
+          mobileActiveTab === "calendar"
+            ? "bg-neutral-900 text-white dark:bg-white dark:text-neutral-900"
+            : "bg-neutral-100 text-neutral-600 hover:bg-neutral-200 dark:bg-neutral-800 dark:text-neutral-400 dark:hover:bg-neutral-700",
+        )}
+      >
+        <Calendar className="h-3.5 w-3.5" />
+        Calendar
+      </button>
+      <button
+        type="button"
+        onClick={() => setMobileActiveTab("map")}
+        className={cn(
+          "flex h-8 items-center gap-1.5 rounded-full px-3 text-sm font-medium transition-all",
+          mobileActiveTab === "map"
+            ? "bg-neutral-900 text-white dark:bg-white dark:text-neutral-900"
+            : "bg-neutral-100 text-neutral-600 hover:bg-neutral-200 dark:bg-neutral-800 dark:text-neutral-400 dark:hover:bg-neutral-700",
+        )}
+      >
+        <MapPin className="h-3.5 w-3.5" />
+        Map
+      </button>
+    </div>
+  );
+
   return (
-    <AppShell fullHeight className="overflow-hidden bg-background">
+    <AppShell
+      fullHeight
+      className="overflow-hidden bg-background"
+      mobileHeaderActions={mobileHeaderActions}
+    >
       <ItemDetailDialog
         item={detailItem}
         destination={trip.destination}
@@ -627,9 +656,9 @@ export function TripPlanner({
             {/* Floating bottom tab bar */}
             <div
               className={cn(
-                "fixed inset-x-0 bottom-0 z-50 px-5 transition-[transform,opacity] duration-300 ease-in-out md:hidden",
+                "fixed inset-x-0 bottom-0 z-30 px-5 transition-[transform,opacity] duration-300 ease-in-out md:hidden",
                 "pb-[max(0.75rem,env(safe-area-inset-bottom))]",
-                tabBarVisible
+                tabBarVisible && !mobileSidebarOpen
                   ? "translate-y-0 opacity-100"
                   : "translate-y-4 opacity-0 pointer-events-none",
               )}
@@ -637,28 +666,28 @@ export function TripPlanner({
               <TabsList className="grid h-auto w-full grid-cols-4 rounded-full border border-neutral-100 bg-white p-1.5 shadow-[0_4px_24px_rgba(0,0,0,0.13),0_1px_4px_rgba(0,0,0,0.06)]">
                 <TabsTrigger
                   value="chat"
-                  className="flex flex-col gap-1 rounded-full px-0 py-2 text-[10px] font-medium leading-tight transition-colors data-[state=active]:bg-neutral-900 data-[state=active]:text-white data-[state=active]:shadow-none data-[state=inactive]:text-neutral-400"
+                  className="flex flex-col gap-1 rounded-full px-0 py-2 text-[10px] font-medium leading-tight transition-colors data-[state=active]:bg-neutral-200/80 data-[state=active]:font-semibold data-[state=active]:text-neutral-900 data-[state=active]:shadow-none data-[state=inactive]:text-neutral-400"
                 >
                   <MessageSquare className="h-[18px] w-[18px]" />
                   Chat
                 </TabsTrigger>
                 <TabsTrigger
                   value="itinerary"
-                  className="flex flex-col gap-1 rounded-full px-0 py-2 text-[10px] font-medium leading-tight transition-colors data-[state=active]:bg-neutral-900 data-[state=active]:text-white data-[state=active]:shadow-none data-[state=inactive]:text-neutral-400"
+                  className="flex flex-col gap-1 rounded-full px-0 py-2 text-[10px] font-medium leading-tight transition-colors data-[state=active]:bg-neutral-200/80 data-[state=active]:font-semibold data-[state=active]:text-neutral-900 data-[state=active]:shadow-none data-[state=inactive]:text-neutral-400"
                 >
                   <Route className="h-[18px] w-[18px]" />
                   Itinerary
                 </TabsTrigger>
                 <TabsTrigger
                   value="ideas"
-                  className="flex flex-col gap-1 rounded-full px-0 py-2 text-[10px] font-medium leading-tight transition-colors data-[state=active]:bg-neutral-900 data-[state=active]:text-white data-[state=active]:shadow-none data-[state=inactive]:text-neutral-400"
+                  className="flex flex-col gap-1 rounded-full px-0 py-2 text-[10px] font-medium leading-tight transition-colors data-[state=active]:bg-neutral-200/80 data-[state=active]:font-semibold data-[state=active]:text-neutral-900 data-[state=active]:shadow-none data-[state=inactive]:text-neutral-400"
                 >
                   <Lightbulb className="h-[18px] w-[18px]" />
                   Ideas
                 </TabsTrigger>
                 <TabsTrigger
                   value="bookings"
-                  className="flex flex-col gap-1 rounded-full px-0 py-2 text-[10px] font-medium leading-tight transition-colors data-[state=active]:bg-neutral-900 data-[state=active]:text-white data-[state=active]:shadow-none data-[state=inactive]:text-neutral-400"
+                  className="flex flex-col gap-1 rounded-full px-0 py-2 text-[10px] font-medium leading-tight transition-colors data-[state=active]:bg-neutral-200/80 data-[state=active]:font-semibold data-[state=active]:text-neutral-900 data-[state=active]:shadow-none data-[state=inactive]:text-neutral-400"
                 >
                   <Plane className="h-[18px] w-[18px]" />
                   Bookings

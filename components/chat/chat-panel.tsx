@@ -7,6 +7,7 @@ import { Spinner } from "@/components/ui/spinner";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
+import { useMobileSidebar } from "@/components/layout/app-shell";
 import { ChatMarkdown } from "@/components/chat/chat-markdown";
 import { ThinkingIndicator } from "@/components/chat/thinking-indicator";
 import { FollowUpPrompts } from "@/components/chat/follow-up-prompts";
@@ -41,6 +42,7 @@ type ChatPanelProps = {
   activeRightView?: "map" | "calendar";
   onScroll?: (e: React.UIEvent<HTMLDivElement>) => void;
   scrollContainerClassName?: string;
+  floatingInput?: boolean;
 };
 
 function getMessageText(message: {
@@ -72,7 +74,9 @@ export function ChatPanel({
   activeRightView,
   onScroll,
   scrollContainerClassName,
+  floatingInput = false,
 }: ChatPanelProps) {
+  const mobileSidebarOpen = useMobileSidebar();
   const router = useRouter();
   const [input, setInput] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -384,7 +388,22 @@ export function ChatPanel({
       ) : (
         <form
           onSubmit={handleSubmit}
-          className="shrink-0 border-t border-neutral-100 bg-white px-4 py-3"
+          className={cn(
+            floatingInput
+              ? "fixed inset-x-0 z-40 px-4 py-2 transition-[transform,opacity] duration-300 ease-in-out"
+              : "shrink-0 border-t border-neutral-100 bg-white px-4 py-3",
+            floatingInput &&
+              mobileSidebarOpen &&
+              "pointer-events-none translate-y-4 opacity-0",
+          )}
+          style={
+            floatingInput
+              ? {
+                  bottom:
+                    "calc(5.5rem + env(safe-area-inset-bottom))",
+                }
+              : undefined
+          }
         >
           <div className="mx-auto flex max-w-lg items-center gap-2">
             <div className="chat-input-shadow flex flex-1 items-center gap-1.5 rounded-2xl border border-neutral-200/80 bg-white p-1.5">
