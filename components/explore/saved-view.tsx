@@ -2,7 +2,7 @@
 
 import dynamic from "next/dynamic";
 import { useEffect, useState } from "react";
-import { Heart, Map as MapIcon } from "lucide-react";
+import { Heart } from "lucide-react";
 import { ExplorePlaceCard } from "@/components/explore/explore-place-card";
 import { PlaceDetailDialog } from "@/components/explore/place-detail-dialog";
 import { Button } from "@/components/ui/button";
@@ -31,12 +31,14 @@ type SavedPlaceRecord = Parameters<
 type SavedViewProps = {
   trips: TripOption[];
   initialSavedPlaces: SavedPlaceRecord[];
+  mobileView: "feed" | "map";
   onSwitchToExplore?: () => void;
 };
 
 export function SavedView({
   trips,
   initialSavedPlaces,
+  mobileView,
   onSwitchToExplore,
 }: SavedViewProps) {
   const [savedPlaces, setSavedPlaces] = useState<PlaceSearchResult[]>(() =>
@@ -67,7 +69,6 @@ export function SavedView({
   );
   const [detailOpen, setDetailOpen] = useState(false);
   const [mapPlaceId, setMapPlaceId] = useState<string | null>(null);
-  const [mobileView, setMobileView] = useState<"feed" | "map">("feed");
 
   async function handleSaveToggle(place: PlaceSearchResult) {
     const res = await fetch(
@@ -190,35 +191,6 @@ export function SavedView({
             pinStyle="saved"
           />
         </div>
-      </div>
-
-      <div className="flex border-t border-border bg-card p-2 md:hidden">
-        <button
-          type="button"
-          onClick={() => setMobileView("feed")}
-          className={cn(
-            "flex flex-1 items-center justify-center gap-2 rounded-xl py-2.5 text-sm font-medium",
-            mobileView === "feed"
-              ? "bg-primary text-primary-foreground dark:bg-white dark:text-black"
-              : "text-muted-foreground",
-          )}
-        >
-          <Heart className="h-4 w-4" />
-          Saved
-        </button>
-        <button
-          type="button"
-          onClick={() => setMobileView("map")}
-          className={cn(
-            "flex flex-1 items-center justify-center gap-2 rounded-xl py-2.5 text-sm font-medium",
-            mobileView === "map"
-              ? "bg-primary text-primary-foreground dark:bg-white dark:text-black"
-              : "text-muted-foreground",
-          )}
-        >
-          <MapIcon className="h-4 w-4" />
-          Map
-        </button>
       </div>
 
       <PlaceDetailDialog

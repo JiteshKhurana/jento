@@ -5,7 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useTheme } from "next-themes";
-import { Menu, Moon, Sun, Map, Search, X } from "lucide-react";
+import { Heart, Menu, Moon, Sun, Map, Search, X } from "lucide-react";
 import { SidebarInset } from "@/components/ui/sidebar";
 import { cn } from "@/lib/utils";
 import { createContext, useContext, useState } from "react";
@@ -20,10 +20,16 @@ type AppShellProps = {
   mobileHeaderActions?: React.ReactNode;
 };
 
-const navLinks = [
+const baseNavLinks = [
   { href: "/trips", label: "My trips", icon: Map },
   { href: "/explore", label: "Explore", icon: Search },
 ] as const;
+
+const savedNavLink = {
+  href: "/saved",
+  label: "Saved",
+  icon: Heart,
+} as const;
 
 function MobileSidebar({
   open,
@@ -35,6 +41,8 @@ function MobileSidebar({
   const pathname = usePathname();
   const { resolvedTheme, setTheme } = useTheme();
   const { user, isLoaded } = useUser();
+  const navLinks =
+    isLoaded && user ? [...baseNavLinks, savedNavLink] : baseNavLinks;
 
   return (
     <>

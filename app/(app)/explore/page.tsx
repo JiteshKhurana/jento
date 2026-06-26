@@ -1,10 +1,10 @@
 import { auth, currentUser } from "@clerk/nextjs/server";
+import { redirect } from "next/navigation";
 import { AppShell } from "@/components/layout/app-shell";
 import { ExplorePageView } from "@/components/explore/explore-page-view";
 import { prisma } from "@/lib/prisma";
 import {
   getSavedPlaceIdsForUser,
-  getSavedPlacesForUser,
 } from "@/lib/saved-places/service";
 
 export const dynamic = "force-dynamic";
@@ -15,6 +15,8 @@ type PageProps = {
 
 export default async function ExplorePage({ searchParams }: PageProps) {
   const { tab } = await searchParams;
+  if (tab === "saved") redirect("/saved");
+
   const { userId: clerkId } = await auth();
   const isSignedIn = Boolean(clerkId);
 
@@ -46,7 +48,6 @@ export default async function ExplorePage({ searchParams }: PageProps) {
     : [];
 
   const savedIds = user ? await getSavedPlaceIdsForUser(user.id) : [];
-  const savedPlaces = user ? await getSavedPlacesForUser(user.id) : [];
   const recentTrip = trips[0];
 
   return (
@@ -55,8 +56,6 @@ export default async function ExplorePage({ searchParams }: PageProps) {
         isSignedIn={isSignedIn}
         trips={trips}
         initialSavedIds={savedIds}
-        initialSavedPlaces={savedPlaces}
-        initialTab={isSignedIn && tab === "saved" ? "saved" : "explore"}
         defaultLocation={{
           name: recentTrip?.destination ?? "Paris",
           label: recentTrip?.destination ?? "Paris, France",

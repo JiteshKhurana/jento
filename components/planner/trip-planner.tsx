@@ -1,7 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { format } from "date-fns";
 import {
   Calendar,
@@ -105,6 +105,7 @@ export function TripPlanner({
   );
   const [mapShowAllPlaces, setMapShowAllPlaces] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
+  const [itineraryHasUpdate, setItineraryHasUpdate] = useState(false);
   const [mobileActiveTab, setMobileActiveTab] = useState<string>(
     isOwner ? "chat" : "itinerary",
   );
@@ -114,19 +115,50 @@ export function TripPlanner({
   const isDesktop = useIsDesktop();
   const mobileSidebarOpen = useMobileSidebar();
   const itineraryScrollRef = useRef<HTMLDivElement>(null);
+  const leftViewRef = useRef(leftView);
+  const mobileActiveTabRef = useRef(mobileActiveTab);
+  const isDesktopRef = useRef(isDesktop);
+  const itineraryDaysRef = useRef(trip.itineraries[0]?.days ?? []);
+
+  useEffect(() => {
+    leftViewRef.current = leftView;
+  }, [leftView]);
+
+  useEffect(() => {
+    mobileActiveTabRef.current = mobileActiveTab;
+  }, [mobileActiveTab]);
+
+  useEffect(() => {
+    isDesktopRef.current = isDesktop;
+  }, [isDesktop]);
+
+  useEffect(() => {
+    itineraryDaysRef.current = trip.itineraries[0]?.days ?? [];
+  }, [trip.itineraries]);
 
   useEffect(() => {
     itineraryScrollRef.current?.scrollTo({ top: 0 });
   }, [selectedDay]);
 
-  // useLayoutEffect fires synchronously before the browser paints, so the bar
-  // is already in the correct visible state on the first frame after a tab switch
-  // — no single-frame flash of the hidden state.
-  useLayoutEffect(() => {
+  const handleLeftViewChange = useCallback(
+    (view: "chat" | "itinerary" | "ideas" | "bookings") => {
+      setLeftView(view);
+      if (view === "itinerary") {
+        setItineraryHasUpdate(false);
+      }
+    },
+    [],
+  );
+
+  const handleMobileTabChange = useCallback((tab: string) => {
+    setMobileActiveTab(tab);
     setTabBarVisible(true);
     lastScrollYRef.current = 0;
     tabSwitchTimeRef.current = Date.now();
-  }, [mobileActiveTab]);
+    if (tab === "itinerary") {
+      setItineraryHasUpdate(false);
+    }
+  }, []);
 
   function handleContentScroll(e: React.UIEvent<HTMLElement>) {
     // Ignore scroll events fired in the first 250ms after a tab switch; the
@@ -232,6 +264,19 @@ export function TripPlanner({
 
       if (!meta) return;
 
+      const previousSnapshot = JSON.stringify(itineraryDaysRef.current);
+      const itineraryChanged =
+        JSON.stringify(itineraryDays) !== previousSnapshot;
+
+      if (itineraryChanged) {
+        const onItineraryTab = isDesktopRef.current
+          ? leftViewRef.current === "itinerary"
+          : mobileActiveTabRef.current === "itinerary";
+        if (!onItineraryTab) {
+          setItineraryHasUpdate(true);
+        }
+      }
+
       setTrip((prev) => ({
         ...prev,
         title: meta.title,
@@ -249,7 +294,7 @@ export function TripPlanner({
   function handleSelectItem(itemId: string) {
     setSelectedItemId(itemId);
     setDetailItemId(itemId);
-    setLeftView("itinerary");
+    handleLeftViewChange("itinerary");
     setTimeout(() => {
       document
         .getElementById(`item-${itemId}`)
@@ -360,7 +405,7 @@ export function TripPlanner({
     <div className="flex items-center gap-1.5">
       <button
         type="button"
-        onClick={() => setMobileActiveTab("calendar")}
+        onClick={() => handleMobileTabChange("calendar")}
         className={cn(
           "flex h-8 items-center gap-1.5 rounded-full px-3 text-sm font-medium transition-all",
           mobileActiveTab === "calendar"
@@ -373,7 +418,7 @@ export function TripPlanner({
       </button>
       <button
         type="button"
-        onClick={() => setMobileActiveTab("map")}
+        onClick={() => handleMobileTabChange("map")}
         className={cn(
           "flex h-8 items-center gap-1.5 rounded-full px-3 text-sm font-medium transition-all",
           mobileActiveTab === "map"
@@ -475,7 +520,12 @@ export function TripPlanner({
                     <button
                       key={view}
                       type="button"
-                      onClick={() => setLeftView(view)}
+                      onClick={() => handleLeftViewChange(view)}
+                      aria-label={
+                        view === "itinerary" && itineraryHasUpdate
+                          ? "Itinerary, updated"
+                          : undefined
+                      }
                       className={cn(
                         "flex-1 cursor-pointer rounded-lg px-3 py-2 text-sm font-medium transition-all",
                         leftView === view
@@ -484,7 +534,17 @@ export function TripPlanner({
                       )}
                     >
                       {view === "chat" && "Chat"}
-                      {view === "itinerary" && "Itinerary"}
+                      {view === "itinerary" && (
+                        <span className="relative inline-flex items-center">
+                          Itinerary
+                          {itineraryHasUpdate && (
+                            <span
+                              className="absolute -right-2.5 top-1/2 h-1.5 w-1.5 -translate-y-1/2 translate-x-full rounded-full bg-teal-500"
+                              aria-hidden
+                            />
+                          )}
+                        </span>
+                      )}
                       {view === "ideas" && "Ideas"}
                       {view === "bookings" && (
                         <span className="flex items-center justify-center gap-1">
@@ -600,7 +660,7 @@ export function TripPlanner({
         <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
           <Tabs
             value={mobileActiveTab}
-            onValueChange={setMobileActiveTab}
+            onValueChange={handleMobileTabChange}
             className="flex min-h-0 flex-1 flex-col"
           >
             <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
@@ -663,33 +723,44 @@ export function TripPlanner({
                   : "translate-y-4 opacity-0 pointer-events-none",
               )}
             >
-              <TabsList className="grid h-auto w-full grid-cols-4 rounded-full border border-neutral-100 bg-white p-1.5 shadow-[0_4px_24px_rgba(0,0,0,0.13),0_1px_4px_rgba(0,0,0,0.06)]">
+              <TabsList className="grid h-auto w-full grid-cols-4 rounded-full border border-neutral-100 bg-white p-1.5 shadow-[0_4px_24px_rgba(0,0,0,0.13),0_1px_4px_rgba(0,0,0,0.06)] dark:border-neutral-800 dark:bg-neutral-900">
                 <TabsTrigger
                   value="chat"
-                  className="flex flex-col gap-1 rounded-full px-0 py-2 text-[10px] font-medium leading-tight transition-colors data-[state=active]:bg-neutral-200/80 data-[state=active]:font-semibold data-[state=active]:text-neutral-900 data-[state=active]:shadow-none data-[state=inactive]:text-neutral-400"
+                  className="flex flex-col gap-1 rounded-full px-0 py-2 text-[10px] font-medium leading-tight transition-colors data-[state=active]:bg-neutral-200/80 data-[state=active]:font-semibold data-[state=active]:text-neutral-900 data-[state=active]:shadow-none data-[state=inactive]:text-neutral-400 dark:data-[state=inactive]:text-white"
                 >
-                  <MessageSquare className="h-[18px] w-[18px]" />
+                  <MessageSquare className="h-6 w-6" />
                   Chat
                 </TabsTrigger>
                 <TabsTrigger
                   value="itinerary"
-                  className="flex flex-col gap-1 rounded-full px-0 py-2 text-[10px] font-medium leading-tight transition-colors data-[state=active]:bg-neutral-200/80 data-[state=active]:font-semibold data-[state=active]:text-neutral-900 data-[state=active]:shadow-none data-[state=inactive]:text-neutral-400"
+                  aria-label={
+                    itineraryHasUpdate ? "Itinerary, updated" : "Itinerary"
+                  }
+                  className="flex flex-col gap-1 rounded-full px-0 py-2 text-[10px] font-medium leading-tight transition-colors data-[state=active]:bg-neutral-200/80 data-[state=active]:font-semibold data-[state=active]:text-neutral-900 data-[state=active]:shadow-none data-[state=inactive]:text-neutral-400 dark:data-[state=inactive]:text-white"
                 >
-                  <Route className="h-[18px] w-[18px]" />
+                  <span className="relative">
+                    <Route className="h-6 w-6" />
+                    {itineraryHasUpdate && (
+                      <span
+                        className="absolute -right-0.5 -top-0.5 h-2 w-2 rounded-full bg-teal-500 ring-2 ring-white dark:ring-neutral-900"
+                        aria-hidden
+                      />
+                    )}
+                  </span>
                   Itinerary
                 </TabsTrigger>
                 <TabsTrigger
                   value="ideas"
-                  className="flex flex-col gap-1 rounded-full px-0 py-2 text-[10px] font-medium leading-tight transition-colors data-[state=active]:bg-neutral-200/80 data-[state=active]:font-semibold data-[state=active]:text-neutral-900 data-[state=active]:shadow-none data-[state=inactive]:text-neutral-400"
+                  className="flex flex-col gap-1 rounded-full px-0 py-2 text-[10px] font-medium leading-tight transition-colors data-[state=active]:bg-neutral-200/80 data-[state=active]:font-semibold data-[state=active]:text-neutral-900 data-[state=active]:shadow-none data-[state=inactive]:text-neutral-400 dark:data-[state=inactive]:text-white"
                 >
-                  <Lightbulb className="h-[18px] w-[18px]" />
+                  <Lightbulb className="h-6 w-6" />
                   Ideas
                 </TabsTrigger>
                 <TabsTrigger
                   value="bookings"
-                  className="flex flex-col gap-1 rounded-full px-0 py-2 text-[10px] font-medium leading-tight transition-colors data-[state=active]:bg-neutral-200/80 data-[state=active]:font-semibold data-[state=active]:text-neutral-900 data-[state=active]:shadow-none data-[state=inactive]:text-neutral-400"
+                  className="flex flex-col gap-1 rounded-full px-0 py-2 text-[10px] font-medium leading-tight transition-colors data-[state=active]:bg-neutral-200/80 data-[state=active]:font-semibold data-[state=active]:text-neutral-900 data-[state=active]:shadow-none data-[state=inactive]:text-neutral-400 dark:data-[state=inactive]:text-white"
                 >
-                  <Plane className="h-[18px] w-[18px]" />
+                  <Plane className="h-6 w-6" />
                   Bookings
                 </TabsTrigger>
               </TabsList>

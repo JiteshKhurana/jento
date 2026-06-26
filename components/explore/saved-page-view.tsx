@@ -1,39 +1,32 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Map as MapIcon, Search } from "lucide-react";
-import { ExploreView } from "@/components/explore/explore-view";
 import { ExploreSavedNav } from "@/components/explore/explore-saved-nav";
+import { SavedView } from "@/components/explore/saved-view";
 import { cn } from "@/lib/utils";
 import type { TripOption } from "@/components/explore/add-to-trip-picker";
+import { savedPlacesToSearchResults } from "@/lib/saved-places/utils";
 
-type ExploreLocation = {
-  name: string;
-  label: string;
-  latitude?: number;
-  longitude?: number;
-};
+type SavedPlaceRecord = Parameters<
+  typeof savedPlacesToSearchResults
+>[0][number];
 
-type ExplorePageViewProps = {
-  isSignedIn: boolean;
+type SavedPageViewProps = {
   trips: TripOption[];
-  initialSavedIds: string[];
-  defaultLocation: ExploreLocation;
+  initialSavedPlaces: SavedPlaceRecord[];
 };
 
-export function ExplorePageView({
-  isSignedIn,
-  trips,
-  initialSavedIds,
-  defaultLocation,
-}: ExplorePageViewProps) {
+export function SavedPageView({ trips, initialSavedPlaces }: SavedPageViewProps) {
+  const router = useRouter();
   const [mobileView, setMobileView] = useState<"feed" | "map">("feed");
 
   return (
     <div className="flex min-h-0 flex-1 flex-col">
       <div className="shrink-0 border-b border-border px-4 pt-4 pb-3 md:px-6 md:py-3">
         <h1 className="mb-3 text-3xl font-bold tracking-tight text-foreground md:hidden">
-          Explore
+          Saved
         </h1>
         <div className="mb-3 flex gap-2 md:hidden">
           <button
@@ -63,15 +56,14 @@ export function ExplorePageView({
             Map view
           </button>
         </div>
-        {isSignedIn && <ExploreSavedNav active="explore" />}
+        <ExploreSavedNav active="saved" />
       </div>
 
-      <ExploreView
-        isSignedIn={isSignedIn}
+      <SavedView
         trips={trips}
-        initialSavedIds={initialSavedIds}
-        defaultLocation={defaultLocation}
+        initialSavedPlaces={initialSavedPlaces}
         mobileView={mobileView}
+        onSwitchToExplore={() => router.push("/explore")}
       />
     </div>
   );

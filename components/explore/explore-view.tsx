@@ -2,7 +2,7 @@
 
 import dynamic from "next/dynamic";
 import { useCallback, useEffect, useState, useSyncExternalStore } from "react";
-import { LocateFixed, Map as MapIcon, Search } from "lucide-react";
+import { LocateFixed, Search } from "lucide-react";
 import { ExploreFilters } from "@/components/explore/explore-filters";
 import type { BudgetTier } from "@/lib/trips/intake";
 import { Input } from "@/components/ui/input";
@@ -51,6 +51,7 @@ type ExploreViewProps = {
   trips: TripOption[];
   initialSavedIds: string[];
   defaultLocation: ExploreLocation;
+  mobileView: "feed" | "map";
 };
 
 const locationListeners = new Set<() => void>();
@@ -117,6 +118,7 @@ export function ExploreView({
   trips,
   initialSavedIds,
   defaultLocation,
+  mobileView,
 }: ExploreViewProps) {
   const location = useSyncExternalStore(
     subscribeToExploreLocation,
@@ -146,7 +148,6 @@ export function ExploreView({
   );
   const [detailOpen, setDetailOpen] = useState(false);
   const [mapPlaceId, setMapPlaceId] = useState<string | null>(null);
-  const [mobileView, setMobileView] = useState<"feed" | "map">("feed");
 
   const activeCategory = EXPLORE_CATEGORIES.find((c) => c.id === category)!;
 
@@ -531,35 +532,6 @@ export function ExploreView({
             onSelectPlace={handleMapSelectPlace}
           />
         </div>
-      </div>
-
-      <div className="flex border-t border-border bg-card p-2 md:hidden">
-        <button
-          type="button"
-          onClick={() => setMobileView("feed")}
-          className={cn(
-            "flex flex-1 items-center justify-center gap-2 rounded-xl py-2.5 text-sm font-medium",
-            mobileView === "feed"
-              ? "bg-primary text-primary-foreground dark:bg-white dark:text-black"
-              : "text-muted-foreground",
-          )}
-        >
-          <Search className="h-4 w-4" />
-          Explore
-        </button>
-        <button
-          type="button"
-          onClick={() => setMobileView("map")}
-          className={cn(
-            "flex flex-1 items-center justify-center gap-2 rounded-xl py-2.5 text-sm font-medium",
-            mobileView === "map"
-              ? "bg-primary text-primary-foreground dark:bg-white dark:text-black"
-              : "text-muted-foreground",
-          )}
-        >
-          <MapIcon className="h-4 w-4" />
-          Map
-        </button>
       </div>
 
       <PlaceDetailDialog

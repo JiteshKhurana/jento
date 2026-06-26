@@ -15,7 +15,13 @@ function PlaceCardsSkeleton() {
   );
 }
 
-function ExploreLayoutSkeleton({ feed }: { feed: React.ReactNode }) {
+function ExploreLayoutSkeleton({
+  feed,
+  hideMobileBottomBar = false,
+}: {
+  feed: React.ReactNode;
+  hideMobileBottomBar?: boolean;
+}) {
   return (
     <AppShell fullHeight className="overflow-hidden bg-white">
       <div className="flex min-h-0 flex-1 flex-col">
@@ -28,10 +34,12 @@ function ExploreLayoutSkeleton({ feed }: { feed: React.ReactNode }) {
           </div>
         </div>
 
-        <div className="flex gap-2 border-t border-neutral-200/80 bg-white p-2 md:hidden">
-          <Skeleton className="h-10 flex-1 rounded-xl" />
-          <Skeleton className="h-10 flex-1 rounded-xl" />
-        </div>
+        {!hideMobileBottomBar && (
+          <div className="flex gap-2 border-t border-neutral-200/80 bg-white p-2 md:hidden">
+            <Skeleton className="h-10 flex-1 rounded-xl" />
+            <Skeleton className="h-10 flex-1 rounded-xl" />
+          </div>
+        )}
       </div>
     </AppShell>
   );
@@ -40,6 +48,7 @@ function ExploreLayoutSkeleton({ feed }: { feed: React.ReactNode }) {
 export function ExplorePageSkeleton() {
   return (
     <ExploreLayoutSkeleton
+      hideMobileBottomBar
       feed={
         <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
           <div className="shrink-0 space-y-3 border-b border-neutral-100 px-4 py-4 md:px-6">
@@ -71,11 +80,13 @@ export function ExplorePageSkeleton() {
 export function SavedPageSkeleton() {
   return (
     <ExploreLayoutSkeleton
+      hideMobileBottomBar
       feed={
         <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
-          <div className="shrink-0 border-b border-neutral-100 px-4 py-4 md:px-6">
-            <Skeleton className="h-7 w-20" />
-            <Skeleton className="mt-2 h-4 w-52 max-w-full" />
+          <div className="shrink-0 border-b border-neutral-100 px-4 pt-4 pb-3 md:px-6 md:py-3">
+            <Skeleton className="mb-3 h-9 w-28 md:hidden" />
+            <Skeleton className="mb-3 h-10 w-full md:hidden" />
+            <Skeleton className="hidden h-9 w-40 md:inline-flex" />
           </div>
 
           <div className="min-h-0 flex-1 overflow-hidden px-4 py-4 md:px-6">
