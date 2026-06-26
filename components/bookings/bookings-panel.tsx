@@ -17,9 +17,9 @@ import {
   ExternalLink,
   X,
   Loader2,
-  FolderOpen,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { ThemeIllustration } from "@/components/ui/theme-illustration";
 import { Button } from "@/components/ui/button";
 import {
   Select,
@@ -562,9 +562,9 @@ export function BookingsPanel({ tripId, readOnly = false }: BookingsPanelProps) 
           </div>
         ) : filteredBookings.length === 0 ? (
           <div className="flex flex-col items-center justify-center gap-3 py-16 text-center">
-            <div className="flex h-14 w-14 items-center justify-center rounded-full bg-neutral-100">
-              <FolderOpen className="h-7 w-7 text-neutral-400" />
-            </div>
+            {bookings.length === 0 && (
+              <ThemeIllustration variant="documents" className="mb-2" />
+            )}
             <div>
               <p className="text-sm font-medium text-neutral-700">
                 {bookings.length === 0

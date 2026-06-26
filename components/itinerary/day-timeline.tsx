@@ -50,6 +50,7 @@ import {
 import { Spinner } from "@/components/ui/spinner";
 import { Switch } from "@/components/ui/switch";
 import { cn } from "@/lib/utils";
+import { ThemeIllustration } from "@/components/ui/theme-illustration";
 import { ItemEditor } from "@/components/itinerary/item-editor";
 import { DayAudioButton } from "@/components/itinerary/day-audio-button";
 import {
@@ -970,9 +971,7 @@ export function DayTimeline({
     return (
       <div className="flex h-full items-center justify-center p-8 text-center">
         <div>
-          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-neutral-100">
-            <Route className="h-8 w-8 text-neutral-500" />
-          </div>
+          <ThemeIllustration variant="itinerary" className="mb-4" />
           <p className="font-semibold text-neutral-700">No itinerary yet</p>
           <p className="mt-1 text-sm text-neutral-400">
             Chat with the AI to generate your day-by-day plan

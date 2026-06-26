@@ -1,7 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { CalendarPlus, Lightbulb, Plus, Trash2 } from "lucide-react";
+import { CalendarPlus, Plus, Trash2 } from "lucide-react";
+import { ThemeIllustration } from "@/components/ui/theme-illustration";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Spinner } from "@/components/ui/spinner";
@@ -239,29 +240,7 @@ export function IdeasPanel({
         />
 
         <div className="flex h-full flex-col items-center justify-center px-6 py-12 text-center">
-          <div className="relative mb-8">
-            <div className="absolute inset-0 -m-8 rounded-full bg-blue-100/60 blur-2xl" />
-            <div className="relative flex flex-col items-center">
-              <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-amber-100">
-                <Lightbulb className="h-8 w-8 fill-amber-400 text-amber-500" />
-              </div>
-              <div className="flex -space-x-2">
-                {[0, 1, 2].map((i) => (
-                  <div
-                    key={i}
-                    className="h-20 w-16 overflow-hidden rounded-xl border-2 border-white bg-neutral-100 shadow-sm"
-                    style={{ transform: `rotate(${(i - 1) * 6}deg)` }}
-                  >
-                    <div className="h-10 bg-linear-to-br from-sky-100 to-blue-200" />
-                    <div className="space-y-1 p-1.5">
-                      <div className="h-1 rounded bg-neutral-200" />
-                      <div className="h-1 w-2/3 rounded bg-neutral-200" />
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
+          <ThemeIllustration variant="ideas" className="mb-6" />
 
           <h2 className="text-lg font-bold text-neutral-900">
             Add places you might want to go.
