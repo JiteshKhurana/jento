@@ -1,11 +1,10 @@
 "use client";
 
-import { UserButton, useUser } from "@clerk/nextjs";
+import { useUser } from "@clerk/nextjs";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useTheme } from "next-themes";
-import { Heart, Menu, Moon, Sun, Map, Search, X } from "lucide-react";
+import { Heart, Menu, Map, Search, User, X } from "lucide-react";
 import { SidebarInset } from "@/components/ui/sidebar";
 import { cn } from "@/lib/utils";
 import { createContext, useContext, useState } from "react";
@@ -31,6 +30,12 @@ const savedNavLink = {
   icon: Heart,
 } as const;
 
+const profileNavLink = {
+  href: "/profile",
+  label: "Profile",
+  icon: User,
+} as const;
+
 function MobileSidebar({
   open,
   onClose,
@@ -39,10 +44,11 @@ function MobileSidebar({
   onClose: () => void;
 }) {
   const pathname = usePathname();
-  const { resolvedTheme, setTheme } = useTheme();
   const { user, isLoaded } = useUser();
   const navLinks =
-    isLoaded && user ? [...baseNavLinks, savedNavLink] : baseNavLinks;
+    isLoaded && user
+      ? [...baseNavLinks, savedNavLink, profileNavLink]
+      : [...baseNavLinks, profileNavLink];
 
   return (
     <>
@@ -123,33 +129,6 @@ function MobileSidebar({
             );
           })}
         </nav>
-
-        {/* Footer: theme toggle + profile */}
-        <div className="space-y-1 border-t border-border px-3 py-4">
-          <button
-            onClick={() =>
-              setTheme(resolvedTheme === "dark" ? "light" : "dark")
-            }
-            className="flex w-full items-center gap-3 rounded-xl px-3 py-3 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-            aria-label="Toggle theme"
-          >
-            <Sun className="h-5 w-5 shrink-0 dark:hidden" />
-            <Moon className="hidden h-5 w-5 shrink-0 dark:block" />
-            Toggle theme
-          </button>
-          {isLoaded && user && (
-            <div className="flex items-center gap-3 rounded-xl px-3 py-3">
-              <UserButton
-                appearance={{
-                  elements: { avatarBox: "h-8 w-8 shrink-0" },
-                }}
-              />
-              <p className="min-w-0 flex-1 truncate text-sm font-medium">
-                {user.fullName ?? user.username ?? "User"}
-              </p>
-            </div>
-          )}
-        </div>
       </div>
     </>
   );

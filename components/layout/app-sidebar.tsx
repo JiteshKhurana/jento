@@ -1,17 +1,16 @@
 "use client";
 
-import { UserButton, useUser } from "@clerk/nextjs";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useTheme } from "next-themes";
+import { useUser } from "@clerk/nextjs";
 import {
   Search,
   Map,
-  Moon,
   PanelLeft,
   PanelLeftClose,
-  Sun,
+  User,
+  Heart,
 } from "lucide-react";
 import {
   Sidebar,
@@ -27,10 +26,22 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 
-const navLinks = [
+const baseNavLinks = [
   { href: "/trips", label: "My trips", icon: Map },
   { href: "/explore", label: "Explore", icon: Search },
 ] as const;
+
+const savedNavLink = {
+  href: "/saved",
+  label: "Saved",
+  icon: Heart,
+} as const;
+
+const profileNavLink = {
+  href: "/profile",
+  label: "Profile",
+  icon: User,
+} as const;
 
 function SidebarCollapseButton() {
   const { state, toggleSidebar, isMobile } = useSidebar();
@@ -52,56 +63,12 @@ function SidebarCollapseButton() {
   );
 }
 
-function SidebarUserProfile() {
-  const { user, isLoaded } = useUser();
-
-  if (!isLoaded || !user) return null;
-
-  const displayName = user.fullName ?? user.username ?? "User";
-
-  return (
-    <SidebarMenuItem>
-      <div className="flex items-center gap-2 px-2 py-1.5 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0">
-        <UserButton
-          appearance={{
-            elements: {
-              avatarBox: "h-8 w-8 shrink-0",
-            },
-          }}
-        />
-        <p className="min-w-0 flex-1 truncate text-sm font-medium leading-tight group-data-[collapsible=icon]:hidden">
-          {displayName}
-        </p>
-      </div>
-    </SidebarMenuItem>
-  );
-}
-
-function SidebarThemeToggle() {
-  const { resolvedTheme, setTheme } = useTheme();
-
-  const toggleTheme = () => {
-    setTheme(resolvedTheme === "dark" ? "light" : "dark");
-  };
-
-  return (
-    <SidebarMenuItem>
-      <SidebarMenuButton
-        onClick={toggleTheme}
-        tooltip="Toggle theme"
-        className="cursor-pointer"
-        aria-label="Toggle theme"
-      >
-        <Sun className="dark:hidden" />
-        <Moon className="hidden dark:block" />
-        <span>Toggle theme</span>
-      </SidebarMenuButton>
-    </SidebarMenuItem>
-  );
-}
-
 export function AppSidebar() {
   const pathname = usePathname();
+  const { user, isLoaded } = useUser();
+  const navLinks = isLoaded && user
+    ? [...baseNavLinks, savedNavLink, profileNavLink]
+    : [...baseNavLinks, profileNavLink];
 
   return (
     <Sidebar collapsible="icon">
@@ -169,9 +136,7 @@ export function AppSidebar() {
 
       <SidebarFooter>
         <SidebarMenu>
-          <SidebarThemeToggle />
           <SidebarCollapseButton />
-          <SidebarUserProfile />
         </SidebarMenu>
       </SidebarFooter>
 
