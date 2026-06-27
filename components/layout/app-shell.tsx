@@ -67,10 +67,10 @@ function MobileHeader({
               className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl text-foreground transition-colors hover:bg-muted"
               aria-label={open ? "Close menu" : "Open menu"}
             >
-              <div className="relative h-5 w-5">
+              <div className="relative h-6 w-6">
                 <Menu
                   className={cn(
-                    "absolute inset-0 h-5 w-5 transition-all duration-200",
+                    "absolute inset-0 h-6 w-6 transition-all duration-200",
                     open
                       ? "rotate-90 scale-50 opacity-0"
                       : "rotate-0 scale-100 opacity-100",
@@ -78,7 +78,7 @@ function MobileHeader({
                 />
                 <X
                   className={cn(
-                    "absolute inset-0 h-5 w-5 transition-all duration-200",
+                    "absolute inset-0 h-6 w-6 transition-all duration-200",
                     open
                       ? "rotate-0 scale-100 opacity-100"
                       : "-rotate-90 scale-50 opacity-0",
@@ -87,7 +87,7 @@ function MobileHeader({
               </div>
             </button>
           </PopoverTrigger>
-          <PopoverContent align="start" className="w-52 p-1">
+          <PopoverContent align="start" className="w-64 p-2">
             {navLinks.map((link) => {
               const isActive =
                 pathname === link.href || pathname.startsWith(`${link.href}/`);
@@ -98,13 +98,13 @@ function MobileHeader({
                   href={link.href}
                   onClick={() => onOpenChange(false)}
                   className={cn(
-                    "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
+                    "flex items-center gap-3 rounded-lg px-3 py-2.5 text-base font-medium transition-colors",
                     isActive
                       ? "bg-neutral-900 text-white dark:bg-white dark:text-neutral-900"
                       : "text-neutral-700 hover:bg-neutral-100 dark:text-neutral-300 dark:hover:bg-neutral-800",
                   )}
                 >
-                  <Icon className="h-4 w-4 shrink-0" />
+                  <Icon className="h-5 w-5 shrink-0" />
                   {link.label}
                 </Link>
               );

@@ -32,7 +32,7 @@ export function ChatMarkdown({ content, className }: ChatMarkdownProps) {
             <h3 className="mb-2 text-base font-semibold text-neutral-900">{children}</h3>
           ),
           h3: ({ children }) => (
-            <h3 className="mb-2 text-[15px] font-semibold text-neutral-900">{children}</h3>
+            <h3 className="mb-2 text-[16px] font-semibold text-neutral-900 md:text-[15px]">{children}</h3>
           ),
           a: ({ href, children }) => (
             <a

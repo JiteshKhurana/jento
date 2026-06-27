@@ -62,7 +62,7 @@ export function TripTitleEditor({
 
   if (readOnly) {
     return (
-      <h1 className="truncate text-base font-semibold text-neutral-900">
+      <h1 className="truncate text-lg font-semibold text-neutral-900 md:text-xl">
         {title}
       </h1>
     );
@@ -86,7 +86,7 @@ export function TripTitleEditor({
             setEditing(false);
           }
         }}
-        className="h-8 max-w-xs px-2 py-1 text-base font-semibold"
+        className="h-9 max-w-xs px-2 py-1 text-lg font-semibold md:text-xl"
         aria-label="Trip title"
       />
     );
@@ -100,7 +100,7 @@ export function TripTitleEditor({
         setEditing(true);
       }}
       className={cn(
-        "group flex min-w-0 max-w-full cursor-pointer items-center gap-1.5 rounded-md text-left text-base font-semibold text-neutral-900",
+        "group flex min-w-0 max-w-full cursor-pointer items-center gap-1.5 rounded-md text-left text-lg font-semibold text-neutral-900 md:text-xl",
         "hover:text-neutral-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-300/60",
       )}
       aria-label="Edit trip title"

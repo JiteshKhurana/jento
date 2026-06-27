@@ -323,7 +323,7 @@ export function ChatPanel({
               className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}
             >
               <div
-                className={`max-w-[90%] text-[15px] leading-relaxed ${
+                className={`max-w-[90%] text-[16px] leading-relaxed md:text-[15px] ${
                   message.role === "user"
                     ? "rounded-2xl rounded-br-md bg-neutral-900 px-4 py-2.5 text-white"
                     : "text-neutral-800"
@@ -390,7 +390,7 @@ export function ChatPanel({
           onSubmit={handleSubmit}
           className={cn(
             floatingInput
-              ? "fixed inset-x-0 z-40 px-4 py-2 transition-[transform,opacity] duration-300 ease-in-out"
+              ? "fixed inset-x-0 z-40 px-4 py-1.5 transition-[transform,opacity] duration-300 ease-in-out"
               : "shrink-0 border-t border-neutral-100 bg-white px-4 py-3",
             floatingInput &&
               mobileSidebarOpen &&
@@ -400,7 +400,7 @@ export function ChatPanel({
             floatingInput
               ? {
                   bottom:
-                    "calc(5.5rem + env(safe-area-inset-bottom))",
+                    "calc(5.25rem + env(safe-area-inset-bottom))",
                 }
               : undefined
           }
@@ -411,7 +411,7 @@ export function ChatPanel({
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 placeholder="Message Jento…"
-                className="max-h-32 min-h-9 flex-1 resize-none border-0 bg-transparent px-2.5 py-1.5 text-[15px] leading-5 placeholder:text-neutral-400 focus:outline-none"
+                className="max-h-32 min-h-9 flex-1 resize-none border-0 bg-transparent px-2.5 py-1.5 text-[16px] leading-5 placeholder:text-neutral-400 focus:outline-none md:text-[15px]"
                 rows={1}
                 onKeyDown={(e) => {
                   if (e.key === "Enter" && !e.shiftKey) {
