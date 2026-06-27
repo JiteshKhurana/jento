@@ -3,7 +3,6 @@
 import { useEffect, useRef, useState } from "react";
 import {
   FileText,
-  Image as ImageIcon,
   Plane,
   Hotel,
   Car,
@@ -12,22 +11,21 @@ import {
   Shield,
   Globe,
   Tag,
-  Upload,
+  Plus,
   Trash2,
   ExternalLink,
-  X,
   Loader2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ThemeIllustration } from "@/components/ui/theme-illustration";
 import { Button } from "@/components/ui/button";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
@@ -119,231 +117,97 @@ function formatBytes(bytes: number | null): string {
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 }
 
-// ─── Upload Drop Zone ─────────────────────────────────────────────────────────
+// ─── Upload Dialog ────────────────────────────────────────────────────────────
 
-type UploadZoneProps = {
-  tripId: string;
-  onUploaded: (booking: TripBookingData) => void;
+type UploadDocumentDialogProps = {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  file: File | null;
+  category: BookingCategory;
+  onCategoryChange: (category: BookingCategory) => void;
+  onUpload: () => void;
+  uploading: boolean;
+  error: string | null;
 };
 
-function UploadZone({ tripId, onUploaded }: UploadZoneProps) {
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const [dragging, setDragging] = useState(false);
-  const [uploading, setUploading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [form, setForm] = useState<{
-    file: File | null;
-    title: string;
-    category: BookingCategory;
-    notes: string;
-  }>({ file: null, title: "", category: "OTHER", notes: "" });
-
-  function pickFile(file: File) {
-    setError(null);
-    setForm((prev) => ({
-      ...prev,
-      file,
-      title: prev.title || file.name.replace(/\.[^/.]+$/, ""),
-    }));
-  }
-
-  function handleDrop(e: React.DragEvent) {
-    e.preventDefault();
-    setDragging(false);
-    const file = e.dataTransfer.files[0];
-    if (file) pickFile(file);
-  }
-
-  function handleFileInput(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (file) pickFile(file);
-    e.target.value = "";
-  }
-
-  async function handleUpload() {
-    if (!form.file) return;
-    setError(null);
-    setUploading(true);
-
-    try {
-      const fd = new FormData();
-      fd.append("file", form.file);
-      fd.append("title", form.title.trim() || form.file.name.replace(/\.[^/.]+$/, ""));
-      fd.append("category", form.category);
-      if (form.notes.trim()) fd.append("notes", form.notes.trim());
-
-      const res = await fetch(`/api/trips/${tripId}/bookings/upload`, {
-        method: "POST",
-        body: fd,
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        setError(data.error ?? "Upload failed. Please try again.");
-        return;
-      }
-
-      if (typeof pendo !== "undefined") {
-        pendo.track("booking_uploaded", {
-          tripId,
-          bookingCategory: form.category,
-          fileType: form.file.type || "unknown",
-          fileSizeBytes: form.file.size,
-          title: form.title.trim() || form.file.name,
-          hasNotes: !!form.notes.trim(),
-        });
-      }
-      onUploaded(data as TripBookingData);
-      setForm({ file: null, title: "", category: "OTHER", notes: "" });
-    } catch {
-      setError("Upload failed. Please check your connection and try again.");
-    } finally {
-      setUploading(false);
-    }
-  }
-
+function UploadDocumentDialog({
+  open,
+  onOpenChange,
+  file,
+  category,
+  onCategoryChange,
+  onUpload,
+  uploading,
+  error,
+}: UploadDocumentDialogProps) {
   return (
-    <div className="border-b border-neutral-100 bg-white px-4 pb-4 pt-3">
-      {/* Drop target */}
-      <div
-        onDragEnter={() => setDragging(true)}
-        onDragLeave={() => setDragging(false)}
-        onDragOver={(e) => e.preventDefault()}
-        onDrop={handleDrop}
-        onClick={() => !form.file && fileInputRef.current?.click()}
-        className={cn(
-          "flex cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed py-6 transition-all",
-          dragging
-            ? "border-neutral-400 bg-neutral-50"
-            : form.file
-              ? "cursor-default border-neutral-200 bg-neutral-50"
-              : "border-neutral-200 hover:border-neutral-300 hover:bg-neutral-50/60",
-        )}
-      >
-        {!form.file ? (
-          <>
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-neutral-100">
-              <Upload className="h-5 w-5 text-neutral-500" />
-            </div>
-            <p className="text-sm font-medium text-neutral-700">
-              Drag & drop or click to upload
-            </p>
-            <p className="text-xs text-neutral-400">
-              PDF, JPG, PNG, WebP — up to 20 MB
-            </p>
-          </>
-        ) : (
-          <div className="flex w-full items-center gap-3 px-4">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-neutral-100">
-              {form.file.type.startsWith("image/") ? (
-                <ImageIcon className="h-5 w-5 text-neutral-500" />
-              ) : (
-                <FileText className="h-5 w-5 text-neutral-500" />
-              )}
-            </div>
-            <div className="min-w-0 flex-1">
-              <p className="truncate text-sm font-medium text-neutral-800">
-                {form.file.name}
-              </p>
-              <p className="text-xs text-neutral-400">
-                {formatBytes(form.file.size)}
-              </p>
-            </div>
-            <button
-              type="button"
-              onClick={(e) => {
-                e.stopPropagation();
-                setForm((prev) => ({ ...prev, file: null, title: "" }));
-              }}
-              className="shrink-0 rounded-md p-1 text-neutral-400 hover:bg-neutral-200 hover:text-neutral-600"
-            >
-              <X className="h-4 w-4" />
-            </button>
-          </div>
-        )}
-      </div>
-
-      <input
-        ref={fileInputRef}
-        type="file"
-        accept=".pdf,image/jpeg,image/png,image/webp,image/gif"
-        className="hidden"
-        onChange={handleFileInput}
-      />
-
-      {form.file && (
-        <div className="mt-3 space-y-2.5">
-          {/* Title */}
-          <input
-            type="text"
-            value={form.title}
-            onChange={(e) => setForm((p) => ({ ...p, title: e.target.value }))}
-            placeholder="Document title"
-            className="w-full rounded-lg border border-neutral-200 bg-white px-3 py-2 text-sm text-neutral-800 outline-none placeholder:text-neutral-400 focus:border-neutral-400 focus:ring-0"
-          />
-
-          {/* Category */}
-          <Select
-            value={form.category}
-            onValueChange={(value) =>
-              setForm((p) => ({
-                ...p,
-                category: value as BookingCategory,
-              }))
-            }
-          >
-            <SelectTrigger className="h-10 rounded-lg">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {CATEGORIES.map(([value, { label, icon }]) => (
-                <SelectItem key={value} value={value}>
-                  <span className="flex items-center gap-2">
-                    {icon}
-                    {label}
-                  </span>
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-
-          {/* Notes */}
-          <textarea
-            value={form.notes}
-            onChange={(e) => setForm((p) => ({ ...p, notes: e.target.value }))}
-            placeholder="Notes (optional)"
-            rows={2}
-            className="w-full resize-none rounded-lg border border-neutral-200 bg-white px-3 py-2 text-sm text-neutral-800 outline-none placeholder:text-neutral-400 focus:border-neutral-400"
-          />
-
-          {error && (
-            <p className="rounded-lg bg-red-50 px-3 py-2 text-xs text-red-600">
-              {error}
-            </p>
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-sm gap-0 rounded-3xl p-6 sm:max-w-sm">
+        <DialogHeader className="space-y-1">
+          <DialogTitle className="text-lg font-semibold">
+            Upload document
+          </DialogTitle>
+          {file && (
+            <DialogDescription className="truncate text-neutral-500">
+              {file.name}
+            </DialogDescription>
           )}
+        </DialogHeader>
 
+        <p className="mt-5 text-sm font-medium text-neutral-700">Category</p>
+        <div className="mt-2 grid grid-cols-2 gap-2">
+          {CATEGORIES.map(([value, meta]) => (
+            <button
+              key={value}
+              type="button"
+              onClick={() => onCategoryChange(value)}
+              className={cn(
+                "flex items-center gap-2 rounded-xl border px-3 py-2.5 text-left text-sm transition-colors",
+                category === value
+                  ? "border-neutral-900 bg-neutral-50 font-medium text-neutral-900"
+                  : "border-neutral-200 text-neutral-700 hover:border-neutral-300 hover:bg-neutral-50",
+              )}
+            >
+              {meta.icon}
+              {meta.label}
+            </button>
+          ))}
+        </div>
+
+        {error && (
+          <p className="mt-3 rounded-lg bg-red-50 px-3 py-2 text-xs text-red-600">
+            {error}
+          </p>
+        )}
+
+        <div className="mt-6 flex gap-3">
           <Button
-            onClick={handleUpload}
+            type="button"
+            variant="outline"
+            className="h-10 flex-1 cursor-pointer rounded-full"
+            onClick={() => onOpenChange(false)}
             disabled={uploading}
-            className="w-full"
-            size="sm"
+          >
+            Cancel
+          </Button>
+          <Button
+            type="button"
+            className="h-10 flex-1 cursor-pointer rounded-full"
+            onClick={onUpload}
+            disabled={uploading || !file}
           >
             {uploading ? (
               <>
-                <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" />
+                <Loader2 className="h-4 w-4 animate-spin" />
                 Uploading…
               </>
             ) : (
-              <>
-                <Upload className="mr-1.5 h-3.5 w-3.5" />
-                Save Booking
-              </>
+              "Upload"
             )}
           </Button>
         </div>
-      )}
-    </div>
+      </DialogContent>
+    </Dialog>
   );
 }
 
@@ -451,10 +315,22 @@ function BookingCard({ booking, onDelete, readOnly }: BookingCardProps) {
 
 // ─── Bookings Panel ───────────────────────────────────────────────────────────
 
-export function BookingsPanel({ tripId, readOnly = false }: BookingsPanelProps) {
+export function BookingsPanel({
+  tripId,
+  readOnly = false,
+}: BookingsPanelProps) {
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [bookings, setBookings] = useState<TripBookingData[]>([]);
   const [loading, setLoading] = useState(true);
-  const [filterCategory, setFilterCategory] = useState<BookingCategory | "ALL">("ALL");
+  const [uploading, setUploading] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
+  const [categoryDialogOpen, setCategoryDialogOpen] = useState(false);
+  const [pendingFile, setPendingFile] = useState<File | null>(null);
+  const [selectedCategory, setSelectedCategory] =
+    useState<BookingCategory>("OTHER");
+  const [filterCategory, setFilterCategory] = useState<BookingCategory | "ALL">(
+    "ALL",
+  );
 
   useEffect(() => {
     let cancelled = false;
@@ -492,18 +368,159 @@ export function BookingsPanel({ tripId, readOnly = false }: BookingsPanelProps) 
     setBookings((prev) => [booking, ...prev]);
   }
 
+  function handleCategoryDialogOpenChange(open: boolean) {
+    if (!open && uploading) return;
+    setCategoryDialogOpen(open);
+    if (!open) {
+      setPendingFile(null);
+      setSelectedCategory("OTHER");
+      setUploadError(null);
+    }
+  }
+
+  function handleFileSelected(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file) return;
+
+    setUploadError(null);
+    setPendingFile(file);
+    setSelectedCategory("OTHER");
+    setCategoryDialogOpen(true);
+  }
+
+  async function handleUpload() {
+    if (!pendingFile) return;
+
+    setUploadError(null);
+    setUploading(true);
+
+    const title = pendingFile.name.replace(/\.[^/.]+$/, "");
+
+    try {
+      const fd = new FormData();
+      fd.append("file", pendingFile);
+      fd.append("title", title);
+      fd.append("category", selectedCategory);
+
+      const res = await fetch(`/api/trips/${tripId}/bookings/upload`, {
+        method: "POST",
+        body: fd,
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        setUploadError(data.error ?? "Upload failed. Please try again.");
+        return;
+      }
+
+      if (typeof pendo !== "undefined") {
+        pendo.track("booking_uploaded", {
+          tripId,
+          bookingCategory: selectedCategory,
+          fileType: pendingFile.type || "unknown",
+          fileSizeBytes: pendingFile.size,
+          title,
+          hasNotes: false,
+        });
+      }
+
+      handleUploaded(data as TripBookingData);
+      setCategoryDialogOpen(false);
+      setPendingFile(null);
+      setSelectedCategory("OTHER");
+    } catch {
+      setUploadError("Upload failed. Please check your connection and try again.");
+    } finally {
+      setUploading(false);
+    }
+  }
+
+  const uploadButton = (className?: string) =>
+    !readOnly ? (
+      <Button
+        size={className ? "default" : "sm"}
+        onClick={() => fileInputRef.current?.click()}
+        disabled={uploading}
+        className={cn("cursor-pointer gap-1.5", className)}
+      >
+        {uploading ? (
+          <Loader2
+            className={cn(
+              "animate-spin",
+              className ? "h-4 w-4" : "h-3.5 w-3.5",
+            )}
+          />
+        ) : (
+          <Plus className={className ? "h-4 w-4" : "h-3.5 w-3.5"} />
+        )}
+        {uploading ? "Uploading…" : "Upload document"}
+      </Button>
+    ) : null;
+
   const filteredBookings =
     filterCategory === "ALL"
       ? bookings
       : bookings.filter((b) => b.category === filterCategory);
 
   // Build the category filter options based on what exists
-  const presentCategories = Array.from(new Set(bookings.map((b) => b.category)));
+  const presentCategories = Array.from(
+    new Set(bookings.map((b) => b.category)),
+  );
+
+  const uploadDialog = (
+    <UploadDocumentDialog
+      open={categoryDialogOpen}
+      onOpenChange={handleCategoryDialogOpenChange}
+      file={pendingFile}
+      category={selectedCategory}
+      onCategoryChange={setSelectedCategory}
+      onUpload={handleUpload}
+      uploading={uploading}
+      error={uploadError}
+    />
+  );
+
+  const fileInput = (
+    <input
+      ref={fileInputRef}
+      type="file"
+      accept=".pdf,image/jpeg,image/png,image/webp,image/gif"
+      className="hidden"
+      onChange={handleFileSelected}
+    />
+  );
+
+  if (!loading && bookings.length === 0) {
+    return (
+      <>
+        {fileInput}
+        {uploadDialog}
+
+        <div className="flex h-full flex-col items-center justify-center px-6 py-12 text-center">
+          <ThemeIllustration variant="documents" className="mb-6" />
+
+          <h2 className="text-lg font-bold text-neutral-900">
+            Upload flights, hotels, and travel documents.
+          </h2>
+
+          {uploadButton("mt-8")}
+        </div>
+      </>
+    );
+  }
 
   return (
-    <div className="flex h-full flex-col">
-      {/* Upload zone — only for owners */}
-      {!readOnly && <UploadZone tripId={tripId} onUploaded={handleUploaded} />}
+    <>
+      {fileInput}
+      {uploadDialog}
+
+      <div className="flex h-full flex-col">
+        <div className="flex shrink-0 items-center justify-between border-b border-neutral-100 px-4 py-3">
+          <h2 className="text-lg font-bold text-neutral-900">Documents</h2>
+          {uploadButton()}
+        </div>
 
       {/* Category filter chips */}
       {bookings.length > 0 && (
@@ -562,21 +579,9 @@ export function BookingsPanel({ tripId, readOnly = false }: BookingsPanelProps) 
           </div>
         ) : filteredBookings.length === 0 ? (
           <div className="flex flex-col items-center justify-center gap-3 py-16 text-center">
-            {bookings.length === 0 && (
-              <ThemeIllustration variant="documents" className="mb-2" />
-            )}
-            <div>
-              <p className="text-sm font-medium text-neutral-700">
-                {bookings.length === 0
-                  ? "No bookings yet"
-                  : "No bookings in this category"}
-              </p>
-              {bookings.length === 0 && !readOnly && (
-                <p className="mt-1 text-xs text-neutral-400">
-                  Upload your confirmations, tickets, and travel docs above.
-                </p>
-              )}
-            </div>
+            <p className="text-sm font-medium text-neutral-700">
+              No bookings in this category
+            </p>
           </div>
         ) : (
           <div className="space-y-2.5">
@@ -591,6 +596,7 @@ export function BookingsPanel({ tripId, readOnly = false }: BookingsPanelProps) 
           </div>
         )}
       </div>
-    </div>
+      </div>
+    </>
   );
 }

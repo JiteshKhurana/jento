@@ -245,9 +245,6 @@ export function IdeasPanel({
           <h2 className="text-lg font-bold text-neutral-900">
             Add places you might want to go.
           </h2>
-          <p className="mt-2 max-w-xs text-sm text-neutral-500">
-            Got ideas? Add them here. Consider it your &ldquo;maybe&rdquo; list.
-          </p>
 
           {!readOnly && (
             <Button

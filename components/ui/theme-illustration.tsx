@@ -8,8 +8,8 @@ const ILLUSTRATIONS: Record<
   { light: string; dark: string; alt: string }
 > = {
   ideas: {
-    light: "/illustrations/no-ideas-light.png",
-    dark: "/illustrations/no-ideas-dark.png",
+    light: "/illustrations/No ideas_light mode.png",
+    dark: "/illustrations/No ideas_dark mode.png",
     alt: "No ideas yet",
   },
   documents: {

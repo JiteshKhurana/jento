@@ -1,5 +1,12 @@
 import { format } from "date-fns";
-import { PDFDocument, StandardFonts, rgb, type PDFPage, type PDFFont, type RGB } from "pdf-lib";
+import {
+  PDFDocument,
+  StandardFonts,
+  rgb,
+  type PDFPage,
+  type PDFFont,
+  type RGB,
+} from "pdf-lib";
 import type { ItineraryDayData } from "@/components/itinerary/day-timeline";
 import { getDayColor } from "@/components/itinerary/day-timeline";
 import {
@@ -42,7 +49,7 @@ const COLORS = {
 };
 
 const BUDGET_CATEGORIES = [
-  { key: "budgetAccommodation" as const, label: "Accommodation" },
+  { key: "budgetAccommodation" as const, label: "Stay" },
   { key: "budgetFood" as const, label: "Food" },
   { key: "budgetActivities" as const, label: "Activities" },
   { key: "budgetTransport" as const, label: "Transport" },
@@ -115,7 +122,12 @@ function tintColor(color: RGB, amount: number): RGB {
   );
 }
 
-function wrapText(text: string, font: PDFFont, fontSize: number, maxWidth: number): string[] {
+function wrapText(
+  text: string,
+  font: PDFFont,
+  fontSize: number,
+  maxWidth: number,
+): string[] {
   const safeText = toPdfText(text);
   const words = safeText.split(/\s+/);
   const lines: string[] = [];
@@ -252,7 +264,9 @@ function drawSectionLabel(ctx: PdfContext, text: string, x: number, y: number) {
 
 function measureBadgeWidth(ctx: PdfContext, label: string): number {
   const safeLabel = toPdfText(label);
-  return ctx.regular.widthOfTextAtSize(safeLabel, BADGE_FONT_SIZE) + BADGE_PAD_X * 2;
+  return (
+    ctx.regular.widthOfTextAtSize(safeLabel, BADGE_FONT_SIZE) + BADGE_PAD_X * 2
+  );
 }
 
 function drawPill(
@@ -306,7 +320,14 @@ function drawTypeBadge(
   const badgeBottom = baselineY - 4;
   const textY = badgeBottom + (BADGE_HEIGHT - BADGE_FONT_SIZE) / 2 + 1;
 
-  drawPill(ctx.pageRef.page, x, badgeBottom, badgeWidth, BADGE_HEIGHT, style.bg);
+  drawPill(
+    ctx.pageRef.page,
+    x,
+    badgeBottom,
+    badgeWidth,
+    BADGE_HEIGHT,
+    style.bg,
+  );
 
   drawPdfText(ctx, safeLabel, x + BADGE_PAD_X, textY, {
     font: ctx.regular,
@@ -330,9 +351,13 @@ function drawTitleWithBadge(
   const lineGap = 14;
   const canInline =
     titleLines.length === 1 &&
-    ctx.bold.widthOfTextAtSize(titleLines[0], 11) + badgeGap + badgeWidth <= maxWidth;
+    ctx.bold.widthOfTextAtSize(titleLines[0], 11) + badgeGap + badgeWidth <=
+      maxWidth;
 
-  ensureSpace(ctx, titleLines.length * lineGap + (canInline ? 0 : BADGE_HEIGHT + 6));
+  ensureSpace(
+    ctx,
+    titleLines.length * lineGap + (canInline ? 0 : BADGE_HEIGHT + 6),
+  );
 
   const rowBaseline = ctx.yRef.y;
 
@@ -382,8 +407,7 @@ function measureInsightBox(
     const transportLine = insights.cityTransportModes
       .map((mode) => TRANSPORT_MODE_META[mode].label)
       .join("   ");
-    h +=
-      wrapText(transportLine, ctx.regular, 9, innerWidth).length * 11 + 4;
+    h += wrapText(transportLine, ctx.regular, 9, innerWidth).length * 11 + 4;
   }
 
   return h + pad;
@@ -474,11 +498,17 @@ function drawInsightBox(
         size: 7,
         color: COLORS.textMuted,
       });
-      drawPdfText(ctx, `~${formatPdfBudgetAmount(amount, currencyCode)}`, colX, gridTop - 28, {
-        font: ctx.bold,
-        size: 10,
-        color: COLORS.text,
-      });
+      drawPdfText(
+        ctx,
+        `~${formatPdfBudgetAmount(amount, currencyCode)}`,
+        colX,
+        gridTop - 28,
+        {
+          font: ctx.bold,
+          size: 10,
+          color: COLORS.text,
+        },
+      );
     });
 
     innerY = gridTop - gridHeight - 8;
@@ -511,7 +541,10 @@ function drawInsightBox(
       .map((mode) => TRANSPORT_MODE_META[mode].label)
       .join("   ");
     for (const line of wrapText(transportLine, ctx.regular, 9, innerWidth)) {
-      drawPdfText(ctx, line, innerLeft, innerY, { size: 9, color: COLORS.textSecondary });
+      drawPdfText(ctx, line, innerLeft, innerY, {
+        size: 9,
+        color: COLORS.textSecondary,
+      });
       innerY -= 11;
     }
   }
@@ -531,7 +564,8 @@ function measureTimelineItem(
   const badgeWidth = measureBadgeWidth(ctx, typeLabel);
   const canInline =
     titleLines.length === 1 &&
-    ctx.bold.widthOfTextAtSize(titleLines[0], 11) + 8 + badgeWidth <= contentWidth;
+    ctx.bold.widthOfTextAtSize(titleLines[0], 11) + 8 + badgeWidth <=
+      contentWidth;
 
   if (canInline) {
     h += Math.max(14, BADGE_HEIGHT + 2);
@@ -586,7 +620,8 @@ function drawTimelineItem(
   });
 
   const timeParts = [item.startTime, item.duration].filter(Boolean);
-  const timeText = timeParts.length > 0 ? timeParts.join("  |  ") : `Stop ${index + 1}`;
+  const timeText =
+    timeParts.length > 0 ? timeParts.join("  |  ") : `Stop ${index + 1}`;
   drawPdfText(ctx, timeText, ITEM_CONTENT_X, itemTop, {
     font: ctx.bold,
     size: 8,
@@ -598,7 +633,12 @@ function drawTimelineItem(
   drawTitleWithBadge(ctx, item.title, typeLabel, ITEM_CONTENT_X, contentWidth);
 
   if (item.description) {
-    for (const line of wrapText(item.description, ctx.regular, 9, contentWidth)) {
+    for (const line of wrapText(
+      item.description,
+      ctx.regular,
+      9,
+      contentWidth,
+    )) {
       ensureSpace(ctx, 12);
       drawPdfText(ctx, line, ITEM_CONTENT_X, ctx.yRef.y, {
         size: 9,
@@ -669,7 +709,9 @@ function drawDayHeader(
   });
 
   const textX = CONTENT_LEFT + 42;
-  const dayLabel = dateLabel ? `Day ${day.dayNumber}  |  ${dateLabel}` : `Day ${day.dayNumber}`;
+  const dayLabel = dateLabel
+    ? `Day ${day.dayNumber}  |  ${dateLabel}`
+    : `Day ${day.dayNumber}`;
   drawPdfText(ctx, dayLabel, textX, headerTop - 16, {
     font: ctx.bold,
     size: 11,
@@ -678,20 +720,38 @@ function drawDayHeader(
 
   const stopLabel = `${day.items.length} ${day.items.length === 1 ? "stop" : "stops"}`;
   const stopWidth = ctx.regular.widthOfTextAtSize(toPdfText(stopLabel), 8);
-  drawPdfText(ctx, stopLabel, CONTENT_LEFT + ctx.contentWidth - stopWidth - 12, headerTop - 16, {
-    size: 8,
-    color: COLORS.textMuted,
-  });
+  drawPdfText(
+    ctx,
+    stopLabel,
+    CONTENT_LEFT + ctx.contentWidth - stopWidth - 12,
+    headerTop - 16,
+    {
+      size: 8,
+      color: COLORS.textMuted,
+    },
+  );
 
   let textY = headerTop - 30;
   if (day.title) {
-    drawPdfText(ctx, day.title, textX, textY, { font: ctx.bold, size: 10, color: COLORS.text });
+    drawPdfText(ctx, day.title, textX, textY, {
+      font: ctx.bold,
+      size: 10,
+      color: COLORS.text,
+    });
     textY -= 13;
   }
   if (day.summary) {
-    const summaryLines = wrapText(day.summary, ctx.regular, 9, ctx.contentWidth - 54);
+    const summaryLines = wrapText(
+      day.summary,
+      ctx.regular,
+      9,
+      ctx.contentWidth - 54,
+    );
     for (const line of summaryLines.slice(0, 2)) {
-      drawPdfText(ctx, line, textX, textY, { size: 9, color: COLORS.textSecondary });
+      drawPdfText(ctx, line, textX, textY, {
+        size: 9,
+        color: COLORS.textSecondary,
+      });
       textY -= 11;
     }
   }
@@ -714,7 +774,12 @@ function drawCoverHeader(
     color: COLORS.headerBg,
   });
 
-  const titleLines = wrapText(options.tripTitle, ctx.bold, 22, width - PAGE_MARGIN * 2);
+  const titleLines = wrapText(
+    options.tripTitle,
+    ctx.bold,
+    22,
+    width - PAGE_MARGIN * 2,
+  );
   let titleY = height - 34;
   for (const line of titleLines.slice(0, 2)) {
     drawPdfText(ctx, line, CONTENT_LEFT, titleY, {
@@ -740,10 +805,16 @@ function drawCoverHeader(
     `${totalStops} ${totalStops === 1 ? "stop" : "stops"}`,
   ].filter(Boolean);
 
-  drawPdfText(ctx, metaParts.join("   |   "), CONTENT_LEFT, height - HEADER_BAND_HEIGHT + 18, {
-    size: 9,
-    color: COLORS.headerSubtext,
-  });
+  drawPdfText(
+    ctx,
+    metaParts.join("   |   "),
+    CONTENT_LEFT,
+    height - HEADER_BAND_HEIGHT + 18,
+    {
+      size: 9,
+      color: COLORS.headerSubtext,
+    },
+  );
 
   ctx.yRef.y = height - HEADER_BAND_HEIGHT - 28;
 }
@@ -782,7 +853,9 @@ function drawFooters(ctx: PdfContext) {
   });
 }
 
-export async function buildItineraryPdf(options: ExportPdfOptions): Promise<Uint8Array> {
+export async function buildItineraryPdf(
+  options: ExportPdfOptions,
+): Promise<Uint8Array> {
   const pdfDoc = await PDFDocument.create();
   const regular = await pdfDoc.embedFont(StandardFonts.Helvetica);
   const bold = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
@@ -791,7 +864,10 @@ export async function buildItineraryPdf(options: ExportPdfOptions): Promise<Uint
     options.budgetPerPerson && options.days.length > 0
       ? options.budgetPerPerson / options.days.length
       : null;
-  const totalStops = options.days.reduce((sum, day) => sum + day.items.length, 0);
+  const totalStops = options.days.reduce(
+    (sum, day) => sum + day.items.length,
+    0,
+  );
 
   const page = pdfDoc.addPage();
   const { width, height } = page.getSize();
@@ -813,7 +889,10 @@ export async function buildItineraryPdf(options: ExportPdfOptions): Promise<Uint
   drawCoverHeader(ctx, options, totalStops);
 
   if (options.days.length === 0) {
-    drawFlowText(ctx, "No itinerary items yet.", { color: COLORS.textMuted, size: 11 });
+    drawFlowText(ctx, "No itinerary items yet.", {
+      color: COLORS.textMuted,
+      size: 11,
+    });
     drawFooters(ctx);
     return pdfDoc.save();
   }
@@ -845,7 +924,13 @@ export async function buildItineraryPdf(options: ExportPdfOptions): Promise<Uint
     }
 
     day.items.forEach((item, index) => {
-      drawTimelineItem(ctx, item, index, dayColor, index === day.items.length - 1);
+      drawTimelineItem(
+        ctx,
+        item,
+        index,
+        dayColor,
+        index === day.items.length - 1,
+      );
     });
 
     ctx.yRef.y -= 10;

@@ -523,27 +523,23 @@ type DayExpenseBreakdownProps = {
 const BUDGET_CATEGORIES = [
   {
     key: "budgetAccommodation" as const,
-    label: "Accommodation",
+    label: "Stay",
     icon: BedDouble,
-    color: "#7c3aed",
   },
   {
     key: "budgetFood" as const,
     label: "Food & Drinks",
     icon: UtensilsCrossed,
-    color: "#db2777",
   },
   {
     key: "budgetActivities" as const,
     label: "Activities",
     icon: Zap,
-    color: "#2563eb",
   },
   {
     key: "budgetTransport" as const,
     label: "Transport",
     icon: Bus,
-    color: "#0d9488",
   },
 ] as const;
 
@@ -578,10 +574,10 @@ function DayExpenseBreakdown({
 
   return (
     <div
-      className="mb-4 overflow-hidden rounded-xl border border-neutral-100"
+      className="flex min-w-0 flex-1 flex-col overflow-hidden rounded-xl border border-neutral-100"
       style={{ background: `${dayColor}08` }}
     >
-      <div className="flex items-center justify-between border-b border-neutral-100 px-4 py-2.5">
+      <div className="flex flex-col gap-0.5 border-b border-neutral-100 px-4 py-2.5">
         <span className="text-xs font-semibold text-neutral-500 uppercase tracking-wide">
           Estimated daily spend
         </span>
@@ -589,27 +585,21 @@ function DayExpenseBreakdown({
           ~{fmt(totalToShow)}/person
         </span>
       </div>
-      <div className="grid grid-cols-2 gap-px bg-neutral-100 sm:grid-cols-4">
+      <div className="grid flex-1 grid-cols-2 grid-rows-2 gap-x-6 gap-y-4 bg-white px-4 py-4 dark:bg-neutral-950">
         {BUDGET_CATEGORIES.map((cat) => {
           const Icon = cat.icon;
           const amount = hasAiBudget
             ? (day[cat.key] ?? 0)
             : totalToShow * FALLBACK_SPLITS[cat.key];
           return (
-            <div
-              key={cat.label}
-              className="flex flex-col gap-1 bg-white px-3 py-2.5"
-            >
+            <div key={cat.label} className="flex flex-col justify-center gap-1">
               <div className="flex items-center gap-1.5">
-                <Icon
-                  className="h-3 w-3 shrink-0"
-                  style={{ color: cat.color }}
-                />
+                <Icon className="h-3 w-3 shrink-0 text-black dark:text-white" />
                 <span className="text-[10px] font-medium text-neutral-500 truncate">
                   {cat.label}
                 </span>
               </div>
-              <span className="text-sm font-semibold text-neutral-800">
+              <span className="text-sm font-semibold text-neutral-800 dark:text-neutral-200">
                 ~{fmt(amount)}
               </span>
             </div>
@@ -651,10 +641,10 @@ function DayActivityInsight({
 
   return (
     <div
-      className="mb-4 overflow-hidden rounded-xl border border-neutral-100"
+      className="flex min-w-0 flex-1 flex-col overflow-hidden rounded-xl border border-neutral-100"
       style={{ background: `${dayColor}08` }}
     >
-      <div className="flex items-center justify-between border-b border-neutral-100 px-4 py-2.5">
+      <div className="flex flex-col gap-0.5 border-b border-neutral-100 px-4 py-2.5">
         <span className="text-xs font-semibold uppercase tracking-wide text-neutral-500">
           Day on foot
         </span>
@@ -663,7 +653,7 @@ function DayActivityInsight({
           {formatStepCount(insights.estimatedSteps)} steps
         </span>
       </div>
-      <div className="flex flex-col gap-3 bg-white px-4 py-3">
+      <div className="flex flex-1 flex-col gap-3 bg-white px-4 py-3 dark:bg-neutral-950">
         <div>
           <div className="flex items-center gap-1.5">
             <Gauge
@@ -1018,22 +1008,30 @@ export function DayTimeline({
               />
             </div>
 
-            {(day.budgetTotal != null || fallbackDailyBudget != null) && (
-              <DayExpenseBreakdown
-                day={day}
-                fallbackDailyBudget={fallbackDailyBudget}
-                currencyCode={budgetCurrency}
-                dayColor={getDayColor(day.dayNumber)}
-              />
+            {(day.budgetTotal != null ||
+              fallbackDailyBudget != null ||
+              day.items.length > 0) && (
+              <div className="mb-4 flex flex-row items-stretch gap-4">
+                {(day.budgetTotal != null || fallbackDailyBudget != null) && (
+                  <DayExpenseBreakdown
+                    day={day}
+                    fallbackDailyBudget={fallbackDailyBudget}
+                    currencyCode={budgetCurrency}
+                    dayColor={getDayColor(day.dayNumber)}
+                  />
+                )}
+                {day.items.length > 0 && (
+                  <DayActivityInsight
+                    day={day}
+                    destination={destination}
+                    dayColor={getDayColor(day.dayNumber)}
+                  />
+                )}
+              </div>
             )}
 
             {day.items.length > 0 && (
               <>
-                <DayActivityInsight
-                  day={day}
-                  destination={destination}
-                  dayColor={getDayColor(day.dayNumber)}
-                />
                 {day.items.length > 1 && (
                   <div className="mb-4 flex items-center gap-2">
                     <span className="text-sm text-neutral-600">Distances</span>

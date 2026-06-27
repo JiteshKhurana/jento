@@ -132,7 +132,9 @@ function MobileHeader({
         </Link>
       </div>
       {mobileHeaderActions && (
-        <div className="flex shrink-0 items-center gap-2">{mobileHeaderActions}</div>
+        <div className="flex shrink-0 items-center gap-2">
+          {mobileHeaderActions}
+        </div>
       )}
     </header>
   );

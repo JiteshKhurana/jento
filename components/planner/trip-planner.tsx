@@ -1,10 +1,12 @@
 "use client";
 
 import dynamic from "next/dynamic";
+import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { format } from "date-fns";
 import {
   Calendar,
+  ChevronLeft,
   Lightbulb,
   MapPin,
   MessageSquare,
@@ -459,7 +461,20 @@ export function TripPlanner({
       {/* Trip header bar */}
       <div className="shrink-0 border-b border-border bg-card px-4 py-3 md:px-6">
         <div className="flex items-center gap-3">
-          <div className="flex min-w-0 flex-1 items-center gap-x-3">
+          <div className="flex min-w-0 flex-1 items-center gap-x-2 md:gap-x-3">
+            <Link
+              href="/trips"
+              aria-label="Back to My trips"
+              className={cn(
+                "flex h-8 w-8 shrink-0 items-center justify-center rounded-full md:hidden",
+                "bg-neutral-100/90 text-neutral-600 shadow-sm backdrop-blur-sm",
+                "transition-all duration-200 active:scale-95",
+                "hover:bg-neutral-200/90 hover:text-neutral-900",
+                "dark:bg-neutral-800/90 dark:text-neutral-300 dark:hover:bg-neutral-700 dark:hover:text-white",
+              )}
+            >
+              <ChevronLeft className="h-[18px] w-[18px]" strokeWidth={2.25} />
+            </Link>
             <div className="min-w-0">
               <TripTitleEditor
                 tripId={trip.id}
@@ -548,7 +563,7 @@ export function TripPlanner({
                       {view === "ideas" && "Ideas"}
                       {view === "bookings" && (
                         <span className="flex items-center justify-center gap-1">
-                          Bookings
+                          Documents
                         </span>
                       )}
                     </button>
@@ -761,7 +776,7 @@ export function TripPlanner({
                   className="flex flex-col gap-1 rounded-full px-0 py-2 text-[10px] font-medium leading-tight transition-colors data-[state=active]:bg-neutral-200/80 data-[state=active]:font-semibold data-[state=active]:text-neutral-900 data-[state=active]:shadow-none data-[state=inactive]:text-neutral-400 dark:data-[state=inactive]:text-white"
                 >
                   <Plane className="h-6 w-6" />
-                  Bookings
+                  Documents
                 </TabsTrigger>
               </TabsList>
             </div>
