@@ -1,4 +1,5 @@
 import { auth } from "@clerk/nextjs/server";
+import { redirect } from "next/navigation";
 import { LandingHeader } from "@/components/home/landing-header";
 import { SiteFooter } from "@/components/layout/site-footer";
 import { LandingHero } from "@/components/home/landing-hero";
@@ -10,6 +11,7 @@ import { LandingPageSections } from "@/components/home/landing-page-sections";
 
 export default async function HomePage() {
   const { userId } = await auth();
+  if (userId) redirect("/trips");
 
   return (
     <div className="bg-hero flex min-h-screen flex-col">

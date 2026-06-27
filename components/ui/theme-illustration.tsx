@@ -8,23 +8,23 @@ const ILLUSTRATIONS: Record<
   { light: string; dark: string; alt: string }
 > = {
   ideas: {
-    light: "/illustrations/No ideas_light mode.png",
-    dark: "/illustrations/No ideas_dark mode.png",
+    light: "/illustrations/Ideas.png",
+    dark: "/illustrations/Ideas.png",
     alt: "No ideas yet",
   },
   saved: {
-    light: "/illustrations/No Saved_light mode.png",
-    dark: "/illustrations/No Saved_dark mode.png",
+    light: "/illustrations/Saved.png",
+    dark: "/illustrations/Saved.png",
     alt: "No saved places yet",
   },
   documents: {
-    light: "/illustrations/no-documents-light.png",
-    dark: "/illustrations/no-documents-dark.png",
+    light: "/illustrations/Documents.png",
+    dark: "/illustrations/Documents.png",
     alt: "No documents yet",
   },
   itinerary: {
-    light: "/illustrations/no-itinerary-light.png",
-    dark: "/illustrations/no-itinerary-dark.png",
+    light: "/illustrations/Itinerary.png",
+    dark: "/illustrations/Itinerary.png",
     alt: "No itinerary yet",
   },
 };
