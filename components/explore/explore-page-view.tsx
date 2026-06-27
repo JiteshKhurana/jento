@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { Map as MapIcon, Search } from "lucide-react";
 import { ExploreView } from "@/components/explore/explore-view";
-import { ExploreSavedNav } from "@/components/explore/explore-saved-nav";
 import { cn } from "@/lib/utils";
 import type { TripOption } from "@/components/explore/add-to-trip-picker";
 
@@ -31,11 +30,11 @@ export function ExplorePageView({
 
   return (
     <div className="flex min-h-0 flex-1 flex-col">
-      <div className="shrink-0 border-b border-border px-4 pt-4 pb-3 md:px-6 md:py-3">
-        <h1 className="mb-3 text-3xl font-bold tracking-tight text-foreground md:hidden">
+      <div className="shrink-0 border-b border-border px-4 pt-4 pb-3 md:hidden">
+        <h1 className="mb-3 text-3xl font-bold tracking-tight text-foreground">
           Explore
         </h1>
-        <div className="mb-3 flex gap-2 md:hidden">
+        <div className="mb-3 flex gap-2">
           <button
             type="button"
             onClick={() => setMobileView("feed")}
@@ -63,7 +62,6 @@ export function ExplorePageView({
             Map view
           </button>
         </div>
-        {isSignedIn && <ExploreSavedNav active="explore" />}
       </div>
 
       <ExploreView

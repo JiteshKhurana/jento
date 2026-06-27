@@ -50,7 +50,7 @@ import {
 import { Spinner } from "@/components/ui/spinner";
 import { Switch } from "@/components/ui/switch";
 import { cn } from "@/lib/utils";
-import { ThemeIllustration } from "@/components/ui/theme-illustration";
+import { NoItineraryEmptyState } from "@/components/itinerary/no-itinerary-empty-state";
 import { ItemEditor } from "@/components/itinerary/item-editor";
 import { DayAudioButton } from "@/components/itinerary/day-audio-button";
 import {
@@ -929,6 +929,7 @@ type DayTimelineProps = {
   budgetPerPerson?: number;
   budgetCurrency?: string;
   destination?: string;
+  onChatClick?: () => void;
 };
 
 export function DayTimeline({
@@ -942,6 +943,7 @@ export function DayTimeline({
   budgetPerPerson,
   budgetCurrency = DEFAULT_BUDGET_CURRENCY,
   destination,
+  onChatClick,
 }: DayTimelineProps) {
   const [showDistances, setShowDistances] = useState(true);
   const mounted = useSyncExternalStore(
@@ -959,15 +961,9 @@ export function DayTimeline({
 
   if (days.length === 0) {
     return (
-      <div className="flex h-full items-center justify-center p-8 text-center">
-        <div>
-          <ThemeIllustration variant="itinerary" className="mb-4" />
-          <p className="font-semibold text-neutral-700">No itinerary yet</p>
-          <p className="mt-1 text-sm text-neutral-400">
-            Chat with the AI to generate your day-by-day plan
-          </p>
-        </div>
-      </div>
+      <NoItineraryEmptyState
+        onChatClick={readOnly ? undefined : onChatClick}
+      />
     );
   }
 

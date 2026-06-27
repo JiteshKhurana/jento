@@ -2,10 +2,11 @@
 
 import dynamic from "next/dynamic";
 import { useEffect, useState } from "react";
-import { Heart } from "lucide-react";
+import { Search } from "lucide-react";
 import { ExplorePlaceCard } from "@/components/explore/explore-place-card";
 import { PlaceDetailDialog } from "@/components/explore/place-detail-dialog";
 import { Button } from "@/components/ui/button";
+import { ThemeIllustration } from "@/components/ui/theme-illustration";
 import { LoadingState } from "@/components/ui/spinner";
 import type { PlaceSearchResult } from "@/lib/places/google-places";
 import { savedPlacesToSearchResults } from "@/lib/saved-places/utils";
@@ -114,21 +115,18 @@ export function SavedView({
     <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
       <div className="min-h-0 flex-1 overflow-y-auto px-4 py-4 md:px-6">
         {savedPlaces.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-16 text-center">
-            <Heart className="mb-3 h-10 w-10 text-muted-foreground/30" />
-            <p className="text-sm font-medium text-foreground">
+          <div className="flex flex-col items-center justify-center px-6 py-16 text-center">
+            <ThemeIllustration variant="saved" className="mb-6" />
+
+            <h2 className="text-lg font-bold text-neutral-900">
               No saved places yet
-            </p>
-            <p className="mt-1 text-sm text-muted-foreground">
-              Save places from Explore to see them here
-            </p>
+            </h2>
             {onSwitchToExplore && (
               <Button
-                variant="outline"
-                size="sm"
-                className="mt-4"
                 onClick={onSwitchToExplore}
+                className="mt-8 gap-1.5 cursor-pointer"
               >
+                <Search className="h-4 w-4" />
                 Explore places
               </Button>
             )}

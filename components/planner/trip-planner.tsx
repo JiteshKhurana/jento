@@ -162,6 +162,14 @@ export function TripPlanner({
     }
   }, []);
 
+  const handleGoToChat = useCallback(() => {
+    if (isDesktopRef.current) {
+      handleLeftViewChange("chat");
+    } else {
+      handleMobileTabChange("chat");
+    }
+  }, [handleLeftViewChange, handleMobileTabChange]);
+
   function handleContentScroll(e: React.UIEvent<HTMLElement>) {
     // Ignore scroll events fired in the first 250ms after a tab switch; the
     // browser sometimes fires a scroll event when restoring a previously-
@@ -399,6 +407,7 @@ export function TripPlanner({
           trip.preferences?.budgetCurrency ?? DEFAULT_BUDGET_CURRENCY
         }
         destination={trip.destination}
+        onChatClick={isOwner ? handleGoToChat : undefined}
       />
     </div>
   );
@@ -666,6 +675,8 @@ export function TripPlanner({
                   days={days}
                   tripStartDate={trip.startDate}
                   embedded
+                  onChatClick={isOwner ? handleGoToChat : undefined}
+                  readOnly={!isOwner}
                 />
               </div>
             </div>
@@ -710,7 +721,12 @@ export function TripPlanner({
                 value="calendar"
                 className="mt-0 min-h-0 flex-1 overflow-hidden data-[state=inactive]:hidden"
               >
-                <TripCalendar days={days} tripStartDate={trip.startDate} />
+                <TripCalendar
+                  days={days}
+                  tripStartDate={trip.startDate}
+                  onChatClick={isOwner ? handleGoToChat : undefined}
+                  readOnly={!isOwner}
+                />
               </TabsContent>
               <TabsContent
                 value="map"

@@ -12,7 +12,7 @@ import {
   MapPin,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { ThemeIllustration } from "@/components/ui/theme-illustration";
+import { NoItineraryEmptyState } from "@/components/itinerary/no-itinerary-empty-state";
 import type {
   ItineraryDayData,
   ItineraryItemData,
@@ -159,12 +159,16 @@ type TripCalendarProps = {
   tripStartDate: string | null;
   /** Hides the page title when shown inside the desktop planner tab panel */
   embedded?: boolean;
+  onChatClick?: () => void;
+  readOnly?: boolean;
 };
 
 export function TripCalendar({
   days,
   tripStartDate,
   embedded = false,
+  onChatClick,
+  readOnly = false,
 }: TripCalendarProps) {
   const [pageStart, setPageStart] = useState(0);
 
@@ -201,15 +205,9 @@ export function TripCalendar({
 
   if (days.length === 0) {
     return (
-      <div className="flex h-full items-center justify-center p-8 text-center">
-        <div>
-          <ThemeIllustration variant="itinerary" className="mb-4" />
-          <p className="font-semibold text-neutral-700">No itinerary yet</p>
-          <p className="mt-1 text-sm text-neutral-400">
-            Chat with the AI to generate your day-by-day plan
-          </p>
-        </div>
-      </div>
+      <NoItineraryEmptyState
+        onChatClick={readOnly ? undefined : onChatClick}
+      />
     );
   }
 

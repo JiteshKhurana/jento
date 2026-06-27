@@ -1,7 +1,7 @@
 import Image from "next/image";
 import { cn } from "@/lib/utils";
 
-export type IllustrationVariant = "ideas" | "documents" | "itinerary";
+export type IllustrationVariant = "ideas" | "saved" | "documents" | "itinerary";
 
 const ILLUSTRATIONS: Record<
   IllustrationVariant,
@@ -11,6 +11,11 @@ const ILLUSTRATIONS: Record<
     light: "/illustrations/No ideas_light mode.png",
     dark: "/illustrations/No ideas_dark mode.png",
     alt: "No ideas yet",
+  },
+  saved: {
+    light: "/illustrations/No Saved_light mode.png",
+    dark: "/illustrations/No Saved_dark mode.png",
+    alt: "No saved places yet",
   },
   documents: {
     light: "/illustrations/no-documents-light.png",

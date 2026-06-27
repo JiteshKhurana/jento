@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ThemeIllustration } from "@/components/ui/theme-illustration";
+import { DeleteBookingDialog } from "@/components/bookings/delete-booking-dialog";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -215,19 +216,13 @@ function UploadDocumentDialog({
 
 type BookingCardProps = {
   booking: TripBookingData;
-  onDelete: (id: string) => void;
+  onDeleteRequest: () => void;
   readOnly: boolean;
 };
 
-function BookingCard({ booking, onDelete, readOnly }: BookingCardProps) {
-  const [deleting, setDeleting] = useState(false);
+function BookingCard({ booking, onDeleteRequest, readOnly }: BookingCardProps) {
   const meta = CATEGORY_META[booking.category] ?? CATEGORY_META.OTHER;
   const isImage = booking.resourceType === "image";
-
-  async function handleDelete() {
-    setDeleting(true);
-    onDelete(booking.id);
-  }
 
   return (
     <div className="group relative flex gap-3 rounded-xl border border-neutral-100 bg-white p-3 transition-shadow hover:shadow-sm">
@@ -266,16 +261,11 @@ function BookingCard({ booking, onDelete, readOnly }: BookingCardProps) {
             {!readOnly && (
               <button
                 type="button"
-                onClick={handleDelete}
-                disabled={deleting}
+                onClick={onDeleteRequest}
                 className="rounded-md p-1 text-neutral-400 hover:bg-red-50 hover:text-red-500"
                 title="Delete"
               >
-                {deleting ? (
-                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                ) : (
-                  <Trash2 className="h-3.5 w-3.5" />
-                )}
+                <Trash2 className="h-3.5 w-3.5" />
               </button>
             )}
           </div>
@@ -331,6 +321,8 @@ export function BookingsPanel({
   const [filterCategory, setFilterCategory] = useState<BookingCategory | "ALL">(
     "ALL",
   );
+  const [bookingToDelete, setBookingToDelete] =
+    useState<TripBookingData | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -348,20 +340,8 @@ export function BookingsPanel({
     };
   }, [tripId]);
 
-  async function handleDelete(bookingId: string) {
-    const booking = bookings.find((b) => b.id === bookingId);
-    if (typeof pendo !== "undefined") {
-      pendo.track("booking_deleted", {
-        tripId,
-        bookingId,
-        bookingCategory: booking?.category ?? "unknown",
-      });
-    }
-    // Optimistic removal
+  function handleDeleted(bookingId: string) {
     setBookings((prev) => prev.filter((b) => b.id !== bookingId));
-    await fetch(`/api/trips/${tripId}/bookings/${bookingId}`, {
-      method: "DELETE",
-    });
   }
 
   function handleUploaded(booking: TripBookingData) {
@@ -515,6 +495,19 @@ export function BookingsPanel({
     <>
       {fileInput}
       {uploadDialog}
+      <DeleteBookingDialog
+        open={bookingToDelete !== null}
+        onOpenChange={(open) => {
+          if (!open) setBookingToDelete(null);
+        }}
+        tripId={tripId}
+        bookingId={bookingToDelete?.id ?? ""}
+        bookingTitle={bookingToDelete?.title ?? ""}
+        bookingCategory={bookingToDelete?.category}
+        onDeleted={() => {
+          if (bookingToDelete) handleDeleted(bookingToDelete.id);
+        }}
+      />
 
       <div className="flex h-full flex-col">
         <div className="flex shrink-0 items-center justify-between border-b border-neutral-100 px-4 py-3">
@@ -589,7 +582,7 @@ export function BookingsPanel({
               <BookingCard
                 key={booking.id}
                 booking={booking}
-                onDelete={handleDelete}
+                onDeleteRequest={() => setBookingToDelete(booking)}
                 readOnly={readOnly}
               />
             ))}
