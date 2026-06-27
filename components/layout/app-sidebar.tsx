@@ -8,6 +8,7 @@ import { Search, Map, PanelLeft, PanelLeftClose, Settings, Heart } from "lucide-
 import {
   Sidebar,
   SidebarContent,
+  SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
   SidebarHeader,
@@ -35,6 +36,8 @@ const settingsNavLink = {
   label: "Settings",
   icon: Settings,
 } as const;
+
+type ClerkUser = NonNullable<ReturnType<typeof useUser>["user"]>;
 
 function JentoLogo({ className }: { className?: string }) {
   return (
@@ -107,6 +110,71 @@ function SidebarBrandHeader() {
   );
 }
 
+function getUserDisplayName(user: ClerkUser) {
+  return (
+    user.fullName ??
+    user.firstName ??
+    user.primaryEmailAddress?.emailAddress ??
+    "Account"
+  );
+}
+
+function UserAvatar({ user }: { user: ClerkUser }) {
+  const displayName = getUserDisplayName(user);
+  const initials = displayName
+    .split(" ")
+    .map((part: string) => part[0])
+    .join("")
+    .slice(0, 2)
+    .toUpperCase();
+
+  if (user.imageUrl) {
+    return (
+      // Clerk profile images are served from their CDN.
+      // eslint-disable-next-line @next/next/no-img-element
+      <img
+        src={user.imageUrl}
+        alt=""
+        className="size-8 shrink-0 rounded-full object-cover"
+      />
+    );
+  }
+
+  return (
+    <div className="flex size-8 shrink-0 items-center justify-center rounded-full bg-sidebar-accent text-xs font-medium text-sidebar-accent-foreground">
+      {initials}
+    </div>
+  );
+}
+
+function SidebarUserFooter() {
+  const { user, isLoaded } = useUser();
+
+  if (!isLoaded || !user) return null;
+
+  const displayName = getUserDisplayName(user);
+
+  return (
+    <SidebarFooter className="p-2 group-data-[collapsible=icon]:flex group-data-[collapsible=icon]:items-center group-data-[collapsible=icon]:justify-center">
+      <SidebarMenu className="group-data-[collapsible=icon]:items-center">
+        <SidebarMenuItem className="group-data-[collapsible=icon]:flex group-data-[collapsible=icon]:justify-center">
+          <SidebarMenuButton
+            asChild
+            size="lg"
+            tooltip={displayName}
+            className="group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:[&>span]:hidden"
+          >
+            <Link href="/settings" className="cursor-pointer">
+              <UserAvatar user={user} />
+              <span className="truncate font-medium">{displayName}</span>
+            </Link>
+          </SidebarMenuButton>
+        </SidebarMenuItem>
+      </SidebarMenu>
+    </SidebarFooter>
+  );
+}
+
 export function AppSidebar() {
   const pathname = usePathname();
   const { user, isLoaded } = useUser();
@@ -150,6 +218,8 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
+
+      <SidebarUserFooter />
 
       <SidebarRail />
     </Sidebar>
