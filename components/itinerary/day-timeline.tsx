@@ -879,28 +879,28 @@ function DayItems({
                 {!isLast &&
                   showDistances &&
                   (distanceKm !== null || directionsUrl) && (
-                  <div className="mb-3 flex items-center gap-2">
-                    {distanceKm !== null && (
-                      <span className="inline-flex items-center gap-1 rounded-full bg-neutral-100 px-2.5 py-1 text-[11px] font-medium text-neutral-500">
-                        <Route className="h-3 w-3" />
-                        {distanceKm < 1
-                          ? `~${Math.round(distanceKm * 1000)} m`
-                          : `~${distanceKm.toFixed(1)} km`}
-                      </span>
-                    )}
-                    {directionsUrl && (
-                      <a
-                        href={directionsUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1 rounded-full border border-neutral-200 bg-white px-2.5 py-1 text-[11px] font-medium text-neutral-500 transition-colors hover:bg-neutral-50 hover:text-neutral-700"
-                      >
-                        <Navigation className="h-3 w-3" />
-                        Directions
-                      </a>
-                    )}
-                  </div>
-                )}
+                    <div className="mb-3 flex items-center gap-2">
+                      {distanceKm !== null && (
+                        <span className="inline-flex items-center gap-1 rounded-full bg-neutral-100 px-2.5 py-1 text-[11px] font-medium text-neutral-500">
+                          <Route className="h-3 w-3" />
+                          {distanceKm < 1
+                            ? `~${Math.round(distanceKm * 1000)} m`
+                            : `~${distanceKm.toFixed(1)} km`}
+                        </span>
+                      )}
+                      {directionsUrl && (
+                        <a
+                          href={directionsUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1 rounded-full border border-neutral-200 bg-white px-2.5 py-1 text-[11px] font-medium text-neutral-500 transition-colors hover:bg-neutral-50 hover:text-neutral-700"
+                        >
+                          <Navigation className="h-3 w-3" />
+                          Directions
+                        </a>
+                      )}
+                    </div>
+                  )}
               </div>
             </div>
           );

@@ -9,7 +9,7 @@ import {
   Map,
   PanelLeft,
   PanelLeftClose,
-  User,
+  Settings,
   Heart,
 } from "lucide-react";
 import {
@@ -37,10 +37,10 @@ const savedNavLink = {
   icon: Heart,
 } as const;
 
-const profileNavLink = {
-  href: "/profile",
-  label: "Profile",
-  icon: User,
+const settingsNavLink = {
+  href: "/settings",
+  label: "Settings",
+  icon: Settings,
 } as const;
 
 function SidebarCollapseButton() {
@@ -67,8 +67,8 @@ export function AppSidebar() {
   const pathname = usePathname();
   const { user, isLoaded } = useUser();
   const navLinks = isLoaded && user
-    ? [...baseNavLinks, savedNavLink, profileNavLink]
-    : [...baseNavLinks, profileNavLink];
+    ? [...baseNavLinks, savedNavLink, settingsNavLink]
+    : [...baseNavLinks, settingsNavLink];
 
   return (
     <Sidebar collapsible="icon">

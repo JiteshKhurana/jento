@@ -5,7 +5,7 @@ import { Moon, Sun } from "lucide-react";
 import { useTheme } from "next-themes";
 import { Button } from "@/components/ui/button";
 
-export function ProfilePageView() {
+export function SettingsPageView() {
   const { resolvedTheme, setTheme } = useTheme();
 
   const toggleTheme = () => {
@@ -17,7 +17,7 @@ export function ProfilePageView() {
       <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight text-foreground md:text-4xl">
-            Profile
+            Settings
           </h1>
           <p className="mt-2 text-muted-foreground">
             Manage your account settings and preferences.
@@ -47,7 +47,7 @@ export function ProfilePageView() {
       </div>
 
       <div className="flex justify-center">
-        <UserProfile routing="path" path="/profile" />
+        <UserProfile routing="path" path="/settings" />
       </div>
     </main>
   );
