@@ -23,7 +23,7 @@ export function FollowUpPrompts({
           type="button"
           disabled={disabled}
           onClick={() => onSelect(prompt.message)}
-          className="cursor-pointer rounded-full border border-neutral-200 bg-neutral-50 px-3.5 py-2 text-xs text-neutral-600 transition-colors hover:border-neutral-300 hover:bg-white disabled:cursor-not-allowed disabled:opacity-50"
+          className="cursor-pointer rounded-full border border-neutral-200 bg-neutral-50 px-3.5 py-2 text-xs text-neutral-600 transition-colors hover:border-neutral-300 hover:bg-white disabled:cursor-not-allowed disabled:opacity-50 dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-300 dark:hover:border-neutral-600 dark:hover:bg-neutral-700"
         >
           {prompt.label}
         </button>

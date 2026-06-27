@@ -331,6 +331,7 @@ export function TripPlanner({
       hasItinerary={days.length > 0}
       onItineraryUpdate={isOwner ? refreshItinerary : undefined}
       readOnly={!isOwner}
+      bottomGlow
       {...(isDesktop === false
         ? {
             floatingInput: true,
@@ -538,9 +539,9 @@ export function TripPlanner({
         </div>
       ) : isDesktop ? (
         <div className="hidden min-h-0 flex-1 md:grid md:grid-cols-[minmax(380px,42%)_1fr]">
-          <div className="flex min-h-0 flex-col overflow-hidden border-r border-neutral-200/80 bg-white">
+          <div className="flex min-h-0 flex-col overflow-hidden border-r border-neutral-200/80 bg-background dark:border-neutral-800">
             {/* Pill-style tab switcher */}
-            <div className="shrink-0 border-b border-neutral-100 bg-white px-4 py-3">
+            <div className="shrink-0 border-b border-neutral-100 bg-background px-4 py-3 dark:border-neutral-800">
               <div className="flex rounded-xl bg-neutral-100 p-1">
                 {(["chat", "itinerary", "ideas", "bookings"] as const).map(
                   (view) => (
@@ -585,6 +586,12 @@ export function TripPlanner({
             </div>
 
             <div className="relative min-h-0 flex-1 overflow-hidden">
+              {leftView === "chat" && (
+                <div
+                  aria-hidden
+                  className="pointer-events-none absolute inset-x-0 bottom-0 z-10 h-44 bg-bottom-glow"
+                />
+              )}
               <div
                 className={cn(
                   "absolute inset-0 flex flex-col",
@@ -746,6 +753,17 @@ export function TripPlanner({
                 />
               </TabsContent>
             </div>
+
+            {/* Bottom warm glow — landing page colors */}
+            <div
+              aria-hidden
+              className={cn(
+                "pointer-events-none fixed inset-x-0 bottom-0 z-20 h-52 bg-bottom-glow transition-opacity duration-300 ease-in-out md:hidden",
+                tabBarVisible && !mobileSidebarOpen
+                  ? "opacity-100"
+                  : "opacity-0",
+              )}
+            />
 
             {/* Floating bottom tab bar */}
             <div

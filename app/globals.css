@@ -203,6 +203,25 @@ body {
   );
 }
 
+/* Mobile trip planner bottom glow — landing page palette */
+.bg-bottom-glow {
+  background: linear-gradient(
+    to top,
+    #ffb867 0%,
+    rgb(255 184 103 / 0.4) 22%,
+    transparent 62%
+  );
+}
+
+.dark .bg-bottom-glow {
+  background: linear-gradient(
+    to top,
+    #c16700 0%,
+    rgb(193 103 0 / 0.45) 20%,
+    transparent 52%
+  );
+}
+
 /* ── Glass / Frosted ─────────────────────────────────── */
 
 .glass {

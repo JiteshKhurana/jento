@@ -43,6 +43,7 @@ type ChatPanelProps = {
   onScroll?: (e: React.UIEvent<HTMLDivElement>) => void;
   scrollContainerClassName?: string;
   floatingInput?: boolean;
+  bottomGlow?: boolean;
 };
 
 function getMessageText(message: {
@@ -75,6 +76,7 @@ export function ChatPanel({
   onScroll,
   scrollContainerClassName,
   floatingInput = false,
+  bottomGlow = false,
 }: ChatPanelProps) {
   const mobileSidebarOpen = useMobileSidebar();
   const router = useRouter();
@@ -296,20 +298,29 @@ export function ChatPanel({
   }
 
   return (
-    <div className="flex h-full min-h-0 flex-col bg-white">
+    <div
+      className={cn(
+        "flex h-full min-h-0 flex-col",
+        bottomGlow ? "bg-transparent" : "bg-white dark:bg-black",
+      )}
+    >
       <div
         ref={scrollContainerRef}
         onScroll={onScroll}
-        className={cn("min-h-0 flex-1 overflow-y-auto px-5 py-6", scrollContainerClassName)}
+        className={cn(
+          "min-h-0 flex-1 overflow-y-auto px-5 py-6",
+          !bottomGlow && "bg-white dark:bg-black",
+          scrollContainerClassName,
+        )}
       >
         <div className="mx-auto max-w-lg space-y-6">
           {messages.length === 0 && !isLoading && (
             <div className="space-y-6 pt-8 text-center">
               <div>
-                <h2 className="text-xl font-semibold text-neutral-900">
+                <h2 className="text-xl font-semibold text-neutral-900 dark:text-white">
                   Where would you like to go?
                 </h2>
-                <p className="mt-2 text-sm leading-relaxed text-neutral-500">
+                <p className="mt-2 text-sm leading-relaxed text-neutral-500 dark:text-neutral-400">
                   Tell me about your dream trip — destination, dates, vibe,
                   budget. I&apos;ll build a personalized day-by-day plan.
                 </p>
@@ -323,11 +334,12 @@ export function ChatPanel({
               className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}
             >
               <div
-                className={`max-w-[90%] text-[16px] leading-relaxed md:text-[15px] ${
+                className={cn(
+                  "max-w-[90%] text-[16px] leading-relaxed md:text-[15px]",
                   message.role === "user"
-                    ? "rounded-2xl rounded-br-md bg-neutral-900 px-4 py-2.5 text-white"
-                    : "text-neutral-800"
-                }`}
+                    ? "rounded-2xl rounded-br-md bg-neutral-900 px-4 py-2.5 text-white dark:bg-white dark:text-neutral-900"
+                    : "text-neutral-800 dark:text-neutral-100",
+                )}
               >
                 {message.role === "assistant" ? (
                   <ChatMarkdown content={getMessageText(message)} />
@@ -346,7 +358,7 @@ export function ChatPanel({
                 {[88, 104, 76, 96].map((w) => (
                   <div
                     key={w}
-                    className="h-8 animate-pulse rounded-full bg-neutral-100"
+                    className="h-8 animate-pulse rounded-full bg-neutral-100 dark:bg-neutral-800"
                     style={{ width: w }}
                   />
                 ))}
@@ -391,7 +403,9 @@ export function ChatPanel({
           className={cn(
             floatingInput
               ? "fixed inset-x-0 z-40 px-4 py-1.5 transition-[transform,opacity] duration-300 ease-in-out"
-              : "shrink-0 border-t border-neutral-100 bg-white px-4 py-3",
+              : bottomGlow
+                ? "relative z-20 shrink-0 bg-transparent px-4 py-3"
+                : "shrink-0 border-t border-neutral-100 bg-white px-4 py-3 dark:border-neutral-800 dark:bg-black",
             floatingInput &&
               mobileSidebarOpen &&
               "pointer-events-none translate-y-4 opacity-0",
@@ -406,12 +420,12 @@ export function ChatPanel({
           }
         >
           <div className="mx-auto flex max-w-lg items-center gap-2">
-            <div className="chat-input-shadow flex flex-1 items-center gap-1.5 rounded-2xl border border-neutral-200/80 bg-white p-1.5">
+            <div className="chat-input-shadow flex flex-1 items-center gap-1.5 rounded-2xl border border-neutral-200/80 bg-white p-1.5 dark:border-neutral-700 dark:bg-neutral-900">
               <textarea
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 placeholder="Message Jento…"
-                className="max-h-32 min-h-9 flex-1 resize-none border-0 bg-transparent px-2.5 py-1.5 text-[16px] leading-5 placeholder:text-neutral-400 focus:outline-none md:text-[15px]"
+                className="max-h-32 min-h-9 flex-1 resize-none border-0 bg-transparent px-2.5 py-1.5 text-[16px] leading-5 text-neutral-900 placeholder:text-neutral-400 focus:outline-none dark:text-white md:text-[15px]"
                 rows={1}
                 onKeyDown={(e) => {
                   if (e.key === "Enter" && !e.shiftKey) {
