@@ -226,7 +226,7 @@ export function PlacePhotoCarousel({
           <button
             type="button"
             onClick={scrollPrev}
-            className="absolute left-2 top-1/2 z-10 flex h-8 w-8 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full bg-white/95 text-neutral-700 shadow-sm transition-opacity hover:bg-white max-md:opacity-100 md:opacity-0 md:group-hover:opacity-100 md:focus-visible:opacity-100"
+            className="absolute left-2 top-1/2 z-10 hidden h-8 w-8 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full bg-white/95 text-neutral-700 shadow-sm transition-opacity hover:bg-white md:flex md:opacity-0 md:group-hover:opacity-100 md:focus-visible:opacity-100"
             aria-label="Previous photo"
           >
             <ChevronLeft className="h-4 w-4" />
@@ -234,7 +234,7 @@ export function PlacePhotoCarousel({
           <button
             type="button"
             onClick={scrollNext}
-            className="absolute right-2 top-1/2 z-10 flex h-8 w-8 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full bg-white/95 text-neutral-700 shadow-sm transition-opacity hover:bg-white max-md:opacity-100 md:opacity-0 md:group-hover:opacity-100 md:focus-visible:opacity-100"
+            className="absolute right-2 top-1/2 z-10 hidden h-8 w-8 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full bg-white/95 text-neutral-700 shadow-sm transition-opacity hover:bg-white md:flex md:opacity-0 md:group-hover:opacity-100 md:focus-visible:opacity-100"
             aria-label="Next photo"
           >
             <ChevronRight className="h-4 w-4" />
