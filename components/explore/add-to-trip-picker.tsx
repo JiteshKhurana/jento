@@ -25,6 +25,7 @@ type AddToTripPickerProps = {
   addedTripIds: Set<string>;
   onAdded: (tripId: string) => void;
   variant?: "icon" | "button";
+  buttonSize?: "default" | "sm" | "lg" | "icon";
   className?: string;
 };
 
@@ -34,6 +35,7 @@ export function AddToTripPicker({
   addedTripIds,
   onAdded,
   variant = "icon",
+  buttonSize = "sm",
   className,
 }: AddToTripPickerProps) {
   const [open, setOpen] = useState(false);
@@ -72,7 +74,11 @@ export function AddToTripPicker({
 
   const trigger =
     variant === "button" ? (
-      <Button variant="outline" size="sm" className={cn("cursor-pointer", className)}>
+      <Button
+        variant="outline"
+        size={buttonSize}
+        className={cn("w-full cursor-pointer", className)}
+      >
         <Plus className="h-4 w-4" />
         Add to trip
       </Button>
@@ -89,23 +95,29 @@ export function AddToTripPicker({
       </button>
     );
 
+  const picker = (
+    <Popover>
+      <PopoverTrigger asChild>{trigger}</PopoverTrigger>
+      <PopoverContent align="end" className="w-56 p-3">
+        <p className="text-sm text-neutral-600">
+          Create a trip first to save places.
+        </p>
+        <Button asChild size="sm" className="mt-3 w-full cursor-pointer">
+          <Link href="/trips/new">Create trip</Link>
+        </Button>
+      </PopoverContent>
+    </Popover>
+  );
+
   if (trips.length === 0) {
-    return (
-      <Popover>
-        <PopoverTrigger asChild>{trigger}</PopoverTrigger>
-        <PopoverContent align="end" className="w-56 p-3">
-          <p className="text-sm text-neutral-600">
-            Create a trip first to save places.
-          </p>
-          <Button asChild size="sm" className="mt-3 w-full cursor-pointer">
-            <Link href="/trips/new">Create trip</Link>
-          </Button>
-        </PopoverContent>
-      </Popover>
+    return variant === "button" ? (
+      <div className="min-w-0 flex-1">{picker}</div>
+    ) : (
+      picker
     );
   }
 
-  return (
+  const tripPicker = (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>{trigger}</PopoverTrigger>
       <PopoverContent align="end" className="w-64 p-2">
@@ -144,5 +156,11 @@ export function AddToTripPicker({
         </div>
       </PopoverContent>
     </Popover>
+  );
+
+  return variant === "button" ? (
+    <div className="min-w-0 flex-1">{tripPicker}</div>
+  ) : (
+    tripPicker
   );
 }

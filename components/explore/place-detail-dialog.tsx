@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { Heart, MapPin, Star, X } from "lucide-react";
-import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle, mobileNativeDialogContentClassName } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -162,11 +162,18 @@ export function PlaceDetailDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
         showClose={false}
-        className="flex h-[min(92vh,860px)] max-w-3xl flex-col gap-0 overflow-hidden p-0 sm:rounded-2xl"
+        className={cn(
+          mobileNativeDialogContentClassName,
+          "flex h-full max-h-svh flex-col gap-0 overflow-hidden p-0 sm:rounded-2xl",
+          "md:h-[min(92vh,860px)] md:max-h-[min(92vh,860px)] md:max-w-3xl",
+        )}
       >
-        <div className="shrink-0 border-b border-neutral-100 px-4 py-3">
+        <div className="sticky top-0 z-10 shrink-0 border-b border-neutral-100 bg-white px-4 py-3">
           <div className="flex items-center justify-between gap-3">
-            <div className="flex items-center gap-2">
+            <DialogTitle className="min-w-0 truncate text-lg font-bold text-neutral-900 md:hidden">
+              {display.name}
+            </DialogTitle>
+            <div className="hidden items-center gap-2 md:flex">
               {isSignedIn && (
                 <>
                   <Button
@@ -200,7 +207,7 @@ export function PlaceDetailDialog({
             <button
               type="button"
               onClick={() => onOpenChange(false)}
-              className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-full text-neutral-500 hover:bg-neutral-100"
+              className="flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-full text-neutral-500 hover:bg-neutral-100"
               aria-label="Close"
             >
               <X className="h-4 w-4" />
@@ -208,9 +215,9 @@ export function PlaceDetailDialog({
           </div>
         </div>
 
-        <div className="min-h-0 min-w-0 flex-1 overflow-y-auto">
+        <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain">
           <div className="min-w-0 px-4 pb-4 pt-5">
-            <DialogTitle className="text-2xl font-bold text-neutral-900">
+            <DialogTitle className="hidden text-2xl font-bold text-neutral-900 md:block">
               {display.name}
             </DialogTitle>
             <div className="mt-2 flex min-w-0 flex-wrap items-center gap-3 text-sm text-neutral-500">
@@ -291,6 +298,38 @@ export function PlaceDetailDialog({
             </div>
           </div>
         </div>
+
+        {isSignedIn && (
+          <div className="sticky bottom-0 z-10 shrink-0 border-t border-neutral-100 bg-white px-4 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] shadow-[0_-4px_12px_rgba(0,0,0,0.06)] md:hidden">
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                disabled={saving}
+                onClick={handleSave}
+                className={cn(
+                  "h-11 flex-1 cursor-pointer",
+                  saved && "border-red-200 text-red-600",
+                )}
+              >
+                {saving ? (
+                  <Spinner size="sm" />
+                ) : (
+                  <Heart className={cn("h-4 w-4", saved && "fill-current")} />
+                )}
+                {saved ? "Saved" : "Save"}
+              </Button>
+              <AddToTripPicker
+                place={place}
+                trips={trips}
+                addedTripIds={addedTripIds}
+                onAdded={onTripAdded}
+                variant="button"
+                buttonSize="default"
+                className="h-11 cursor-pointer"
+              />
+            </div>
+          </div>
+        )}
       </DialogContent>
     </Dialog>
   );

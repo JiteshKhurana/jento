@@ -23,6 +23,9 @@ const DialogOverlay = React.forwardRef<
 ));
 DialogOverlay.displayName = DialogPrimitive.Overlay.displayName;
 
+const mobileNativeDialogContentClassName =
+  "max-md:fixed max-md:inset-0 max-md:left-0 max-md:top-0 max-md:flex max-md:h-svh max-md:max-h-svh max-md:w-full max-md:max-w-none max-md:translate-x-0 max-md:translate-y-0 max-md:flex-col max-md:rounded-none max-md:data-[state=closed]:slide-out-to-bottom max-md:data-[state=open]:slide-in-from-bottom max-md:data-[state=closed]:slide-out-to-left-0 max-md:data-[state=open]:slide-in-from-left-0 max-md:data-[state=closed]:slide-out-to-top-0 max-md:data-[state=open]:slide-in-from-top-0 max-md:data-[state=closed]:zoom-out-100 max-md:data-[state=open]:zoom-in-100";
+
 const DialogContent = React.forwardRef<
   React.ElementRef<typeof DialogPrimitive.Content>,
   React.ComponentPropsWithoutRef<typeof DialogPrimitive.Content> & {
@@ -91,4 +94,5 @@ export {
   DialogHeader,
   DialogTitle,
   DialogDescription,
+  mobileNativeDialogContentClassName,
 };

@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { Plus, Search, X } from "lucide-react";
-import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle, mobileNativeDialogContentClassName } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -231,25 +231,28 @@ export function AddIdeasDialog({
       <Dialog open={open} onOpenChange={handleOpenChange}>
         <DialogContent
           showClose={false}
-          className="flex h-[min(90vh,800px)] max-w-2xl flex-col gap-0 overflow-hidden p-0 sm:rounded-2xl"
+          className={cn(
+            mobileNativeDialogContentClassName,
+            "flex h-full max-h-svh flex-col gap-0 overflow-hidden p-0 sm:rounded-2xl",
+            "md:h-[min(90vh,800px)] md:max-h-[min(90vh,800px)] md:max-w-2xl",
+          )}
         >
-          <button
-            type="button"
-            onClick={() => onOpenChange(false)}
-            className="absolute right-3 top-3 z-10 flex h-8 w-8 cursor-pointer items-center justify-center rounded-full text-neutral-500 hover:bg-neutral-100"
-            aria-label="Close"
-          >
-            <X className="h-4 w-4" />
-          </button>
-
-          <div className="shrink-0 border-b border-neutral-100 px-4 pt-4">
-            <div className="flex items-center justify-between">
-              <DialogTitle className="text-base font-semibold">
+          <div className="sticky top-0 z-10 shrink-0 border-b border-neutral-100 bg-white px-4 pt-4">
+            <div className="flex items-center justify-between gap-3 pb-4">
+              <DialogTitle className="text-base font-semibold md:text-lg">
                 Add to trip
               </DialogTitle>
+              <button
+                type="button"
+                onClick={() => onOpenChange(false)}
+                className="flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-full text-neutral-500 hover:bg-neutral-100"
+                aria-label="Close"
+              >
+                <X className="h-4 w-4" />
+              </button>
             </div>
 
-            <div className="mt-4 flex gap-6 border-b border-neutral-100">
+            <div className="flex gap-6 border-b border-neutral-100">
               {(["search", "custom"] as const).map((t) => (
                 <button
                   key={t}
@@ -270,13 +273,13 @@ export function AddIdeasDialog({
 
           {tab === "search" ? (
             <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
-              <div className="shrink-0 space-y-3 px-4 py-4">
+              <div className="shrink-0 space-y-3 border-b border-neutral-100 px-4 py-4">
                 <p className="text-lg font-bold text-neutral-900">
                   {destination}
                 </p>
 
                 <div className="flex gap-2">
-                  <div className="relative flex-1">
+                  <div className="relative min-w-0 flex-1">
                     <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400" />
                     <Input
                       value={searchQuery}
@@ -291,7 +294,7 @@ export function AddIdeasDialog({
                   />
                 </div>
 
-                <div className="flex gap-2 overflow-x-auto pb-1">
+                <div className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1">
                   {CATEGORIES.map((cat) => (
                     <button
                       key={cat.id}
@@ -314,7 +317,7 @@ export function AddIdeasDialog({
                 </div>
               </div>
 
-              <div className="min-h-0 flex-1 overflow-y-auto px-4 pb-6">
+              <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 py-4 pb-[max(1rem,env(safe-area-inset-bottom))] md:pb-6">
                 {loading ? (
                   <div className="grid grid-cols-2 gap-4">
                     {Array.from({ length: 4 }).map((_, i) => (
@@ -348,49 +351,69 @@ export function AddIdeasDialog({
           ) : (
             <form
               onSubmit={handleAddCustom}
-              className="flex min-h-0 flex-1 flex-col overflow-y-auto px-4 py-6"
+              className="flex min-h-0 flex-1 flex-col overflow-hidden"
             >
-              <p className="mb-6 text-sm text-neutral-500">
-                Add a custom idea — a restaurant someone recommended, a hike you
-                heard about, or anything else worth remembering.
-              </p>
-              <div className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="custom-title">Title</Label>
-                  <Input
-                    id="custom-title"
-                    value={customTitle}
-                    onChange={(e) => setCustomTitle(e.target.value)}
-                    placeholder="e.g. Sunset kayak tour"
-                    className="rounded-xl"
-                  />
+              <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 py-6">
+                <p className="mb-6 text-sm text-neutral-500">
+                  Add a custom idea — a restaurant someone recommended, a hike
+                  you heard about, or anything else worth remembering.
+                </p>
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="custom-title">Title</Label>
+                    <Input
+                      id="custom-title"
+                      value={customTitle}
+                      onChange={(e) => setCustomTitle(e.target.value)}
+                      placeholder="e.g. Sunset kayak tour"
+                      className="rounded-xl"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="custom-notes">Notes (optional)</Label>
+                    <Textarea
+                      id="custom-notes"
+                      value={customNotes}
+                      onChange={(e) => setCustomNotes(e.target.value)}
+                      placeholder="Any details to remember…"
+                      rows={3}
+                      className="rounded-xl"
+                    />
+                  </div>
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="custom-notes">Notes (optional)</Label>
-                  <Textarea
-                    id="custom-notes"
-                    value={customNotes}
-                    onChange={(e) => setCustomNotes(e.target.value)}
-                    placeholder="Any details to remember…"
-                    rows={3}
-                    className="rounded-xl"
-                  />
-                </div>
+
+                <Button
+                  type="submit"
+                  disabled={!customTitle.trim() || savingCustom}
+                  className="mt-6 hidden w-full cursor-pointer md:inline-flex"
+                >
+                  {savingCustom ? (
+                    <>
+                      <Spinner size="sm" className="text-white" />
+                      Adding…
+                    </>
+                  ) : (
+                    "Add idea"
+                  )}
+                </Button>
               </div>
-              <Button
-                type="submit"
-                disabled={!customTitle.trim() || savingCustom}
-                className="mt-6 w-full cursor-pointer"
-              >
-                {savingCustom ? (
-                  <>
-                    <Spinner size="sm" className="text-white" />
-                    Adding…
-                  </>
-                ) : (
-                  "Add idea"
-                )}
-              </Button>
+
+              <div className="sticky bottom-0 z-10 shrink-0 border-t border-neutral-100 bg-white px-4 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] shadow-[0_-4px_12px_rgba(0,0,0,0.06)] md:hidden">
+                <Button
+                  type="submit"
+                  disabled={!customTitle.trim() || savingCustom}
+                  className="h-11 w-full cursor-pointer"
+                >
+                  {savingCustom ? (
+                    <>
+                      <Spinner size="sm" className="text-white" />
+                      Adding…
+                    </>
+                  ) : (
+                    "Add idea"
+                  )}
+                </Button>
+              </div>
             </form>
           )}
         </DialogContent>

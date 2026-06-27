@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { Clock, ExternalLink, MapPin, Navigation, Star, X } from "lucide-react";
 import { PlacePhotoCarousel } from "@/components/places/place-photo-carousel";
-import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle, mobileNativeDialogContentClassName } from "@/components/ui/dialog";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 import { resolveItemBookUrl } from "@/lib/booking/links";
@@ -179,11 +179,18 @@ function ItemDetailDialogContent({
     <>
       <DialogContent
         showClose={false}
-        className="flex h-[min(92vh,860px)] max-w-3xl flex-col gap-0 overflow-hidden p-0 sm:rounded-2xl"
+        className={cn(
+          mobileNativeDialogContentClassName,
+          "flex h-full max-h-svh flex-col gap-0 overflow-hidden p-0 sm:rounded-2xl",
+          "md:h-[min(92vh,860px)] md:max-h-[min(92vh,860px)] md:max-w-3xl",
+        )}
       >
-        <div className="shrink-0 border-b border-neutral-100 px-4 py-3">
+        <div className="sticky top-0 z-10 shrink-0 border-b border-neutral-100 bg-white px-4 py-3">
           <div className="flex items-center justify-between gap-3">
-            <div className="flex items-center gap-2">
+            <DialogTitle className="min-w-0 truncate text-lg font-bold text-neutral-900 md:hidden">
+              {item.title}
+            </DialogTitle>
+            <div className="hidden items-center gap-2 md:flex">
               {headerActions}
               {mapsUrl && (
                 <a
@@ -211,7 +218,7 @@ function ItemDetailDialogContent({
             <button
               type="button"
               onClick={() => onOpenChange(false)}
-              className="flex h-8 w-8 shrink-0 cursor-pointer items-center justify-center rounded-full text-neutral-500 hover:bg-neutral-100"
+              className="flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-full text-neutral-500 hover:bg-neutral-100"
               aria-label="Close"
             >
               <X className="h-4 w-4" />
@@ -219,9 +226,9 @@ function ItemDetailDialogContent({
           </div>
         </div>
 
-        <div className="min-h-0 min-w-0 flex-1 overflow-y-auto">
+        <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain">
           <div className="min-w-0 px-4 pb-4 pt-5">
-            <DialogTitle className="text-2xl font-bold text-neutral-900">
+            <DialogTitle className="hidden text-2xl font-bold text-neutral-900 md:block">
               {item.title}
             </DialogTitle>
 
@@ -315,6 +322,36 @@ function ItemDetailDialogContent({
             </div>
           </div>
         </div>
+
+        {(headerActions || mapsUrl || bookUrl) && (
+          <div className="sticky bottom-0 z-10 shrink-0 border-t border-neutral-100 bg-white px-4 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] shadow-[0_-4px_12px_rgba(0,0,0,0.06)] md:hidden">
+            <div className="flex items-center gap-2">
+              {headerActions}
+              {mapsUrl && (
+                <a
+                  href={mapsUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-xl border border-neutral-200 px-3 py-2.5 text-sm font-medium text-neutral-700 transition-colors hover:bg-neutral-50"
+                >
+                  <Navigation className="h-4 w-4" />
+                  Directions
+                </a>
+              )}
+              {bookUrl && (
+                <a
+                  href={bookUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-xl bg-neutral-900 px-3 py-2.5 text-sm font-medium text-white transition-colors hover:bg-neutral-800"
+                >
+                  <ExternalLink className="h-4 w-4" />
+                  Book
+                </a>
+              )}
+            </div>
+          </div>
+        )}
       </DialogContent>
     </>
   );

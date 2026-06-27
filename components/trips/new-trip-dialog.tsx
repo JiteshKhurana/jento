@@ -20,7 +20,7 @@ import {
 } from "@/components/trips/destination-autocomplete";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
-import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle, mobileNativeDialogContentClassName } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -45,6 +45,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { cn } from "@/lib/utils";
 import {
   BUDGET_CURRENCIES,
@@ -100,6 +101,7 @@ function formatDestination(locations: SelectedLocation[], isRoadTrip: boolean) {
 export function NewTripDialog({ open, onOpenChange }: NewTripDialogProps) {
   const router = useRouter();
   const { user } = useUser();
+  const isMobile = useIsMobile();
   const firstName = user?.firstName ?? user?.username ?? "there";
 
   const [locations, setLocations] = useState<SelectedLocation[]>([]);
@@ -630,14 +632,22 @@ export function NewTripDialog({ open, onOpenChange }: NewTripDialogProps) {
   const displayedRecommendedDays =
     open && locations.length > 0 ? recommendedDays : null;
 
+  const statusMessage = tripLimitReached
+    ? getTripLimitMessage()
+    : createError;
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
         showClose={false}
         aria-describedby={undefined}
-        className="max-h-[90vh] w-[calc(100%-2rem)] max-w-4xl overflow-hidden border-0 p-0 sm:rounded-3xl"
+        className={cn(
+          "overflow-hidden border-0 p-0",
+          mobileNativeDialogContentClassName,
+          "md:max-h-[90vh] md:w-[calc(100%-2rem)] md:max-w-4xl sm:rounded-3xl",
+        )}
       >
-        <div className="grid max-h-[90vh] overflow-y-auto md:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)] md:overflow-hidden">
+        <div className="flex h-full max-h-svh flex-col md:grid md:max-h-[90vh] md:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)] md:overflow-hidden">
           <div className="relative hidden min-h-[320px] md:block md:min-h-0">
             {locations.length === 0 ? (
               <Image
@@ -669,21 +679,23 @@ export function NewTripDialog({ open, onOpenChange }: NewTripDialogProps) {
             )}
           </div>
 
-          <div className="relative flex flex-col bg-white p-6 md:overflow-y-auto md:p-8">
-            <button
-              type="button"
-              onClick={() => onOpenChange(false)}
-              className="absolute right-4 top-4 flex h-8 w-8 items-center justify-center rounded-full text-neutral-500 transition-colors hover:bg-neutral-100"
-              aria-label="Close"
-            >
-              <X className="h-4 w-4" />
-            </button>
+          <div className="relative flex min-h-0 flex-1 flex-col bg-white md:overflow-y-auto">
+            <div className="sticky top-0 z-10 flex shrink-0 items-center justify-between gap-3 border-b border-neutral-100 bg-white px-4 py-3 md:static md:border-0 md:p-8 md:pb-0">
+              <DialogTitle className="text-xl font-bold tracking-tight text-neutral-900 md:text-3xl">
+                Where to, {firstName}?
+              </DialogTitle>
+              <button
+                type="button"
+                onClick={() => onOpenChange(false)}
+                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-neutral-500 transition-colors hover:bg-neutral-100 md:absolute md:right-8 md:top-8"
+                aria-label="Close"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
 
-            <DialogTitle className="text-2xl font-bold tracking-tight text-neutral-900 md:text-3xl">
-              Where to, {firstName}?
-            </DialogTitle>
-
-            <div className="mt-8 space-y-8">
+            <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 py-6 md:overflow-visible md:px-8 md:pb-8">
+            <div className="space-y-8">
               <div className="space-y-4">
                 <div className="flex flex-wrap items-center justify-between gap-3">
                   <Label
@@ -893,12 +905,16 @@ export function NewTripDialog({ open, onOpenChange }: NewTripDialogProps) {
                         {dateLabel}
                       </Button>
                     </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="start">
+                    <PopoverContent
+                      className="w-auto p-0"
+                      align="start"
+                      side={isMobile ? "bottom" : undefined}
+                    >
                       <Calendar
                         mode="range"
                         selected={dateRange}
                         onSelect={handleDateRangeSelect}
-                        numberOfMonths={2}
+                        numberOfMonths={isMobile ? 1 : 2}
                         disabled={isDateDisabled}
                       />
                       <p className="border-t px-3 py-2 text-xs text-neutral-500">
@@ -1116,16 +1132,16 @@ export function NewTripDialog({ open, onOpenChange }: NewTripDialogProps) {
               </div>
             </div>
 
-            {(tripLimitReached || createError) && (
+            {statusMessage && (
               <div
                 className={cn(
-                  "mt-6 rounded-xl border p-3 text-sm",
+                  "mt-6 hidden rounded-xl border p-3 text-sm md:block",
                   tripLimitReached
                     ? "border-amber-200 bg-amber-50 text-amber-800"
                     : "border-red-200 bg-red-50 text-red-700",
                 )}
               >
-                {tripLimitReached ? getTripLimitMessage() : createError}
+                {statusMessage}
               </div>
             )}
 
@@ -1133,7 +1149,7 @@ export function NewTripDialog({ open, onOpenChange }: NewTripDialogProps) {
               type="button"
               onClick={handleCreate}
               disabled={!canCreate}
-              className="mt-8 mb-2 h-14 w-full px-10 py-2 text-base cursor-pointer"
+              className="mt-8 hidden h-14 w-full cursor-pointer px-10 py-2 text-base md:inline-flex"
               size="lg"
             >
               {loading ? (
@@ -1145,6 +1161,38 @@ export function NewTripDialog({ open, onOpenChange }: NewTripDialogProps) {
                 "Create"
               )}
             </Button>
+            </div>
+
+            <div className="sticky bottom-0 z-10 shrink-0 border-t border-neutral-100 bg-white px-4 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] shadow-[0_-4px_12px_rgba(0,0,0,0.06)] md:hidden">
+              {statusMessage && (
+                <div
+                  className={cn(
+                    "mb-3 rounded-xl border p-3 text-sm",
+                    tripLimitReached
+                      ? "border-amber-200 bg-amber-50 text-amber-800"
+                      : "border-red-200 bg-red-50 text-red-700",
+                  )}
+                >
+                  {statusMessage}
+                </div>
+              )}
+              <Button
+                type="button"
+                onClick={handleCreate}
+                disabled={!canCreate}
+                className="h-12 w-full cursor-pointer text-base"
+                size="lg"
+              >
+                {loading ? (
+                  <>
+                    <Spinner size="sm" className="text-white" />
+                    Creating…
+                  </>
+                ) : (
+                  "Create"
+                )}
+              </Button>
+            </div>
           </div>
         </div>
       </DialogContent>
