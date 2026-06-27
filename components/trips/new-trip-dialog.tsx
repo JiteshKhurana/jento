@@ -81,7 +81,7 @@ type HeroImage = {
   photographerUrl: string;
 };
 
-const NEW_TRIP_ILLUSTRATION = "/illustrations/New trip.png";
+const NEW_TRIP_ILLUSTRATION = "/illustrations/New trip (1).png";
 
 const MAX_DESTINATION_LOCATIONS = 5;
 

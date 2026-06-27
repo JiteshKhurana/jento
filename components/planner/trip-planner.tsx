@@ -40,6 +40,9 @@ import {
 } from "@/lib/trips/preferences";
 import type { ChatFollowUp } from "@/lib/chat/follow-up-prompts";
 
+const mobileTabTriggerClass =
+  "flex flex-col gap-1 rounded-full px-0 py-2 text-[10px] font-medium leading-tight transition-colors data-[state=inactive]:text-neutral-400 data-[state=active]:bg-neutral-200/80 data-[state=active]:font-semibold data-[state=active]:text-neutral-900 data-[state=active]:shadow-none dark:data-[state=inactive]:text-neutral-500 dark:data-[state=active]:bg-neutral-700/80 dark:data-[state=active]:text-white";
+
 const TripMap = dynamic(
   () => import("@/components/map/trip-map").then((m) => m.TripMap),
   {
@@ -755,10 +758,7 @@ export function TripPlanner({
               )}
             >
               <TabsList className="grid h-auto w-full grid-cols-4 rounded-full border border-neutral-100 bg-white p-1.5 shadow-[0_4px_24px_rgba(0,0,0,0.13),0_1px_4px_rgba(0,0,0,0.06)] dark:border-neutral-800 dark:bg-neutral-900">
-                <TabsTrigger
-                  value="chat"
-                  className="flex flex-col gap-1 rounded-full px-0 py-2 text-[10px] font-medium leading-tight transition-colors data-[state=active]:bg-neutral-200/80 data-[state=active]:font-semibold data-[state=active]:text-neutral-900 data-[state=active]:shadow-none data-[state=inactive]:text-neutral-400 dark:data-[state=inactive]:text-white"
-                >
+                <TabsTrigger value="chat" className={mobileTabTriggerClass}>
                   <MessageSquare className="h-6 w-6" />
                   Chat
                 </TabsTrigger>
@@ -767,7 +767,7 @@ export function TripPlanner({
                   aria-label={
                     itineraryHasUpdate ? "Itinerary, updated" : "Itinerary"
                   }
-                  className="flex flex-col gap-1 rounded-full px-0 py-2 text-[10px] font-medium leading-tight transition-colors data-[state=active]:bg-neutral-200/80 data-[state=active]:font-semibold data-[state=active]:text-neutral-900 data-[state=active]:shadow-none data-[state=inactive]:text-neutral-400 dark:data-[state=inactive]:text-white"
+                  className={mobileTabTriggerClass}
                 >
                   <span className="relative">
                     <Route className="h-6 w-6" />
@@ -780,17 +780,11 @@ export function TripPlanner({
                   </span>
                   Itinerary
                 </TabsTrigger>
-                <TabsTrigger
-                  value="ideas"
-                  className="flex flex-col gap-1 rounded-full px-0 py-2 text-[10px] font-medium leading-tight transition-colors data-[state=active]:bg-neutral-200/80 data-[state=active]:font-semibold data-[state=active]:text-neutral-900 data-[state=active]:shadow-none data-[state=inactive]:text-neutral-400 dark:data-[state=inactive]:text-white"
-                >
+                <TabsTrigger value="ideas" className={mobileTabTriggerClass}>
                   <Lightbulb className="h-6 w-6" />
                   Ideas
                 </TabsTrigger>
-                <TabsTrigger
-                  value="bookings"
-                  className="flex flex-col gap-1 rounded-full px-0 py-2 text-[10px] font-medium leading-tight transition-colors data-[state=active]:bg-neutral-200/80 data-[state=active]:font-semibold data-[state=active]:text-neutral-900 data-[state=active]:shadow-none data-[state=inactive]:text-neutral-400 dark:data-[state=inactive]:text-white"
-                >
+                <TabsTrigger value="bookings" className={mobileTabTriggerClass}>
                   <Plane className="h-6 w-6" />
                   Documents
                 </TabsTrigger>
