@@ -81,12 +81,7 @@ type HeroImage = {
   photographerUrl: string;
 };
 
-const FALLBACK_HERO_IMAGE: HeroImage = {
-  url: "https://images.unsplash.com/photo-1564507592333-c60657eea523?auto=format&fit=crop&w=800&q=80",
-  alt: "Travel destination",
-  photographer: "Unsplash",
-  photographerUrl: "https://unsplash.com?utm_source=jento&utm_medium=referral",
-};
+const NEW_TRIP_ILLUSTRATION = "/illustrations/New trip.png";
 
 const MAX_DESTINATION_LOCATIONS = 5;
 
@@ -132,7 +127,7 @@ export function NewTripDialog({ open, onOpenChange }: NewTripDialogProps) {
   const [loading, setLoading] = useState(false);
   const [tripLimitReached, setTripLimitReached] = useState(false);
   const [createError, setCreateError] = useState<string | null>(null);
-  const [heroImage, setHeroImage] = useState<HeroImage>(FALLBACK_HERO_IMAGE);
+  const [heroImage, setHeroImage] = useState<HeroImage | null>(null);
   const [heroImageLoading, setHeroImageLoading] = useState(false);
   const [recommendedDays, setRecommendedDays] =
     useState<RecommendedDaysResult | null>(null);
@@ -178,12 +173,23 @@ export function NewTripDialog({ open, onOpenChange }: NewTripDialogProps) {
   useEffect(() => {
     if (!open) return;
 
+    if (locations.length === 0) {
+      Promise.resolve().then(() => {
+        setHeroImage(null);
+        setHeroImageLoading(false);
+      });
+      return;
+    }
+
     const latestLocation = locations.at(-1);
     const query = latestLocation?.name ?? "";
     const controller = new AbortController();
 
     // Defer state updates to avoid synchronous setState inside effect
-    Promise.resolve().then(() => setHeroImageLoading(true));
+    Promise.resolve().then(() => {
+      setHeroImage(null);
+      setHeroImageLoading(true);
+    });
     fetch(`/api/unsplash/photo?q=${encodeURIComponent(query)}`, {
       signal: controller.signal,
     })
@@ -358,7 +364,7 @@ export function NewTripDialog({ open, onOpenChange }: NewTripDialogProps) {
       setLoading(false);
       setTripLimitReached(false);
       setCreateError(null);
-      setHeroImage(FALLBACK_HERO_IMAGE);
+      setHeroImage(null);
       setHeroImageLoading(false);
       setRecommendedDays(null);
       setRecommendedDaysLoading(false);
@@ -633,20 +639,34 @@ export function NewTripDialog({ open, onOpenChange }: NewTripDialogProps) {
       >
         <div className="grid max-h-[90vh] overflow-y-auto md:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)] md:overflow-hidden">
           <div className="relative hidden min-h-[320px] md:block md:min-h-0">
-            {heroImageLoading && (
-              <Skeleton className="absolute inset-0 rounded-none" />
+            {locations.length === 0 ? (
+              <Image
+                src={NEW_TRIP_ILLUSTRATION}
+                alt="Plan a new trip"
+                fill
+                className="object-cover"
+                priority
+              />
+            ) : (
+              <>
+                {(heroImageLoading || !heroImage) && (
+                  <Skeleton className="absolute inset-0 rounded-none" />
+                )}
+                {heroImage && (
+                  <Image
+                    key={heroImage.url}
+                    src={heroImage.url}
+                    alt={heroImage.alt}
+                    fill
+                    className={cn(
+                      "object-cover transition-opacity duration-300",
+                      heroImageLoading ? "opacity-0" : "opacity-100",
+                    )}
+                    priority
+                  />
+                )}
+              </>
             )}
-            <Image
-              key={heroImage.url}
-              src={heroImage.url}
-              alt={heroImage.alt}
-              fill
-              className={cn(
-                "object-cover transition-opacity duration-300",
-                heroImageLoading ? "opacity-0" : "opacity-100",
-              )}
-              priority
-            />
           </div>
 
           <div className="relative flex flex-col bg-white p-6 md:overflow-y-auto md:p-8">
