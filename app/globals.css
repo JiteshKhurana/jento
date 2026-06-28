@@ -207,8 +207,8 @@ body {
 .bg-bottom-glow {
   background: linear-gradient(
     to top,
-    #ffb867 0%,
-    rgb(255 184 103 / 0.4) 22%,
+    #ffdeb8 0%,
+    rgb(255 222 184 / 0.4) 22%,
     transparent 62%
   );
 }
@@ -216,8 +216,8 @@ body {
 .dark .bg-bottom-glow {
   background: linear-gradient(
     to top,
-    #c16700 0%,
-    rgb(193 103 0 / 0.45) 20%,
+    #673700 0%,
+    rgb(103 55 0 / 0.45) 20%,
     transparent 52%
   );
 }

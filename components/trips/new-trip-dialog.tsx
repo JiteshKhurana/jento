@@ -20,7 +20,8 @@ import {
 } from "@/components/trips/destination-autocomplete";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
-import { Dialog, DialogContent, DialogTitle, mobileNativeDialogContentClassName } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import { Drawer, DrawerContent, DrawerTitle } from "@/components/ui/drawer";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -636,66 +637,38 @@ export function NewTripDialog({ open, onOpenChange }: NewTripDialogProps) {
     ? getTripLimitMessage()
     : createError;
 
-  return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent
-        showClose={false}
-        aria-describedby={undefined}
-        className={cn(
-          "overflow-hidden border-0 p-0",
-          mobileNativeDialogContentClassName,
-          "md:max-h-[90vh] md:w-[calc(100%-2rem)] md:max-w-4xl sm:rounded-3xl",
+  const heroImageContent =
+    locations.length === 0 ? (
+      <Image
+        src={NEW_TRIP_ILLUSTRATION}
+        alt="Plan a new trip"
+        fill
+        className="object-cover"
+        priority
+      />
+    ) : (
+      <>
+        {(heroImageLoading || !heroImage) && (
+          <Skeleton className="absolute inset-0 rounded-none" />
         )}
-      >
-        <div className="flex h-full max-h-svh flex-col md:grid md:max-h-[90vh] md:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)] md:overflow-hidden">
-          <div className="relative hidden min-h-[320px] md:block md:min-h-0">
-            {locations.length === 0 ? (
-              <Image
-                src={NEW_TRIP_ILLUSTRATION}
-                alt="Plan a new trip"
-                fill
-                className="object-cover"
-                priority
-              />
-            ) : (
-              <>
-                {(heroImageLoading || !heroImage) && (
-                  <Skeleton className="absolute inset-0 rounded-none" />
-                )}
-                {heroImage && (
-                  <Image
-                    key={heroImage.url}
-                    src={heroImage.url}
-                    alt={heroImage.alt}
-                    fill
-                    className={cn(
-                      "object-cover transition-opacity duration-300",
-                      heroImageLoading ? "opacity-0" : "opacity-100",
-                    )}
-                    priority
-                  />
-                )}
-              </>
+        {heroImage && (
+          <Image
+            key={heroImage.url}
+            src={heroImage.url}
+            alt={heroImage.alt}
+            fill
+            className={cn(
+              "object-cover transition-opacity duration-300",
+              heroImageLoading ? "opacity-0" : "opacity-100",
             )}
-          </div>
+            priority
+          />
+        )}
+      </>
+    );
 
-          <div className="relative flex min-h-0 flex-1 flex-col bg-white md:overflow-y-auto">
-            <div className="sticky top-0 z-10 flex shrink-0 items-center justify-between gap-3 border-b border-neutral-100 bg-white px-4 py-3 md:static md:border-0 md:p-8 md:pb-0">
-              <DialogTitle className="text-xl font-bold tracking-tight text-neutral-900 md:text-3xl">
-                Where to, {firstName}?
-              </DialogTitle>
-              <button
-                type="button"
-                onClick={() => onOpenChange(false)}
-                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-neutral-500 transition-colors hover:bg-neutral-100 md:absolute md:right-8 md:top-8"
-                aria-label="Close"
-              >
-                <X className="h-4 w-4" />
-              </button>
-            </div>
-
-            <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 py-6 md:overflow-visible md:px-8 md:pb-8">
-            <div className="space-y-8">
+  const tripForm = (
+    <div className="space-y-8">
               <div className="space-y-4">
                 <div className="flex flex-wrap items-center justify-between gap-3">
                   <Label
@@ -1130,69 +1103,117 @@ export function NewTripDialog({ open, onOpenChange }: NewTripDialogProps) {
                   {preferences.length}/1000 characters
                 </p>
               </div>
-            </div>
+    </div>
+  );
 
-            {statusMessage && (
-              <div
-                className={cn(
-                  "mt-6 hidden rounded-xl border p-3 text-sm md:block",
-                  tripLimitReached
-                    ? "border-amber-200 bg-amber-50 text-amber-800"
-                    : "border-red-200 bg-red-50 text-red-700",
-                )}
-              >
-                {statusMessage}
-              </div>
-            )}
+  const createFooter = (className?: string) => (
+    <div
+      className={cn(
+        "shrink-0 border-t border-neutral-100 bg-white px-4 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] shadow-[0_-4px_12px_rgba(0,0,0,0.06)]",
+        className,
+      )}
+    >
+      {statusMessage && (
+        <div
+          className={cn(
+            "mb-3 rounded-xl border p-3 text-sm",
+            tripLimitReached
+              ? "border-amber-200 bg-amber-50 text-amber-800"
+              : "border-red-200 bg-red-50 text-red-700",
+          )}
+        >
+          {statusMessage}
+        </div>
+      )}
+      <Button
+        type="button"
+        onClick={handleCreate}
+        disabled={!canCreate}
+        className="h-12 w-full cursor-pointer text-base"
+        size="lg"
+      >
+        {loading ? (
+          <>
+            <Spinner size="sm" className="text-white" />
+            Creating…
+          </>
+        ) : (
+          "Create"
+        )}
+      </Button>
+    </div>
+  );
 
-            <Button
+  if (isMobile) {
+    return (
+      <Drawer open={open} onOpenChange={onOpenChange}>
+        <DrawerContent
+          aria-describedby={undefined}
+          className="flex h-[88dvh] max-h-[88dvh] flex-col overflow-hidden border-0 bg-white p-0"
+        >
+          <div className="relative h-[40%] w-full shrink-0 overflow-hidden">
+            {heroImageContent}
+            <button
               type="button"
-              onClick={handleCreate}
-              disabled={!canCreate}
-              className="mt-8 hidden h-14 w-full cursor-pointer px-10 py-2 text-base md:inline-flex"
-              size="lg"
+              onClick={() => onOpenChange(false)}
+              className="absolute right-4 top-4 flex h-9 w-9 items-center justify-center rounded-full bg-white text-neutral-700 shadow-sm transition-colors hover:bg-neutral-50"
+              aria-label="Close"
             >
-              {loading ? (
-                <>
-                  <Spinner size="sm" className="text-white" />
-                  Creating…
-                </>
-              ) : (
-                "Create"
-              )}
-            </Button>
+              <X className="h-4 w-4" />
+            </button>
+          </div>
+
+          <div className="flex min-h-0 flex-1 flex-col">
+            <DrawerTitle className="px-4 pt-5 text-xl font-bold tracking-tight text-neutral-900">
+              Where to, {firstName}?
+            </DrawerTitle>
+
+            <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 py-6">
+              {tripForm}
             </div>
 
-            <div className="sticky bottom-0 z-10 shrink-0 border-t border-neutral-100 bg-white px-4 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] shadow-[0_-4px_12px_rgba(0,0,0,0.06)] md:hidden">
-              {statusMessage && (
-                <div
-                  className={cn(
-                    "mb-3 rounded-xl border p-3 text-sm",
-                    tripLimitReached
-                      ? "border-amber-200 bg-amber-50 text-amber-800"
-                      : "border-red-200 bg-red-50 text-red-700",
-                  )}
-                >
-                  {statusMessage}
-                </div>
-              )}
-              <Button
+            {createFooter()}
+          </div>
+        </DrawerContent>
+      </Drawer>
+    );
+  }
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent
+        showClose={false}
+        aria-describedby={undefined}
+        className={cn(
+          "overflow-hidden border-0 p-0",
+          "md:max-h-[90vh] md:w-[calc(100%-2rem)] md:max-w-4xl sm:rounded-3xl",
+        )}
+      >
+        <div className="grid max-h-[90vh] grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)] overflow-hidden">
+          <div className="relative hidden min-h-[320px] md:block md:min-h-0">
+            {heroImageContent}
+          </div>
+
+          <div className="relative flex min-h-0 flex-1 flex-col bg-white">
+            <div className="flex shrink-0 items-center justify-between gap-3 p-8 pb-0">
+              <DialogTitle className="text-3xl font-bold tracking-tight text-neutral-900">
+                Where to, {firstName}?
+              </DialogTitle>
+              <button
                 type="button"
-                onClick={handleCreate}
-                disabled={!canCreate}
-                className="h-12 w-full cursor-pointer text-base"
-                size="lg"
+                onClick={() => onOpenChange(false)}
+                className="absolute right-8 top-8 flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-neutral-500 transition-colors hover:bg-neutral-100"
+                aria-label="Close"
               >
-                {loading ? (
-                  <>
-                    <Spinner size="sm" className="text-white" />
-                    Creating…
-                  </>
-                ) : (
-                  "Create"
-                )}
-              </Button>
+                <X className="h-4 w-4" />
+              </button>
             </div>
+
+            <div className="min-h-0 flex-1 overflow-y-auto px-8 py-6">
+              {tripForm}
+            </div>
+
+            {createFooter("border-t border-neutral-100 px-8 py-6 shadow-none")}
           </div>
         </div>
       </DialogContent>
