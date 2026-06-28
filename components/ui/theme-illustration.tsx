@@ -35,30 +35,37 @@ type ThemeIllustrationProps = {
   size?: number;
 };
 
+const DEFAULT_ILLUSTRATION_SIZE = 260;
+
 export function ThemeIllustration({
   variant,
   className,
-  size = 220,
+  size,
 }: ThemeIllustrationProps) {
   const { light, dark, alt } = ILLUSTRATIONS[variant];
+  const imageSize = size ?? DEFAULT_ILLUSTRATION_SIZE;
 
   return (
     <div
-      className={cn("relative mx-auto shrink-0", className)}
-      style={{ width: size, height: size }}
+      className={cn(
+        "relative mx-auto shrink-0",
+        size ? undefined : "size-[240px] md:size-[260px]",
+        className,
+      )}
+      style={size ? { width: size, height: size } : undefined}
     >
       <Image
         src={light}
         alt={alt}
-        width={size}
-        height={size}
+        width={imageSize}
+        height={imageSize}
         className="h-full w-full object-contain dark:hidden"
       />
       <Image
         src={dark}
         alt={alt}
-        width={size}
-        height={size}
+        width={imageSize}
+        height={imageSize}
         className="hidden h-full w-full object-contain dark:block"
       />
     </div>

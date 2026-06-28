@@ -528,7 +528,7 @@ const BUDGET_CATEGORIES = [
   },
   {
     key: "budgetFood" as const,
-    label: "Food & Drinks",
+    label: "Food",
     icon: UtensilsCrossed,
   },
   {
@@ -579,7 +579,7 @@ function DayExpenseBreakdown({
     >
       <div className="flex flex-col gap-0.5 border-b border-neutral-100 px-4 py-2.5">
         <span className="text-xs font-semibold text-neutral-500 uppercase tracking-wide">
-          Estimated daily spend
+          Daily spend
         </span>
         <span className="text-sm font-bold text-black dark:text-white">
           ~{fmt(totalToShow)}/person
@@ -961,9 +961,7 @@ export function DayTimeline({
 
   if (days.length === 0) {
     return (
-      <NoItineraryEmptyState
-        onChatClick={readOnly ? undefined : onChatClick}
-      />
+      <NoItineraryEmptyState onChatClick={readOnly ? undefined : onChatClick} />
     );
   }
 

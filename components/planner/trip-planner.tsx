@@ -354,7 +354,12 @@ export function TripPlanner({
   const bookingsPanel = <BookingsPanel tripId={trip.id} readOnly={!isOwner} />;
 
   const itineraryPanel = (
-    <div className="relative min-h-full">
+    <div
+      className={cn(
+        "relative",
+        days.length === 0 ? "h-full" : "min-h-full",
+      )}
+    >
       {refreshing && (
         <div className="absolute inset-0 z-20 flex items-center justify-center bg-white/70 backdrop-blur-[1px]">
           <LoadingState label="Updating itinerary…" />
