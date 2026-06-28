@@ -4,7 +4,7 @@ import { useUser } from "@clerk/nextjs";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Heart, Menu, Map, Search, X } from "lucide-react";
+import { Heart, Menu, Map, Search, User, X } from "lucide-react";
 import { SidebarInset } from "@/components/ui/sidebar";
 import {
   Popover,
@@ -34,6 +34,9 @@ const savedNavLink = {
   label: "Saved",
   icon: Heart,
 } as const;
+
+const mobileMenuItemClassName =
+  "flex h-12 w-full items-center gap-3 rounded-lg px-3 text-lg font-medium text-sidebar-foreground transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground";
 
 function MobileHeader({
   mobileHeaderActions,
@@ -94,10 +97,9 @@ function MobileHeader({
                   href={link.href}
                   onClick={() => onOpenChange(false)}
                   className={cn(
-                    "flex h-12 items-center gap-3 rounded-lg px-3 text-lg font-medium transition-colors",
-                    isActive
-                      ? "bg-sidebar-accent text-sidebar-accent-foreground"
-                      : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
+                    mobileMenuItemClassName,
+                    isActive &&
+                      "bg-sidebar-accent text-sidebar-accent-foreground",
                   )}
                 >
                   <Icon className="h-6 w-6 shrink-0" />
@@ -105,6 +107,21 @@ function MobileHeader({
                 </Link>
               );
             })}
+            {isLoaded && user && (
+              <Link
+                href="/profile"
+                className={cn(
+                  mobileMenuItemClassName,
+                  (pathname === "/profile" ||
+                    pathname.startsWith("/profile/")) &&
+                    "bg-sidebar-accent text-sidebar-accent-foreground",
+                )}
+                onClick={() => onOpenChange(false)}
+              >
+                <User className="h-6 w-6 shrink-0" />
+                View profile
+              </Link>
+            )}
           </PopoverContent>
         </Popover>
         <Link href="/trips" className="flex min-w-0 items-center gap-2">

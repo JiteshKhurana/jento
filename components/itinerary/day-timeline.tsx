@@ -19,7 +19,6 @@ import {
 import { CSS } from "@dnd-kit/utilities";
 import {
   Route,
-  Clock,
   ExternalLink,
   Navigation,
   GripVertical,
@@ -36,9 +35,7 @@ import {
   Shuffle,
   Pencil,
 } from "lucide-react";
-import { format } from "date-fns";
 import { DEFAULT_BUDGET_CURRENCY, getCurrencySymbol } from "@/lib/trips/intake";
-import { getDayDate } from "@/lib/itinerary/time-utils";
 import {
   computeDayInsights,
   formatStepCount,
@@ -425,30 +422,10 @@ function ItemBlock({
               img.parentElement!.style.display = "none";
             }}
           />
-          {/* Time chip overlaid on photo */}
-          {item.startTime && (
-            <div className="absolute bottom-2 left-2 flex items-center gap-1 rounded-full bg-black/60 px-2.5 py-1 text-[12px] font-semibold text-white backdrop-blur-sm">
-              <Clock className="h-3 w-3" />
-              {item.startTime}
-              {item.duration && (
-                <span className="text-white/70"> · {item.duration}</span>
-              )}
-            </div>
-          )}
         </div>
       ) : (
-        /* No photo — show gradient placeholder with time chip */
         <div className="relative flex h-14 items-center bg-linear-to-r from-neutral-50 to-neutral-100 px-4">
           <MapPin className="mr-2 h-4 w-4 shrink-0 text-neutral-300" />
-          {item.startTime && (
-            <span className="ml-auto flex items-center gap-1 rounded-full bg-neutral-200 px-2.5 py-0.5 text-[12px] font-semibold text-neutral-600">
-              <Clock className="h-3 w-3" />
-              {item.startTime}
-              {item.duration && (
-                <span className="text-neutral-400"> · {item.duration}</span>
-              )}
-            </span>
-          )}
         </div>
       )}
 
@@ -696,7 +673,6 @@ function DayActivityInsight({
 type DayItemsProps = {
   day: ItineraryDayData;
   tripId: string;
-  dayColor: string;
   destination?: string;
   onUpdate?: () => void;
   onSelectItem?: (itemId: string) => void;
@@ -708,7 +684,6 @@ type DayItemsProps = {
 function DayItems({
   day,
   tripId,
-  dayColor,
   destination,
   onUpdate,
   onSelectItem,
@@ -826,11 +801,8 @@ function DayItems({
                 </div>
                 {!isLast && (
                   <div
-                    className="pointer-events-none absolute left-1/2 top-10 w-px -translate-x-1/2 rounded-full bg-(--timeline-line-color) dark:bg-white"
-                    style={{
-                      height: "calc(100% - 2.5rem + 2rem)",
-                      ["--timeline-line-color" as string]: dayColor,
-                    }}
+                    className="pointer-events-none absolute left-1/2 top-10 w-px -translate-x-1/2 rounded-full bg-neutral-200 dark:bg-neutral-700"
+                    style={{ height: "calc(100% - 2.5rem + 2rem)" }}
                     aria-hidden
                   />
                 )}
@@ -913,7 +885,6 @@ function DayItems({
 type DayTimelineProps = {
   tripId: string;
   days: ItineraryDayData[];
-  tripStartDate?: string | null;
   onUpdate?: () => void;
   onSelectItem?: (itemId: string) => void;
   selectedDay?: number;
@@ -927,7 +898,6 @@ type DayTimelineProps = {
 export function DayTimeline({
   tripId,
   days,
-  tripStartDate = null,
   onUpdate,
   onSelectItem,
   selectedDay,
@@ -960,8 +930,6 @@ export function DayTimeline({
   return (
     <div className="space-y-8 p-4">
       {filteredDays.map((day) => {
-        const dayDate = getDayDate(tripStartDate, day.dayNumber);
-
         return (
           <section key={day.id} id={`day-${day.dayNumber}`}>
             {/* Day header banner */}
@@ -973,11 +941,6 @@ export function DayTimeline({
                 <h3 className="truncate font-semibold text-black dark:text-white">
                   {day.title}
                 </h3>
-                {dayDate && (
-                  <p className="truncate text-[13px] font-medium text-neutral-600 dark:text-neutral-400">
-                    {format(dayDate, "EEEE, MMM d")}
-                  </p>
-                )}
                 <p className="truncate text-[13px] text-neutral-600 dark:text-neutral-400">
                   {day.items.length} {day.items.length === 1 ? "stop" : "stops"}
                 </p>
@@ -1029,7 +992,6 @@ export function DayTimeline({
             <DayItems
               day={day}
               tripId={tripId}
-              dayColor={getDayColor(day.dayNumber)}
               destination={destination}
               onUpdate={onUpdate}
               onSelectItem={onSelectItem}

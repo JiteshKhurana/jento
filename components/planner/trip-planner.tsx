@@ -409,7 +409,6 @@ export function TripPlanner({
       <DayTimeline
         tripId={trip.id}
         days={days}
-        tripStartDate={trip.startDate}
         onUpdate={isOwner ? refreshItinerary : undefined}
         onSelectItem={handleSelectItem}
         selectedDay={selectedDay}

@@ -1,6 +1,12 @@
 "use client";
 
-import { useCallback, useEffect, useState, type ComponentProps, type ComponentType } from "react";
+import {
+  useCallback,
+  useEffect,
+  useState,
+  type ComponentProps,
+  type ComponentType,
+} from "react";
 import { Plus, Search, X } from "lucide-react";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Drawer, DrawerContent, DrawerTitle } from "@/components/ui/drawer";
@@ -204,184 +210,182 @@ export function AddIdeasDialog({
   ) => (
     <>
       <div className="sticky top-0 z-10 shrink-0 border-b border-neutral-100 bg-white px-4 pt-4">
-            <div className="flex items-center justify-between gap-3 pb-4">
-              <Title className="text-base font-semibold md:text-lg">
-                Add to trip
-              </Title>
-              <button
-                type="button"
-                onClick={() => onOpenChange(false)}
-                className="flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-full text-neutral-500 hover:bg-neutral-100"
-                aria-label="Close"
-              >
-                <X className="h-4 w-4" />
-              </button>
+        <div className="flex items-center justify-between gap-3 pb-4">
+          <Title className="text-base font-semibold md:text-lg">
+            Add to trip
+          </Title>
+          <button
+            type="button"
+            onClick={() => onOpenChange(false)}
+            className="flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-full text-neutral-500 hover:bg-neutral-100"
+            aria-label="Close"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        </div>
+
+        <div className="flex gap-6">
+          {(["search", "custom"] as const).map((t) => (
+            <button
+              key={t}
+              type="button"
+              onClick={() => setTab(t)}
+              className={cn(
+                "relative cursor-pointer pb-3 text-sm font-medium capitalize transition-colors",
+                tab === t
+                  ? "z-10 text-black after:absolute after:inset-x-0 after:-bottom-px after:block after:h-0.5 after:bg-black after:content-['']"
+                  : "text-neutral-400 hover:text-neutral-600",
+              )}
+            >
+              {t === "search" ? "Search" : "Custom"}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {tab === "search" ? (
+        <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
+          <div className="shrink-0 space-y-3 border-b border-neutral-100 px-4 py-4">
+            <p className="text-lg font-bold text-neutral-900">{destination}</p>
+
+            <div className="flex gap-2">
+              <div className="relative min-w-0 flex-1">
+                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400" />
+                <Input
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Search"
+                  className="h-11 rounded-xl border-neutral-200 bg-neutral-50 pl-9"
+                />
+              </div>
+              <ExploreFilters
+                budget={budget}
+                onBudgetChange={handleBudgetChange}
+              />
             </div>
 
-            <div className="flex gap-6 border-b border-neutral-100">
-              {(["search", "custom"] as const).map((t) => (
+            <div className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1">
+              {CATEGORIES.map((cat) => (
                 <button
-                  key={t}
+                  key={cat.id}
                   type="button"
-                  onClick={() => setTab(t)}
+                  onClick={() => {
+                    setAddedIds(new Set());
+                    setSelectedPlace(null);
+                    setCategory(cat.id);
+                  }}
                   className={cn(
-                    "cursor-pointer pb-3 text-sm font-medium capitalize transition-colors",
-                    tab === t
-                      ? "border-b-2 border-neutral-900 text-neutral-900"
-                      : "text-neutral-400 hover:text-neutral-600",
+                    "shrink-0 cursor-pointer rounded-full px-3.5 py-1.5 text-xs font-medium transition-colors",
+                    category === cat.id
+                      ? "bg-neutral-900 text-white"
+                      : "border border-neutral-200 bg-white text-neutral-700 hover:border-neutral-300",
                   )}
                 >
-                  {t === "search" ? "Search" : "Custom"}
+                  {cat.label}
                 </button>
               ))}
             </div>
           </div>
 
-          {tab === "search" ? (
-            <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
-              <div className="shrink-0 space-y-3 border-b border-neutral-100 px-4 py-4">
-                <p className="text-lg font-bold text-neutral-900">
-                  {destination}
-                </p>
-
-                <div className="flex gap-2">
-                  <div className="relative min-w-0 flex-1">
-                    <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400" />
-                    <Input
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                      placeholder="Search"
-                      className="h-11 rounded-xl border-neutral-200 bg-neutral-50 pl-9"
-                    />
+          <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 py-4 pb-[max(1rem,env(safe-area-inset-bottom))] md:pb-6">
+            {loading ? (
+              <div className="grid grid-cols-2 gap-4">
+                {Array.from({ length: 4 }).map((_, i) => (
+                  <div key={i} className="space-y-2">
+                    <Skeleton className="aspect-4/3 w-full rounded-2xl" />
+                    <Skeleton className="h-4 w-3/4" />
+                    <Skeleton className="h-3 w-1/2" />
                   </div>
-                  <ExploreFilters
-                    budget={budget}
-                    onBudgetChange={handleBudgetChange}
-                  />
-                </div>
-
-                <div className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1">
-                  {CATEGORIES.map((cat) => (
-                    <button
-                      key={cat.id}
-                      type="button"
-                      onClick={() => {
-                        setAddedIds(new Set());
-                        setSelectedPlace(null);
-                        setCategory(cat.id);
-                      }}
-                      className={cn(
-                        "shrink-0 cursor-pointer rounded-full px-3.5 py-1.5 text-xs font-medium transition-colors",
-                        category === cat.id
-                          ? "bg-neutral-900 text-white"
-                          : "border border-neutral-200 bg-white text-neutral-700 hover:border-neutral-300",
-                      )}
-                    >
-                      {cat.label}
-                    </button>
-                  ))}
-                </div>
+                ))}
               </div>
-
-              <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 py-4 pb-[max(1rem,env(safe-area-inset-bottom))] md:pb-6">
-                {loading ? (
-                  <div className="grid grid-cols-2 gap-4">
-                    {Array.from({ length: 4 }).map((_, i) => (
-                      <div key={i} className="space-y-2">
-                        <Skeleton className="aspect-4/3 w-full rounded-2xl" />
-                        <Skeleton className="h-4 w-3/4" />
-                        <Skeleton className="h-3 w-1/2" />
-                      </div>
-                    ))}
-                  </div>
-                ) : results.length === 0 ? (
-                  <p className="py-8 text-center text-sm text-neutral-400">
-                    No places found. Try a different search.
-                  </p>
-                ) : (
-                  <div className="grid grid-cols-2 gap-4">
-                    {results.map((place) => (
-                      <PlaceSearchCard
-                        key={place.googlePlaceId}
-                        place={place}
-                        destination={destination}
-                        onAdd={handleAddPlace}
-                        onSelect={setSelectedPlace}
-                        added={addedIds.has(place.googlePlaceId)}
-                      />
-                    ))}
-                  </div>
-                )}
+            ) : results.length === 0 ? (
+              <p className="py-8 text-center text-sm text-neutral-400">
+                No places found. Try a different search.
+              </p>
+            ) : (
+              <div className="grid grid-cols-2 gap-4">
+                {results.map((place) => (
+                  <PlaceSearchCard
+                    key={place.googlePlaceId}
+                    place={place}
+                    destination={destination}
+                    onAdd={handleAddPlace}
+                    onSelect={setSelectedPlace}
+                    added={addedIds.has(place.googlePlaceId)}
+                  />
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      ) : (
+        <form
+          onSubmit={handleAddCustom}
+          className="flex min-h-0 flex-1 flex-col overflow-hidden"
+        >
+          <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 py-6">
+            <p className="mb-6 text-sm text-neutral-500">
+              Add a custom idea — a restaurant someone recommended, a hike you
+              heard about, or anything else worth remembering.
+            </p>
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="custom-title">Title</Label>
+                <Input
+                  id="custom-title"
+                  value={customTitle}
+                  onChange={(e) => setCustomTitle(e.target.value)}
+                  placeholder="e.g. Sunset kayak tour"
+                  className="rounded-xl"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="custom-notes">Notes (optional)</Label>
+                <Textarea
+                  id="custom-notes"
+                  value={customNotes}
+                  onChange={(e) => setCustomNotes(e.target.value)}
+                  placeholder="Any details to remember…"
+                  rows={3}
+                  className="rounded-xl"
+                />
               </div>
             </div>
-          ) : (
-            <form
-              onSubmit={handleAddCustom}
-              className="flex min-h-0 flex-1 flex-col overflow-hidden"
+
+            <Button
+              type="submit"
+              disabled={!customTitle.trim() || savingCustom}
+              className="mt-6 hidden w-full cursor-pointer md:inline-flex"
             >
-              <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 py-6">
-                <p className="mb-6 text-sm text-neutral-500">
-                  Add a custom idea — a restaurant someone recommended, a hike
-                  you heard about, or anything else worth remembering.
-                </p>
-                <div className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="custom-title">Title</Label>
-                    <Input
-                      id="custom-title"
-                      value={customTitle}
-                      onChange={(e) => setCustomTitle(e.target.value)}
-                      placeholder="e.g. Sunset kayak tour"
-                      className="rounded-xl"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="custom-notes">Notes (optional)</Label>
-                    <Textarea
-                      id="custom-notes"
-                      value={customNotes}
-                      onChange={(e) => setCustomNotes(e.target.value)}
-                      placeholder="Any details to remember…"
-                      rows={3}
-                      className="rounded-xl"
-                    />
-                  </div>
-                </div>
+              {savingCustom ? (
+                <>
+                  <Spinner size="sm" className="text-white" />
+                  Adding…
+                </>
+              ) : (
+                "Add idea"
+              )}
+            </Button>
+          </div>
 
-                <Button
-                  type="submit"
-                  disabled={!customTitle.trim() || savingCustom}
-                  className="mt-6 hidden w-full cursor-pointer md:inline-flex"
-                >
-                  {savingCustom ? (
-                    <>
-                      <Spinner size="sm" className="text-white" />
-                      Adding…
-                    </>
-                  ) : (
-                    "Add idea"
-                  )}
-                </Button>
-              </div>
-
-              <div className="sticky bottom-0 z-10 shrink-0 border-t border-neutral-100 bg-white px-4 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] shadow-[0_-4px_12px_rgba(0,0,0,0.06)] md:hidden">
-                <Button
-                  type="submit"
-                  disabled={!customTitle.trim() || savingCustom}
-                  className="h-11 w-full cursor-pointer"
-                >
-                  {savingCustom ? (
-                    <>
-                      <Spinner size="sm" className="text-white" />
-                      Adding…
-                    </>
-                  ) : (
-                    "Add idea"
-                  )}
-                </Button>
-              </div>
-            </form>
-          )}
+          <div className="sticky bottom-0 z-10 shrink-0 border-t border-neutral-100 bg-white px-4 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] shadow-[0_-4px_12px_rgba(0,0,0,0.06)] md:hidden">
+            <Button
+              type="submit"
+              disabled={!customTitle.trim() || savingCustom}
+              className="h-11 w-full cursor-pointer"
+            >
+              {savingCustom ? (
+                <>
+                  <Spinner size="sm" className="text-white" />
+                  Adding…
+                </>
+              ) : (
+                "Add idea"
+              )}
+            </Button>
+          </div>
+        </form>
+      )}
     </>
   );
 
