@@ -154,27 +154,27 @@ export function TripCard({ trip, coverPhoto, priority }: TripCardProps) {
           </PopoverTrigger>
           <PopoverContent
             align="end"
-            className="w-44 p-1"
+            className="w-52 p-2 sm:w-44 sm:p-1"
             onClick={(e) => e.stopPropagation()}
           >
             <button
               type="button"
-              className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-foreground transition-colors hover:bg-accent cursor-pointer"
+              className="flex w-full cursor-pointer items-center gap-3 rounded-lg px-4 py-3 text-base text-foreground transition-colors hover:bg-accent sm:gap-2 sm:px-3 sm:py-2 sm:text-sm"
               onClick={handleShare}
             >
               {shared ? (
-                <Check className="h-4 w-4 text-emerald-600" />
+                <Check className="h-5 w-5 text-emerald-600 sm:h-4 sm:w-4" />
               ) : (
-                <Share2 className="h-4 w-4" />
+                <Share2 className="h-5 w-5 sm:h-4 sm:w-4" />
               )}
               {shared ? "Link copied" : "Share trip"}
             </button>
             <button
               type="button"
-              className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-red-600 transition-colors hover:bg-red-50 cursor-pointer"
+              className="flex w-full cursor-pointer items-center gap-3 rounded-lg px-4 py-3 text-base text-red-600 transition-colors hover:bg-red-50 sm:gap-2 sm:px-3 sm:py-2 sm:text-sm"
               onClick={openDeleteDialog}
             >
-              <Trash2 className="h-4 w-4" />
+              <Trash2 className="h-5 w-5 sm:h-4 sm:w-4" />
               Delete trip
             </button>
           </PopoverContent>

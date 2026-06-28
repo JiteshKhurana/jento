@@ -1,7 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import { CalendarPlus, Check, FileText, MoreVertical, Share2 } from "lucide-react";
+import {
+  CalendarPlus,
+  Check,
+  FileText,
+  MoreVertical,
+  Share2,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Popover,
@@ -142,16 +148,16 @@ export function TripExportMenu({
           <MoreVertical className="h-4 w-4" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent align="end" className="w-52 p-1">
+      <PopoverContent align="end" className="w-64 p-2 sm:w-52 sm:p-1">
         <button
           type="button"
           onClick={handleShare}
-          className="flex w-full cursor-pointer items-center gap-2 rounded-lg px-3 py-2 text-sm text-neutral-700 transition-colors hover:bg-neutral-100"
+          className="flex w-full cursor-pointer items-center gap-3 rounded-lg px-4 py-3 text-base text-neutral-700 transition-colors hover:bg-neutral-100 sm:gap-2 sm:px-3 sm:py-2 sm:text-sm"
         >
           {shared ? (
-            <Check className="h-4 w-4 shrink-0 text-emerald-600" />
+            <Check className="h-5 w-5 shrink-0 text-emerald-600 sm:h-4 sm:w-4" />
           ) : (
-            <Share2 className="h-4 w-4 shrink-0" />
+            <Share2 className="h-5 w-5 shrink-0 sm:h-4 sm:w-4" />
           )}
           {shared ? "Link copied" : "Share trip link"}
         </button>
@@ -159,18 +165,18 @@ export function TripExportMenu({
           type="button"
           disabled={!hasItems || exporting !== null}
           onClick={handleDownloadPdf}
-          className="flex w-full cursor-pointer items-center gap-2 rounded-lg px-3 py-2 text-sm text-neutral-700 transition-colors hover:bg-neutral-100 disabled:cursor-not-allowed disabled:opacity-50"
+          className="flex w-full cursor-pointer items-center gap-3 rounded-lg px-4 py-3 text-base text-neutral-700 transition-colors hover:bg-neutral-100 disabled:cursor-not-allowed disabled:opacity-50 sm:gap-2 sm:px-3 sm:py-2 sm:text-sm"
         >
-          <FileText className="h-4 w-4 shrink-0 text-neutral-700" />
+          <FileText className="h-5 w-5 shrink-0 text-neutral-700 sm:h-4 sm:w-4" />
           {exporting === "pdf" ? "Preparing PDF…" : "Download PDF"}
         </button>
         <button
           type="button"
           disabled={!hasItems || exporting !== null}
           onClick={handleDownloadIcs}
-          className="flex w-full cursor-pointer items-center gap-2 rounded-lg px-3 py-2 text-sm text-neutral-700 transition-colors hover:bg-neutral-100 disabled:cursor-not-allowed disabled:opacity-50"
+          className="flex w-full cursor-pointer items-center gap-3 rounded-lg px-4 py-3 text-base text-neutral-700 transition-colors hover:bg-neutral-100 disabled:cursor-not-allowed disabled:opacity-50 sm:gap-2 sm:px-3 sm:py-2 sm:text-sm"
         >
-          <CalendarPlus className="h-4 w-4 shrink-0 text-teal-600" />
+          <CalendarPlus className="h-5 w-5 shrink-0 text-teal-600 sm:h-4 sm:w-4" />
           {exporting === "ics" ? "Preparing calendar…" : "Export to Calendar"}
         </button>
       </PopoverContent>
