@@ -68,7 +68,10 @@ export function SavedView({
   const [detailOpen, setDetailOpen] = useState(false);
   const [mapPlaceId, setMapPlaceId] = useState<string | null>(null);
 
-  async function handleSaveToggle(place: PlaceSearchResult) {
+  async function handleSaveToggle(
+    place: PlaceSearchResult,
+    _currentlySaved?: boolean,
+  ) {
     const res = await fetch(
       `/api/saved-places/${encodeURIComponent(place.googlePlaceId)}`,
       { method: "DELETE" },
@@ -77,6 +80,9 @@ export function SavedView({
       setSavedPlaces((prev) =>
         prev.filter((saved) => saved.googlePlaceId !== place.googlePlaceId),
       );
+      setDetailOpen(false);
+      setSelectedPlace(null);
+      setMapPlaceId(null);
     }
   }
 

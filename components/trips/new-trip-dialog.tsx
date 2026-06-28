@@ -712,9 +712,6 @@ export function NewTripDialog({ open, onOpenChange }: NewTripDialogProps) {
                           setDepartureSearchQuery("");
                         }}
                         placeholder="City, airport, or address"
-                        autoFocus={
-                          open && !departFromCurrent && !departureLocation
-                        }
                       />
                     )}
                   </div>
@@ -739,9 +736,6 @@ export function NewTripDialog({ open, onOpenChange }: NewTripDialogProps) {
                         value={searchQuery}
                         onChange={setSearchQuery}
                         onSelect={addLocation}
-                        autoFocus={
-                          open && locations.length === 0 && departFromCurrent
-                        }
                       />
                     )}
                   {locations.length >= MAX_DESTINATION_LOCATIONS && (
