@@ -49,12 +49,6 @@ const desktopLeftTabActiveClass =
 const desktopLeftTabInactiveClass =
   "text-neutral-400 hover:text-neutral-600 dark:text-neutral-500 dark:hover:text-neutral-400";
 
-const desktopMapCalendarTabActiveClass =
-  "bg-neutral-900 text-white dark:bg-white dark:text-neutral-900";
-
-const desktopMapCalendarTabInactiveClass =
-  "text-neutral-600 hover:text-neutral-700 dark:text-neutral-400 dark:hover:text-neutral-300";
-
 const TripMap = dynamic(
   () => import("@/components/map/trip-map").then((m) => m.TripMap),
   {
@@ -555,7 +549,7 @@ export function TripPlanner({
         <div className="hidden min-h-0 flex-1 md:grid md:grid-cols-[minmax(380px,42%)_1fr]">
           <div className="flex min-h-0 flex-col overflow-hidden border-r border-neutral-200/80 bg-background dark:border-neutral-800">
             {/* Pill-style tab switcher */}
-            <div className="shrink-0 border-b border-neutral-100 bg-background px-4 py-3 dark:border-neutral-800">
+            <div className="shrink-0 border-b border-neutral-100 bg-white px-4 py-3 dark:border-neutral-800">
               <div className="flex rounded-xl bg-white p-1 dark:bg-neutral-900">
                 {(["chat", "itinerary", "ideas", "bookings"] as const).map(
                   (view) => (
@@ -654,19 +648,19 @@ export function TripPlanner({
             </div>
           </div>
 
-          <div className="flex min-h-0 flex-col overflow-hidden bg-background">
-            <div className="shrink-0 border-b border-neutral-100 bg-background px-4 py-3 dark:border-neutral-800">
-              <div className="flex rounded-xl bg-neutral-100 p-1 dark:bg-neutral-800/50">
+          <div className="flex min-h-0 flex-col overflow-hidden bg-white">
+            <div className="shrink-0 border-b border-neutral-100 bg-white px-4 py-3 dark:border-neutral-800">
+              <div className="flex rounded-xl bg-white p-1 dark:bg-neutral-900">
                 {(["map", "calendar"] as const).map((v) => (
                   <button
                     key={v}
                     type="button"
                     onClick={() => setRightView(v)}
                     className={cn(
-                      "flex flex-1 cursor-pointer items-center justify-center rounded-lg px-3 py-2 text-[15px] font-medium transition-all",
+                      "flex flex-1 cursor-pointer items-center justify-center gap-1.5 rounded-lg px-3 py-2 text-[15px] font-medium transition-all",
                       rightView === v
-                        ? desktopMapCalendarTabActiveClass
-                        : desktopMapCalendarTabInactiveClass,
+                        ? desktopLeftTabActiveClass
+                        : desktopLeftTabInactiveClass,
                     )}
                   >
                     {v === "map" ? (

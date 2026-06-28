@@ -82,7 +82,7 @@ function MobileHeader({
           </PopoverTrigger>
           <PopoverContent
             align="start"
-            className="flex w-[min(calc(100vw-2rem),16rem)] min-h-[min(calc(100dvh-6rem),17rem)] flex-col p-3"
+            className="flex w-[min(calc(100vw-2rem),16rem)] flex-col gap-2 p-3"
           >
             {navLinks.map((link) => {
               const isActive =
@@ -94,7 +94,7 @@ function MobileHeader({
                   href={link.href}
                   onClick={() => onOpenChange(false)}
                   className={cn(
-                    "flex flex-1 items-center gap-3 rounded-lg px-3 text-lg font-medium transition-colors",
+                    "flex h-12 items-center gap-3 rounded-lg px-3 text-lg font-medium transition-colors",
                     isActive
                       ? "bg-sidebar-accent text-sidebar-accent-foreground"
                       : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",

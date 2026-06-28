@@ -176,7 +176,7 @@ export function NewTripDialog({ open, onOpenChange }: NewTripDialogProps) {
   useEffect(() => {
     if (!open) return;
 
-    if (locations.length === 0) {
+    if (isMobile || locations.length === 0) {
       Promise.resolve().then(() => {
         setHeroImage(null);
         setHeroImageLoading(false);
@@ -204,7 +204,7 @@ export function NewTripDialog({ open, onOpenChange }: NewTripDialogProps) {
       .finally(() => setHeroImageLoading(false));
 
     return () => controller.abort();
-  }, [open, locations]);
+  }, [open, locations, isMobile]);
 
   useEffect(() => {
     if (!open || locations.length === 0) return;
@@ -1145,22 +1145,20 @@ export function NewTripDialog({ open, onOpenChange }: NewTripDialogProps) {
           aria-describedby={undefined}
           className="flex h-[88dvh] max-h-[88dvh] flex-col overflow-hidden border-0 bg-white p-0"
         >
-          <div className="relative h-[40%] w-full shrink-0 overflow-hidden">
-            {heroImageContent}
-            <button
-              type="button"
-              onClick={() => onOpenChange(false)}
-              className="absolute right-4 top-4 flex h-9 w-9 items-center justify-center rounded-full bg-white text-neutral-700 shadow-sm transition-colors hover:bg-neutral-50"
-              aria-label="Close"
-            >
-              <X className="h-4 w-4" />
-            </button>
-          </div>
-
           <div className="flex min-h-0 flex-1 flex-col">
-            <DrawerTitle className="px-4 pt-5 text-xl font-bold tracking-tight text-neutral-900">
-              Where to, {firstName}?
-            </DrawerTitle>
+            <div className="flex shrink-0 items-center justify-between gap-3 px-4 pt-5">
+              <DrawerTitle className="text-xl font-bold tracking-tight text-neutral-900">
+                Where to, {firstName}?
+              </DrawerTitle>
+              <button
+                type="button"
+                onClick={() => onOpenChange(false)}
+                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-neutral-500 transition-colors hover:bg-neutral-100"
+                aria-label="Close"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
 
             <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 py-6">
               {tripForm}
