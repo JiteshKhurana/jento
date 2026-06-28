@@ -366,7 +366,7 @@ function ItemBlock({
       {suggestingAlternative && (
         <div className="absolute inset-0 z-30 flex flex-col items-center justify-center gap-2 rounded-2xl bg-white/85 backdrop-blur-[2px]">
           <Shuffle className="h-5 w-5 animate-pulse text-violet-500" />
-          <span className="text-[11px] font-medium text-neutral-500">
+          <span className="text-[12px] font-medium text-neutral-500">
             Finding alternative…
           </span>
         </div>
@@ -434,7 +434,7 @@ function ItemBlock({
           />
           {/* Time chip overlaid on photo */}
           {item.startTime && (
-            <div className="absolute bottom-2 left-2 flex items-center gap-1 rounded-full bg-black/60 px-2.5 py-1 text-[11px] font-semibold text-white backdrop-blur-sm">
+            <div className="absolute bottom-2 left-2 flex items-center gap-1 rounded-full bg-black/60 px-2.5 py-1 text-[12px] font-semibold text-white backdrop-blur-sm">
               <Clock className="h-3 w-3" />
               {item.startTime}
               {item.duration && (
@@ -448,7 +448,7 @@ function ItemBlock({
         <div className="relative flex h-14 items-center bg-linear-to-r from-neutral-50 to-neutral-100 px-4">
           <MapPin className="mr-2 h-4 w-4 shrink-0 text-neutral-300" />
           {item.startTime && (
-            <span className="ml-auto flex items-center gap-1 rounded-full bg-neutral-200 px-2.5 py-0.5 text-[11px] font-semibold text-neutral-600">
+            <span className="ml-auto flex items-center gap-1 rounded-full bg-neutral-200 px-2.5 py-0.5 text-[12px] font-semibold text-neutral-600">
               <Clock className="h-3 w-3" />
               {item.startTime}
               {item.duration && (
@@ -468,13 +468,13 @@ function ItemBlock({
                 {item.title}
               </h4>
               <span
-                className={`tag-pill shrink-0 text-[10px] py-0 ${badgeClass}`}
+                className={`tag-pill shrink-0 text-[11px] py-0 ${badgeClass}`}
               >
                 {badgeLabel}
               </span>
             </div>
             {item.description && (
-              <p className="mt-0.5 line-clamp-2 text-[11px] leading-relaxed text-neutral-600 dark:text-neutral-400">
+              <p className="mt-0.5 line-clamp-2 text-[12px] leading-relaxed text-neutral-600 dark:text-neutral-400">
                 {item.description}
               </p>
             )}
@@ -484,7 +484,7 @@ function ItemBlock({
               href={bookUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="shrink-0 flex items-center gap-1 rounded-lg bg-neutral-100 px-2.5 py-1.5 text-[11px] font-medium text-neutral-700 transition-colors hover:bg-neutral-200"
+              className="shrink-0 flex items-center gap-1 rounded-lg bg-neutral-100 px-2.5 py-1.5 text-[12px] font-medium text-neutral-700 transition-colors hover:bg-neutral-200"
               onClick={(e) => e.stopPropagation()}
             >
               <ExternalLink className="h-3 w-3" />
@@ -578,10 +578,10 @@ function DayExpenseBreakdown({
       style={{ background: `${dayColor}08` }}
     >
       <div className="flex flex-col gap-0.5 border-b border-neutral-100 px-4 py-2.5">
-        <span className="text-xs font-semibold text-neutral-500 tracking-wide">
+        <span className="text-[13px] font-semibold text-neutral-500 tracking-wide">
           Daily spend
         </span>
-        <span className="text-sm font-bold text-black dark:text-white">
+        <span className="text-[15px] font-bold text-black dark:text-white">
           ~{fmt(totalToShow)}/person
         </span>
       </div>
@@ -595,11 +595,11 @@ function DayExpenseBreakdown({
             <div key={cat.label} className="flex flex-col justify-center gap-1">
               <div className="flex items-center gap-1.5">
                 <Icon className="h-3 w-3 shrink-0 text-black dark:text-white" />
-                <span className="text-[10px] font-medium text-neutral-500 truncate">
+                <span className="text-[11px] font-medium text-neutral-500 truncate">
                   {cat.label}
                 </span>
               </div>
-              <span className="text-sm font-semibold text-neutral-800 dark:text-neutral-200">
+              <span className="text-[15px] font-semibold text-neutral-800 dark:text-neutral-200">
                 ~{fmt(amount)}
               </span>
             </div>
@@ -645,10 +645,10 @@ function DayActivityInsight({
       style={{ background: `${dayColor}08` }}
     >
       <div className="flex flex-col gap-0.5 border-b border-neutral-100 px-4 py-2.5">
-        <span className="text-xs font-semibold tracking-wide text-neutral-500">
+        <span className="text-[13px] font-semibold tracking-wide text-neutral-500">
           Day on foot
         </span>
-        <span className="flex items-center gap-1.5 text-sm font-bold text-black dark:text-white">
+        <span className="flex items-center gap-1.5 text-[15px] font-bold text-black dark:text-white">
           {formatStepCount(insights.estimatedSteps)} steps
         </span>
       </div>
@@ -659,24 +659,24 @@ function DayActivityInsight({
               className="h-3.5 w-3.5 shrink-0"
               style={{ color: fatigueColor }}
             />
-            <span className="text-[10px] font-medium uppercase tracking-wide text-neutral-500">
+            <span className="text-[11px] font-medium uppercase tracking-wide text-neutral-500">
               How tiring
             </span>
           </div>
           <span
-            className="mt-0.5 block text-sm font-semibold"
+            className="mt-0.5 block text-[15px] font-semibold"
             style={{ color: fatigueColor }}
           >
             {getFatigueLabel(insights.fatigueLevel)}
           </span>
-          <p className="text-[11px] leading-relaxed text-neutral-500">
+          <p className="text-[12px] leading-relaxed text-neutral-500">
             {getFatigueDescription(insights.fatigueLevel)}
           </p>
         </div>
 
         {insights.cityTransportModes.length > 0 && (
           <div className="border-t border-neutral-100 pt-3">
-            <p className="text-sm font-semibold text-neutral-900">Transport</p>
+            <p className="text-[15px] font-semibold text-neutral-900">Transport</p>
             <div className="mt-2 flex flex-wrap gap-2">
               {insights.cityTransportModes.map((mode) => {
                 const Icon = TRANSPORT_ICONS[mode];
@@ -685,7 +685,7 @@ function DayActivityInsight({
                   <span
                     key={mode}
                     title={label}
-                    className="inline-flex items-center gap-1.5 rounded-full border border-neutral-200 bg-neutral-50 px-2.5 py-1 text-xs font-medium text-neutral-700"
+                    className="inline-flex items-center gap-1.5 rounded-full border border-neutral-200 bg-neutral-50 px-2.5 py-1 text-[13px] font-medium text-neutral-700"
                   >
                     <Icon className="h-3.5 w-3.5 shrink-0" />
                     {label}
@@ -808,16 +808,16 @@ function DayItems({
               {showTimeRail && (
                 <div className="w-12 shrink-0 pt-6 text-right">
                   {item.startTime ? (
-                    <span className="block text-[11px] font-bold tabular-nums leading-none text-neutral-600">
+                    <span className="block text-[12px] font-bold tabular-nums leading-none text-neutral-600">
                       {item.startTime}
                     </span>
                   ) : (
-                    <span className="block text-[11px] text-neutral-300">
+                    <span className="block text-[12px] text-neutral-300">
                       —
                     </span>
                   )}
                   {item.duration && (
-                    <span className="mt-1 block text-[10px] tabular-nums text-neutral-400">
+                    <span className="mt-1 block text-[11px] tabular-nums text-neutral-400">
                       {item.duration}
                     </span>
                   )}
@@ -870,7 +870,7 @@ function DayItems({
                   (distanceKm !== null || directionsUrl) && (
                     <div className="mb-3 flex items-center gap-2">
                       {distanceKm !== null && (
-                        <span className="inline-flex items-center gap-1 rounded-full bg-neutral-100 px-2.5 py-1 text-[11px] font-medium text-neutral-500">
+                        <span className="inline-flex items-center gap-1 rounded-full bg-neutral-100 px-2.5 py-1 text-[12px] font-medium text-neutral-500">
                           <Route className="h-3 w-3" />
                           {distanceKm < 1
                             ? `~${Math.round(distanceKm * 1000)} m`
@@ -882,7 +882,7 @@ function DayItems({
                           href={directionsUrl}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="inline-flex items-center gap-1 rounded-full border border-neutral-200 bg-white px-2.5 py-1 text-[11px] font-medium text-neutral-500 transition-colors hover:bg-neutral-50 hover:text-neutral-700"
+                          className="inline-flex items-center gap-1 rounded-full border border-neutral-200 bg-white px-2.5 py-1 text-[12px] font-medium text-neutral-500 transition-colors hover:bg-neutral-50 hover:text-neutral-700"
                         >
                           <Navigation className="h-3 w-3" />
                           Directions
@@ -973,7 +973,7 @@ export function DayTimeline({
           <section key={day.id} id={`day-${day.dayNumber}`}>
             {/* Day header banner */}
             <div className="mb-4 flex items-center gap-3 rounded-xl bg-neutral-100 px-4 py-3 dark:bg-neutral-900">
-              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-neutral-900 text-sm font-black text-white dark:bg-white dark:text-neutral-900">
+              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-neutral-900 text-[15px] font-black text-white dark:bg-white dark:text-neutral-900">
                 {day.dayNumber}
               </div>
               <div className="flex-1 min-w-0">
@@ -981,11 +981,11 @@ export function DayTimeline({
                   {day.title}
                 </h3>
                 {dayDate && (
-                  <p className="truncate text-xs font-medium text-neutral-600 dark:text-neutral-400">
+                  <p className="truncate text-[13px] font-medium text-neutral-600 dark:text-neutral-400">
                     {format(dayDate, "EEEE, MMM d")}
                   </p>
                 )}
-                <p className="truncate text-xs text-neutral-600 dark:text-neutral-400">
+                <p className="truncate text-[13px] text-neutral-600 dark:text-neutral-400">
                   {day.items.length} {day.items.length === 1 ? "stop" : "stops"}
                 </p>
               </div>
@@ -1022,7 +1022,7 @@ export function DayTimeline({
               <>
                 {day.items.length > 1 && (
                   <div className="mb-4 flex items-center gap-2">
-                    <span className="text-sm text-neutral-600">Distances</span>
+                    <span className="text-[15px] text-neutral-600">Distances</span>
                     <Switch
                       checked={showDistances}
                       onCheckedChange={setShowDistances}

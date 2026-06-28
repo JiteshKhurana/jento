@@ -210,7 +210,7 @@ export function TripMap({
 
   if (!apiKey) {
     return (
-      <div className="flex h-full items-center justify-center bg-neutral-100 p-4 text-center text-sm text-neutral-500">
+      <div className="flex h-full items-center justify-center bg-neutral-100 p-4 text-center text-[15px] text-neutral-500">
         Set NEXT_PUBLIC_GOOGLE_MAPS_API_KEY to enable the map
       </div>
     );
@@ -218,7 +218,7 @@ export function TripMap({
 
   if (mapError) {
     return (
-      <div className="flex h-full items-center justify-center bg-zinc-100 p-4 text-center text-sm text-zinc-500">
+      <div className="flex h-full items-center justify-center bg-zinc-100 p-4 text-center text-[15px] text-zinc-500">
         {mapError}
       </div>
     );
@@ -228,7 +228,7 @@ export function TripMap({
     <div className="relative h-full w-full">
       {!mapReady && (
         <div className="absolute inset-0 z-20 flex items-center justify-center bg-zinc-100">
-          <p className="text-sm text-zinc-500">Loading map...</p>
+          <p className="text-[15px] text-zinc-500">Loading map...</p>
         </div>
       )}
       <div ref={mapRef} className="h-full w-full" />
@@ -239,7 +239,7 @@ export function TripMap({
               type="button"
               onClick={onShowAllPlaces}
               className={cn(
-                "pointer-events-auto absolute left-4 top-4 z-20 rounded-full border px-3.5 py-1.5 text-xs font-semibold shadow-md transition-colors cursor-pointer",
+                "pointer-events-auto absolute left-4 top-4 z-20 rounded-full border px-3.5 py-1.5 text-[13px] font-semibold shadow-md transition-colors cursor-pointer",
                 showAllPlaces
                   ? "border-neutral-900 bg-neutral-900 text-white"
                   : "border-neutral-200 bg-white text-neutral-700 hover:bg-neutral-50",

@@ -97,7 +97,7 @@ export function ItemEditor({
   }
 
   const fieldClassName =
-    "h-9 rounded-lg border-neutral-200 bg-white text-sm shadow-none focus-visible:ring-neutral-300/60";
+    "h-9 rounded-lg border-neutral-200 bg-white text-[15px] shadow-none focus-visible:ring-neutral-300/60";
 
   return (
     <div className="relative overflow-hidden rounded-2xl border border-neutral-300/80 bg-white shadow-md ring-2 ring-neutral-900/5">
@@ -127,12 +127,12 @@ export function ItemEditor({
 
       <div className="p-4 pt-3">
         <div className="mb-4 flex flex-wrap items-center gap-2 pr-16">
-          <span className="text-[11px] font-semibold uppercase tracking-wide text-neutral-400">
+          <span className="text-[12px] font-semibold uppercase tracking-wide text-neutral-400">
             Editing stop
           </span>
           {badgeLabel && badgeClass && (
             <span
-              className={`tag-pill shrink-0 text-[10px] py-0 ${badgeClass}`}
+              className={`tag-pill shrink-0 text-[11px] py-0 ${badgeClass}`}
             >
               {badgeLabel}
             </span>
@@ -143,7 +143,7 @@ export function ItemEditor({
           <div className="space-y-1.5">
             <Label
               htmlFor={`item-title-${item.id}`}
-              className="text-xs text-neutral-500"
+              className="text-[13px] text-neutral-500"
             >
               Title
             </Label>
@@ -164,7 +164,7 @@ export function ItemEditor({
             <div className="space-y-1.5">
               <Label
                 htmlFor={`item-start-${item.id}`}
-                className="flex items-center gap-1 text-xs text-neutral-500"
+                className="flex items-center gap-1 text-[13px] text-neutral-500"
               >
                 <Clock className="h-3 w-3" />
                 Start time
@@ -180,7 +180,7 @@ export function ItemEditor({
             <div className="space-y-1.5">
               <Label
                 htmlFor={`item-duration-${item.id}`}
-                className="text-xs text-neutral-500"
+                className="text-[13px] text-neutral-500"
               >
                 Duration
               </Label>
@@ -198,7 +198,7 @@ export function ItemEditor({
                   placeholder="2"
                   className={`${fieldClassName} pr-8`}
                 />
-                <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-sm text-neutral-400">
+                <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[15px] text-neutral-400">
                   h
                 </span>
               </div>
@@ -208,7 +208,7 @@ export function ItemEditor({
           <div className="space-y-1.5">
             <Label
               htmlFor={`item-notes-${item.id}`}
-              className="text-xs text-neutral-500"
+              className="text-[13px] text-neutral-500"
             >
               Notes
             </Label>
@@ -218,7 +218,7 @@ export function ItemEditor({
               onChange={(e) => setDescription(e.target.value)}
               placeholder="Add tips, reservations, or reminders…"
               rows={2}
-              className="min-h-[72px] resize-none rounded-lg border-neutral-200 bg-white text-sm shadow-none focus-visible:ring-neutral-300/60"
+              className="min-h-[72px] resize-none rounded-lg border-neutral-200 bg-white text-[15px] shadow-none focus-visible:ring-neutral-300/60"
             />
           </div>
         </div>

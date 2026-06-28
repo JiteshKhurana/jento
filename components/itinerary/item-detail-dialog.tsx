@@ -193,7 +193,7 @@ function ItemDetailDialogContent({
                   href={mapsUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 rounded-lg border border-neutral-200 px-3 py-1.5 text-xs font-medium text-neutral-700 transition-colors hover:bg-neutral-50"
+                  className="inline-flex items-center gap-1.5 rounded-lg border border-neutral-200 px-3 py-1.5 text-[13px] font-medium text-neutral-700 transition-colors hover:bg-neutral-50"
                 >
                   <Navigation className="h-3.5 w-3.5" />
                   Directions
@@ -204,7 +204,7 @@ function ItemDetailDialogContent({
                   href={bookUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 rounded-lg bg-neutral-900 px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-neutral-800"
+                  className="inline-flex items-center gap-1.5 rounded-lg bg-neutral-900 px-3 py-1.5 text-[13px] font-medium text-white transition-colors hover:bg-neutral-800"
                 >
                   <ExternalLink className="h-3.5 w-3.5" />
                   Book
@@ -228,8 +228,8 @@ function ItemDetailDialogContent({
               {item.title}
             </Title>
 
-            <div className="mt-2 flex min-w-0 flex-wrap items-center gap-3 text-sm text-neutral-500">
-              <span className="rounded-full bg-neutral-100 px-2.5 py-0.5 text-xs font-medium text-neutral-700">
+            <div className="mt-2 flex min-w-0 flex-wrap items-center gap-3 text-[15px] text-neutral-500">
+              <span className="rounded-full bg-neutral-100 px-2.5 py-0.5 text-[13px] font-medium text-neutral-700">
                 {categoryLabel}
               </span>
               {rating != null && (
@@ -282,7 +282,7 @@ function ItemDetailDialogContent({
                   type="button"
                   onClick={() => setActiveTab(tab)}
                   className={cn(
-                    "cursor-pointer pb-3 text-sm font-medium capitalize transition-colors",
+                    "cursor-pointer pb-3 text-[15px] font-medium capitalize transition-colors",
                     activeTab === tab
                       ? "border-b-2 border-neutral-900 text-neutral-900"
                       : "text-neutral-400 hover:text-neutral-600",
@@ -328,7 +328,7 @@ function ItemDetailDialogContent({
                   href={mapsUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-xl border border-neutral-200 px-3 py-2.5 text-sm font-medium text-neutral-700 transition-colors hover:bg-neutral-50"
+                  className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-xl border border-neutral-200 px-3 py-2.5 text-[15px] font-medium text-neutral-700 transition-colors hover:bg-neutral-50"
                 >
                   <Navigation className="h-4 w-4" />
                   Directions
@@ -339,7 +339,7 @@ function ItemDetailDialogContent({
                   href={bookUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-xl bg-neutral-900 px-3 py-2.5 text-sm font-medium text-white transition-colors hover:bg-neutral-800"
+                  className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-xl bg-neutral-900 px-3 py-2.5 text-[15px] font-medium text-white transition-colors hover:bg-neutral-800"
                 >
                   <ExternalLink className="h-4 w-4" />
                   Book

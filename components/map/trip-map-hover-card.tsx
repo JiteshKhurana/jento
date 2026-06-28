@@ -82,7 +82,7 @@ export function TripMapHoverCard({
             {item.title}
           </h3>
           {rating != null && (
-            <div className="flex shrink-0 items-center gap-1 text-sm">
+            <div className="flex shrink-0 items-center gap-1 text-[15px]">
               <Star className="h-3.5 w-3.5 fill-neutral-900 text-neutral-900" />
               <span className="font-medium text-neutral-900">
                 {rating.toFixed(1)}
@@ -94,15 +94,15 @@ export function TripMapHoverCard({
           )}
         </div>
 
-        <div className="flex items-center gap-1.5 text-xs text-neutral-500">
+        <div className="flex items-center gap-1.5 text-[13px] text-neutral-500">
           <Icon className="h-3.5 w-3.5" />
           <span>{label}</span>
         </div>
 
-        {location && <p className="text-xs text-neutral-400">{location}</p>}
+        {location && <p className="text-[13px] text-neutral-400">{location}</p>}
 
         {description && (
-          <p className="line-clamp-3 text-xs leading-relaxed text-neutral-600">
+          <p className="line-clamp-3 text-[13px] leading-relaxed text-neutral-600">
             {description}
           </p>
         )}

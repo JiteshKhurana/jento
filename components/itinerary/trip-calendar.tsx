@@ -261,7 +261,7 @@ export function TripCalendar({
     <div className="flex h-full flex-col overflow-hidden bg-white">
       {embedded ? (
         <div className="flex shrink-0 items-center justify-between border-b border-neutral-100 bg-white px-4 py-3">
-          <span className="text-sm font-medium text-neutral-600">
+          <span className="text-[15px] font-medium text-neutral-600">
             {rangeLabel}
           </span>
           {navButtons}
@@ -272,12 +272,12 @@ export function TripCalendar({
             <h2 className="text-base font-semibold text-neutral-900">
               Calendar
             </h2>
-            <span className="rounded-full bg-neutral-100 px-2 py-0.5 text-[11px] font-medium text-neutral-500">
+            <span className="rounded-full bg-neutral-100 px-2 py-0.5 text-[12px] font-medium text-neutral-500">
               {visible.length} {visible.length === 1 ? "day" : "days"}
             </span>
           </div>
           <div className="flex items-center gap-2">
-            <span className="text-sm text-neutral-500">{rangeLabel}</span>
+            <span className="text-[15px] text-neutral-500">{rangeLabel}</span>
             {navButtons}
           </div>
         </div>
@@ -291,7 +291,7 @@ export function TripCalendar({
             key={day.id}
             className="flex-1 border-l border-neutral-100 py-2 text-center"
           >
-            <p className="text-[11px] font-medium uppercase tracking-wide text-neutral-400">
+            <p className="text-[12px] font-medium uppercase tracking-wide text-neutral-400">
               {day.computedDate ? format(day.computedDate, "EEE") : "Day"}
             </p>
             <p className="mt-0.5 text-lg font-semibold leading-none text-neutral-800">
@@ -317,7 +317,7 @@ export function TripCalendar({
                 className="relative"
                 style={{ height: `${HOUR_HEIGHT}px` }}
               >
-                <span className="absolute -top-2.5 right-2 text-[10px] text-neutral-400">
+                <span className="absolute -top-2.5 right-2 text-[11px] text-neutral-400">
                   {format(new Date(2000, 0, 1, hour), "ha").toLowerCase()}
                 </span>
               </div>
@@ -374,11 +374,11 @@ export function TripCalendar({
                       <div className="flex min-w-0 items-start gap-1">
                         <Icon className="mt-px h-3 w-3 shrink-0 opacity-80" />
                         <div className="min-w-0">
-                          <p className="truncate text-[11px] font-semibold leading-tight">
+                          <p className="truncate text-[12px] font-semibold leading-tight">
                             {item.title}
                           </p>
                           {heightPx >= 42 && displayStartTime && (
-                            <p className="text-[10px] leading-tight opacity-60">
+                            <p className="text-[11px] leading-tight opacity-60">
                               {displayStartTime}
                               {displayDuration && ` · ${displayDuration}`}
                             </p>

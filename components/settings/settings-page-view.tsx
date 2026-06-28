@@ -1,8 +1,11 @@
 "use client";
 
 import { SignOutButton, UserProfile } from "@clerk/nextjs";
-import { Moon, Sun } from "lucide-react";
+import { FileText, Moon, Shield, Sun } from "lucide-react";
 import { useTheme } from "next-themes";
+import { PrivacyContent } from "@/components/legal/privacy-content";
+import { SettingsLegalPage } from "@/components/legal/settings-legal-page";
+import { TermsContent } from "@/components/legal/terms-content";
 import { Button } from "@/components/ui/button";
 
 export function SettingsPageView() {
@@ -47,7 +50,26 @@ export function SettingsPageView() {
       </div>
 
       <div className="flex justify-center">
-        <UserProfile routing="path" path="/settings" />
+        <UserProfile routing="path" path="/settings">
+          <UserProfile.Page
+            label="Terms of Service"
+            url="terms"
+            labelIcon={<FileText className="h-4 w-4" />}
+          >
+            <SettingsLegalPage title="Terms of Service">
+              <TermsContent />
+            </SettingsLegalPage>
+          </UserProfile.Page>
+          <UserProfile.Page
+            label="Privacy Policy"
+            url="privacy"
+            labelIcon={<Shield className="h-4 w-4" />}
+          >
+            <SettingsLegalPage title="Privacy Policy">
+              <PrivacyContent termsHref="/settings/terms" />
+            </SettingsLegalPage>
+          </UserProfile.Page>
+        </UserProfile>
       </div>
     </main>
   );

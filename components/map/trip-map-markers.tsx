@@ -150,7 +150,7 @@ export function TripMapMarkers({
                 >
                   <Icon className="h-4 w-4 shrink-0" />
                 </span>
-                <span className="max-w-[140px] truncate rounded-md border border-neutral-900 bg-neutral-900 px-1 py-0.5 text-sm font-medium leading-tight text-white shadow-sm">
+                <span className="max-w-[140px] truncate rounded-md border border-neutral-900 bg-neutral-900 px-1 py-0.5 text-[15px] font-medium leading-tight text-white shadow-sm">
                   {item.title}
                 </span>
               </button>

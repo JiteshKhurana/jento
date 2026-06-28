@@ -152,7 +152,7 @@ export function TripExportMenu({
         <button
           type="button"
           onClick={handleShare}
-          className="flex w-full cursor-pointer items-center gap-3 rounded-lg px-4 py-3 text-base text-neutral-700 transition-colors hover:bg-neutral-100 sm:gap-2 sm:px-3 sm:py-2 sm:text-sm"
+          className="flex w-full cursor-pointer items-center gap-3 rounded-lg px-4 py-3 text-base text-neutral-700 transition-colors hover:bg-neutral-100 sm:gap-2 sm:px-3 sm:py-2 sm:text-[15px]"
         >
           {shared ? (
             <Check className="h-5 w-5 shrink-0 text-emerald-600 sm:h-4 sm:w-4" />
@@ -165,7 +165,7 @@ export function TripExportMenu({
           type="button"
           disabled={!hasItems || exporting !== null}
           onClick={handleDownloadPdf}
-          className="flex w-full cursor-pointer items-center gap-3 rounded-lg px-4 py-3 text-base text-neutral-700 transition-colors hover:bg-neutral-100 disabled:cursor-not-allowed disabled:opacity-50 sm:gap-2 sm:px-3 sm:py-2 sm:text-sm"
+          className="flex w-full cursor-pointer items-center gap-3 rounded-lg px-4 py-3 text-base text-neutral-700 transition-colors hover:bg-neutral-100 disabled:cursor-not-allowed disabled:opacity-50 sm:gap-2 sm:px-3 sm:py-2 sm:text-[15px]"
         >
           <FileText className="h-5 w-5 shrink-0 text-neutral-700 sm:h-4 sm:w-4" />
           {exporting === "pdf" ? "Preparing PDF…" : "Download PDF"}
@@ -174,7 +174,7 @@ export function TripExportMenu({
           type="button"
           disabled={!hasItems || exporting !== null}
           onClick={handleDownloadIcs}
-          className="flex w-full cursor-pointer items-center gap-3 rounded-lg px-4 py-3 text-base text-neutral-700 transition-colors hover:bg-neutral-100 disabled:cursor-not-allowed disabled:opacity-50 sm:gap-2 sm:px-3 sm:py-2 sm:text-sm"
+          className="flex w-full cursor-pointer items-center gap-3 rounded-lg px-4 py-3 text-base text-neutral-700 transition-colors hover:bg-neutral-100 disabled:cursor-not-allowed disabled:opacity-50 sm:gap-2 sm:px-3 sm:py-2 sm:text-[15px]"
         >
           <CalendarPlus className="h-5 w-5 shrink-0 text-teal-600 sm:h-4 sm:w-4" />
           {exporting === "ics" ? "Preparing calendar…" : "Export to Calendar"}
