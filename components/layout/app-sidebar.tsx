@@ -244,7 +244,7 @@ function SidebarUserFooter() {
                   onClick={() => setOpen(false)}
                 >
                   <User className="size-4 shrink-0" />
-                  View profile
+                  Profile
                 </Link>
                 <button
                   type="button"
@@ -323,9 +323,8 @@ function SidebarUserFooter() {
 export function AppSidebar() {
   const pathname = usePathname();
   const { user, isLoaded } = useUser();
-  const navLinks = isLoaded && user
-    ? [...baseNavLinks, savedNavLink]
-    : baseNavLinks;
+  const navLinks =
+    isLoaded && user ? [...baseNavLinks, savedNavLink] : baseNavLinks;
 
   return (
     <Sidebar collapsible="icon">

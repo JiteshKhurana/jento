@@ -646,7 +646,9 @@ function DayActivityInsight({
 
         {insights.cityTransportModes.length > 0 && (
           <div className="border-t border-neutral-100 pt-3">
-            <p className="text-[15px] font-semibold text-neutral-900">Transport</p>
+            <p className="text-[15px] font-semibold text-neutral-900">
+              Transport
+            </p>
             <div className="mt-2 flex flex-wrap gap-2">
               {insights.cityTransportModes.map((mode) => {
                 const Icon = TRANSPORT_ICONS[mode];
@@ -801,7 +803,7 @@ function DayItems({
                 </div>
                 {!isLast && (
                   <div
-                    className="pointer-events-none absolute left-1/2 top-10 w-px -translate-x-1/2 rounded-full bg-neutral-200 dark:bg-neutral-700"
+                    className="pointer-events-none absolute left-1/2 top-10 w-px -translate-x-1/2 rounded-full bg-neutral-300 dark:bg-neutral-600"
                     style={{ height: "calc(100% - 2.5rem + 2rem)" }}
                     aria-hidden
                   />
@@ -978,7 +980,9 @@ export function DayTimeline({
               <>
                 {day.items.length > 1 && (
                   <div className="mb-4 flex items-center gap-2">
-                    <span className="text-[15px] text-neutral-600">Distances</span>
+                    <span className="text-[15px] text-neutral-600">
+                      Distances
+                    </span>
                     <Switch
                       checked={showDistances}
                       onCheckedChange={setShowDistances}

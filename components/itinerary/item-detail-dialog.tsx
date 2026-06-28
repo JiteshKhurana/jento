@@ -1,7 +1,15 @@
 "use client";
 
 import { useEffect, useState, type ComponentProps, type ComponentType } from "react";
-import { Clock, ExternalLink, MapPin, Navigation, Star, X } from "lucide-react";
+import {
+  ChevronLeft,
+  Clock,
+  ExternalLink,
+  MapPin,
+  Navigation,
+  Star,
+  X,
+} from "lucide-react";
 import { PlacePhotoCarousel } from "@/components/places/place-photo-carousel";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Drawer, DrawerContent, DrawerTitle } from "@/components/ui/drawer";
@@ -88,14 +96,16 @@ type ItemDetailDialogContentProps = {
   item: ItineraryItemData;
   destination: string;
   onOpenChange: (open: boolean) => void;
+  onBack?: () => void;
   headerActions?: React.ReactNode;
   Title: ComponentType<ComponentProps<typeof DialogTitle>>;
 };
 
-function ItemDetailDialogContent({
+export function ItemDetailDialogContent({
   item,
   destination,
   onOpenChange,
+  onBack,
   headerActions,
   Title,
 }: ItemDetailDialogContentProps) {
@@ -183,9 +193,21 @@ function ItemDetailDialogContent({
     <>
         <div className="sticky top-0 z-10 shrink-0 border-b border-neutral-100 bg-white px-4 py-3">
           <div className="flex items-center justify-between gap-3">
-            <Title className="min-w-0 truncate text-lg font-bold text-neutral-900 md:hidden">
-              {item.title}
-            </Title>
+            <div className="flex min-w-0 flex-1 items-center gap-2">
+              {onBack ? (
+                <button
+                  type="button"
+                  onClick={onBack}
+                  className="flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-full text-neutral-500 hover:bg-neutral-100"
+                  aria-label="Back"
+                >
+                  <ChevronLeft className="h-5 w-5" />
+                </button>
+              ) : null}
+              <Title className="min-w-0 truncate text-lg font-bold text-neutral-900 md:hidden">
+                {item.title}
+              </Title>
+            </div>
             <div className="hidden items-center gap-2 md:flex">
               {headerActions}
               {mapsUrl && (

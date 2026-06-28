@@ -18,7 +18,10 @@ import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Spinner } from "@/components/ui/spinner";
 import { PlaceSearchCard } from "@/components/ideas/place-search-card";
-import { ItemDetailDialog } from "@/components/itinerary/item-detail-dialog";
+import {
+  ItemDetailDialog,
+  ItemDetailDialogContent,
+} from "@/components/itinerary/item-detail-dialog";
 import { ExploreFilters } from "@/components/explore/explore-filters";
 import { cn } from "@/lib/utils";
 import { placeToDetailItem } from "@/lib/itinerary/detail-item";
@@ -233,7 +236,7 @@ export function AddIdeasDialog({
               className={cn(
                 "relative cursor-pointer pb-3 text-sm font-medium capitalize transition-colors",
                 tab === t
-                  ? "z-10 text-black after:absolute after:inset-x-0 after:-bottom-px after:block after:h-0.5 after:bg-black after:content-['']"
+                  ? "z-10 text-black after:absolute after:inset-x-0 after:-bottom-px after:block after:h-0.5 after:bg-black after:content-[''] dark:text-white dark:after:bg-white"
                   : "text-neutral-400 hover:text-neutral-600",
               )}
             >
@@ -389,37 +392,39 @@ export function AddIdeasDialog({
     </>
   );
 
+  const detailHeaderActions = selectedPlace ? (
+    <Button
+      size="sm"
+      disabled={addingFromDetail || selectedPlaceAdded}
+      onClick={handleAddFromDetail}
+      className="h-auto flex-1 cursor-pointer gap-1.5 rounded-xl py-2.5 text-sm md:h-8 md:flex-none md:rounded-full md:py-0 md:text-xs"
+    >
+      {addingFromDetail ? (
+        <Spinner size="sm" className="text-white" />
+      ) : (
+        <Plus className="h-3.5 w-3.5" />
+      )}
+      {selectedPlaceAdded
+        ? "Added"
+        : addingFromDetail
+          ? "Adding…"
+          : "Add idea"}
+    </Button>
+  ) : null;
+
   return (
     <>
-      <ItemDetailDialog
-        item={selectedPlace ? placeToDetailItem(selectedPlace) : null}
-        destination={destination}
-        open={selectedPlace != null}
-        onOpenChange={(isOpen) => {
-          if (!isOpen) setSelectedPlace(null);
-        }}
-        headerActions={
-          selectedPlace ? (
-            <Button
-              size="sm"
-              disabled={addingFromDetail || selectedPlaceAdded}
-              onClick={handleAddFromDetail}
-              className="h-auto flex-1 cursor-pointer gap-1.5 rounded-xl py-2.5 text-sm md:h-8 md:flex-none md:rounded-full md:py-0 md:text-xs"
-            >
-              {addingFromDetail ? (
-                <Spinner size="sm" className="text-white" />
-              ) : (
-                <Plus className="h-3.5 w-3.5" />
-              )}
-              {selectedPlaceAdded
-                ? "Added"
-                : addingFromDetail
-                  ? "Adding…"
-                  : "Add idea"}
-            </Button>
-          ) : null
-        }
-      />
+      {!isMobile && (
+        <ItemDetailDialog
+          item={selectedPlace ? placeToDetailItem(selectedPlace) : null}
+          destination={destination}
+          open={selectedPlace != null}
+          onOpenChange={(isOpen) => {
+            if (!isOpen) setSelectedPlace(null);
+          }}
+          headerActions={detailHeaderActions}
+        />
+      )}
 
       {isMobile ? (
         <Drawer open={open} onOpenChange={handleOpenChange}>
@@ -427,7 +432,21 @@ export function AddIdeasDialog({
             aria-describedby={undefined}
             className="flex h-[88dvh] max-h-[88dvh] flex-col overflow-hidden border-0 bg-white p-0"
           >
-            {addIdeasContent(DrawerTitle)}
+            {selectedPlace ? (
+              <ItemDetailDialogContent
+                key={selectedPlace.googlePlaceId}
+                item={placeToDetailItem(selectedPlace)}
+                destination={destination}
+                onOpenChange={(isOpen) => {
+                  if (!isOpen) onOpenChange(false);
+                }}
+                onBack={() => setSelectedPlace(null)}
+                headerActions={detailHeaderActions}
+                Title={DrawerTitle}
+              />
+            ) : (
+              addIdeasContent(DrawerTitle)
+            )}
           </DrawerContent>
         </Drawer>
       ) : (

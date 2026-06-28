@@ -119,7 +119,7 @@ function MobileHeader({
                 onClick={() => onOpenChange(false)}
               >
                 <User className="h-6 w-6 shrink-0" />
-                View profile
+                Profile
               </Link>
             )}
           </PopoverContent>
