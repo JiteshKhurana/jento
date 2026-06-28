@@ -5,7 +5,7 @@ import { SettingsPageView } from "@/components/settings/settings-page-view";
 
 export const dynamic = "force-dynamic";
 
-export default async function SettingsPage() {
+export default async function ProfilePage() {
   const { userId } = await auth();
   if (!userId) redirect("/sign-in");
 

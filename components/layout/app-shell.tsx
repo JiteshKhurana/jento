@@ -4,7 +4,7 @@ import { useUser } from "@clerk/nextjs";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Heart, Menu, Map, Search, Settings, X } from "lucide-react";
+import { Heart, Menu, Map, Search, X } from "lucide-react";
 import { SidebarInset } from "@/components/ui/sidebar";
 import {
   Popover,
@@ -35,12 +35,6 @@ const savedNavLink = {
   icon: Heart,
 } as const;
 
-const settingsNavLink = {
-  href: "/settings",
-  label: "Settings",
-  icon: Settings,
-} as const;
-
 function MobileHeader({
   mobileHeaderActions,
   open,
@@ -52,10 +46,9 @@ function MobileHeader({
 }) {
   const pathname = usePathname();
   const { user, isLoaded } = useUser();
-  const navLinks =
-    isLoaded && user
-      ? [...baseNavLinks, savedNavLink, settingsNavLink]
-      : [...baseNavLinks, settingsNavLink];
+  const navLinks = isLoaded && user
+    ? [...baseNavLinks, savedNavLink]
+    : baseNavLinks;
 
   return (
     <header className="sticky top-0 z-10 flex h-14 shrink-0 items-center justify-between border-b border-border bg-background px-4 md:hidden">
