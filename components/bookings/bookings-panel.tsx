@@ -480,7 +480,7 @@ export function BookingsPanel({
         {fileInput}
         {uploadDialog}
 
-        <div className="flex h-full flex-col items-center justify-center px-6 py-12 text-center">
+        <div className="flex h-full flex-col items-center justify-center px-6 pt-12 pb-32 md:pb-12 text-center">
           <ThemeIllustration variant="documents" className="mb-6" />
 
           <h2 className="text-lg font-bold text-neutral-900">
