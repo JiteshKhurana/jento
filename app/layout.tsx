@@ -80,7 +80,7 @@ export default function RootLayout({
       <html
         lang="en"
         suppressHydrationWarning
-        className={`${geistSans.variable} ${geistMono.variable} ${jentoBrand.variable} ${francoisOne.variable} ${inter.variable} h-full antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} ${jentoBrand.variable} ${francoisOne.variable} ${inter.variable} dark h-full antialiased`}
       >
         <head>
           {/* PWA — enables "Add to Home Screen" on Android Chrome */}
@@ -96,7 +96,7 @@ export default function RootLayout({
         <body className="min-h-full flex flex-col font-sans">
           <ThemeProvider
             attribute="class"
-            defaultTheme="system"
+            defaultTheme="dark"
             enableSystem
             disableTransitionOnChange
           >

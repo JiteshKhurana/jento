@@ -10,7 +10,7 @@ import {
   Lightbulb,
   MapPin,
   MessageSquare,
-  Plane,
+  FileText,
   Route,
 } from "lucide-react";
 import { AppShell, useMobileSidebar } from "@/components/layout/app-shell";
@@ -808,7 +808,7 @@ export function TripPlanner({
                   Ideas
                 </TabsTrigger>
                 <TabsTrigger value="bookings" className={mobileTabTriggerClass}>
-                  <Plane className="h-6 w-6" />
+                  <FileText className="h-6 w-6" />
                   Documents
                 </TabsTrigger>
               </TabsList>

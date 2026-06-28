@@ -38,10 +38,10 @@ function buildFallbackNarration(
   const stops = day.items
     .map((item, i) => {
       const time = item.startTime ? `At ${item.startTime}, ` : i === 0 ? "First, " : "Then, ";
-      return `${time}${item.title}.`;
+      return `${time}you'll head to ${item.title}.`;
     })
     .join(" ");
-  return `${intro}${summary} You have ${day.items.length} ${day.items.length === 1 ? "stop" : "stops"} planned. ${stops} Have a great day!`;
+  return `${intro}${summary} You'll have ${day.items.length} ${day.items.length === 1 ? "stop" : "stops"} planned. ${stops} You're going to have a great day!`;
 }
 
 export async function GET(_req: Request, { params }: RouteParams) {
@@ -75,8 +75,9 @@ export async function GET(_req: Request, { params }: RouteParams) {
       const { text } = await generateText({
         model: google("gemini-3.1-flash-lite"),
         system:
-          "You are a friendly travel companion narrating a day of a trip out loud. " +
+          "You are a friendly travel companion previewing an upcoming day of a trip out loud. " +
           "Write a warm, conversational spoken summary meant to be read by text-to-speech. " +
+          "Use future tense throughout — this day hasn't happened yet. Say things like \"you'll\", \"you're going to\", and \"you'll start with\" rather than recounting past events. " +
           "Walk through the day chronologically, mention times when available, and add brief color about the highlights. " +
           "Keep it under 150 words. Plain text only — no markdown, no lists, no emojis, no headings.",
         prompt:

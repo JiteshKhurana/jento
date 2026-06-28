@@ -578,7 +578,7 @@ function DayExpenseBreakdown({
       style={{ background: `${dayColor}08` }}
     >
       <div className="flex flex-col gap-0.5 border-b border-neutral-100 px-4 py-2.5">
-        <span className="text-xs font-semibold text-neutral-500 uppercase tracking-wide">
+        <span className="text-xs font-semibold text-neutral-500 tracking-wide">
           Daily spend
         </span>
         <span className="text-sm font-bold text-black dark:text-white">
@@ -645,11 +645,10 @@ function DayActivityInsight({
       style={{ background: `${dayColor}08` }}
     >
       <div className="flex flex-col gap-0.5 border-b border-neutral-100 px-4 py-2.5">
-        <span className="text-xs font-semibold uppercase tracking-wide text-neutral-500">
+        <span className="text-xs font-semibold tracking-wide text-neutral-500">
           Day on foot
         </span>
         <span className="flex items-center gap-1.5 text-sm font-bold text-black dark:text-white">
-          <Footprints className="h-3.5 w-3.5" />
           {formatStepCount(insights.estimatedSteps)} steps
         </span>
       </div>
@@ -986,15 +985,10 @@ export function DayTimeline({
                     {format(dayDate, "EEEE, MMM d")}
                   </p>
                 )}
-                {day.summary && (
-                  <p className="truncate text-xs text-neutral-600 dark:text-neutral-400">
-                    {day.summary}
-                  </p>
-                )}
+                <p className="truncate text-xs text-neutral-600 dark:text-neutral-400">
+                  {day.items.length} {day.items.length === 1 ? "stop" : "stops"}
+                </p>
               </div>
-              <span className="shrink-0 text-xs font-medium text-neutral-500 dark:text-neutral-400">
-                {day.items.length} {day.items.length === 1 ? "stop" : "stops"}
-              </span>
               <DayAudioButton
                 tripId={tripId}
                 dayNumber={day.dayNumber}

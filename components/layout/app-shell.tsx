@@ -67,10 +67,10 @@ function MobileHeader({
               className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl text-foreground transition-colors hover:bg-muted"
               aria-label={open ? "Close menu" : "Open menu"}
             >
-              <div className="relative h-6 w-6">
+              <div className="relative h-7 w-7">
                 <Menu
                   className={cn(
-                    "absolute inset-0 h-6 w-6 transition-all duration-200",
+                    "absolute inset-0 h-7 w-7 transition-all duration-200",
                     open
                       ? "rotate-90 scale-50 opacity-0"
                       : "rotate-0 scale-100 opacity-100",
@@ -78,7 +78,7 @@ function MobileHeader({
                 />
                 <X
                   className={cn(
-                    "absolute inset-0 h-6 w-6 transition-all duration-200",
+                    "absolute inset-0 h-7 w-7 transition-all duration-200",
                     open
                       ? "rotate-0 scale-100 opacity-100"
                       : "-rotate-90 scale-50 opacity-0",

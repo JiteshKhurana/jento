@@ -8,11 +8,11 @@ import { Button } from "@/components/ui/button";
 
 export function ModeToggle() {
   const { resolvedTheme, setTheme } = useTheme();
-  const [mounted, setMounted] = React.useState(false);
-
-  React.useEffect(() => {
-    setMounted(true);
-  }, []);
+  const mounted = React.useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false,
+  );
 
   const toggleTheme = () => {
     setTheme(resolvedTheme === "dark" ? "light" : "dark");
@@ -33,7 +33,7 @@ export function ModeToggle() {
           <Sun className="h-[1.2rem] w-[1.2rem]" />
         )
       ) : (
-        <Sun className="h-[1.2rem] w-[1.2rem]" />
+        <Moon className="h-[1.2rem] w-[1.2rem]" />
       )}
     </Button>
   );
