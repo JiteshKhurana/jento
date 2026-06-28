@@ -252,22 +252,24 @@ function PlaceDetailContent({
       {isSignedIn && (
         <div className="sticky bottom-0 z-10 shrink-0 border-t border-neutral-100 bg-white px-4 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] shadow-[0_-4px_12px_rgba(0,0,0,0.06)] md:hidden">
           <div className="flex gap-2">
-            <Button
-              variant="outline"
-              disabled={saving}
-              onClick={onSave}
-              className={cn(
-                "h-11 flex-1 cursor-pointer",
-                saved && "border-red-200 text-red-600",
-              )}
-            >
-              {saving ? (
-                <Spinner size="sm" />
-              ) : (
-                <Heart className={cn("h-4 w-4", saved && "fill-current")} />
-              )}
-              {saved ? "Saved" : "Save"}
-            </Button>
+            <div className="min-w-0 flex-1 basis-0">
+              <Button
+                variant="outline"
+                disabled={saving}
+                onClick={onSave}
+                className={cn(
+                  "h-11 w-full cursor-pointer",
+                  saved && "border-red-200 text-red-600",
+                )}
+              >
+                {saving ? (
+                  <Spinner size="sm" />
+                ) : (
+                  <Heart className={cn("h-4 w-4", saved && "fill-current")} />
+                )}
+                {saved ? "Saved" : "Save"}
+              </Button>
+            </div>
             <AddToTripPicker
               place={place}
               trips={trips}

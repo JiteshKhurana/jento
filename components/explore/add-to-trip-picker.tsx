@@ -111,7 +111,7 @@ export function AddToTripPicker({
 
   if (trips.length === 0) {
     return variant === "button" ? (
-      <div className="min-w-0 flex-1">{picker}</div>
+      <div className="min-w-0 flex-1 basis-0">{picker}</div>
     ) : (
       picker
     );
@@ -159,7 +159,7 @@ export function AddToTripPicker({
   );
 
   return variant === "button" ? (
-    <div className="min-w-0 flex-1">{tripPicker}</div>
+    <div className="min-w-0 flex-1 basis-0">{tripPicker}</div>
   ) : (
     tripPicker
   );

@@ -43,6 +43,18 @@ import type { ChatFollowUp } from "@/lib/chat/follow-up-prompts";
 const mobileTabTriggerClass =
   "flex flex-col gap-1 rounded-full px-0 py-2 text-[10px] font-medium leading-tight transition-colors data-[state=inactive]:text-neutral-400 data-[state=active]:bg-neutral-200/80 data-[state=active]:font-semibold data-[state=active]:text-neutral-900 data-[state=active]:shadow-none dark:data-[state=inactive]:text-neutral-500 dark:data-[state=active]:bg-neutral-700/80 dark:data-[state=active]:text-white";
 
+const desktopLeftTabActiveClass =
+  "bg-neutral-200/80 font-semibold text-neutral-900 dark:bg-neutral-700/80 dark:text-white";
+
+const desktopLeftTabInactiveClass =
+  "text-neutral-400 hover:text-neutral-600 dark:text-neutral-500 dark:hover:text-neutral-400";
+
+const desktopMapCalendarTabActiveClass =
+  "bg-neutral-900 text-white dark:bg-white dark:text-neutral-900";
+
+const desktopMapCalendarTabInactiveClass =
+  "text-neutral-600 hover:text-neutral-700 dark:text-neutral-400 dark:hover:text-neutral-300";
+
 const TripMap = dynamic(
   () => import("@/components/map/trip-map").then((m) => m.TripMap),
   {
@@ -544,7 +556,7 @@ export function TripPlanner({
           <div className="flex min-h-0 flex-col overflow-hidden border-r border-neutral-200/80 bg-background dark:border-neutral-800">
             {/* Pill-style tab switcher */}
             <div className="shrink-0 border-b border-neutral-100 bg-background px-4 py-3 dark:border-neutral-800">
-              <div className="flex rounded-xl bg-neutral-100 p-1">
+              <div className="flex rounded-xl bg-white p-1 dark:bg-neutral-900">
                 {(["chat", "itinerary", "ideas", "bookings"] as const).map(
                   (view) => (
                     <button
@@ -557,15 +569,21 @@ export function TripPlanner({
                           : undefined
                       }
                       className={cn(
-                        "flex-1 cursor-pointer rounded-lg px-3 py-2 text-sm font-medium transition-all",
+                        "flex flex-1 cursor-pointer items-center justify-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium transition-all",
                         leftView === view
-                          ? "bg-white text-neutral-900 shadow-sm"
-                          : "text-neutral-500 hover:text-neutral-700",
+                          ? desktopLeftTabActiveClass
+                          : desktopLeftTabInactiveClass,
                       )}
                     >
-                      {view === "chat" && "Chat"}
+                      {view === "chat" && (
+                        <span className="flex items-center justify-center gap-1.5">
+                          <MessageSquare className="h-3.5 w-3.5" />
+                          Chat
+                        </span>
+                      )}
                       {view === "itinerary" && (
-                        <span className="relative inline-flex items-center">
+                        <span className="relative inline-flex items-center gap-1.5">
+                          <Route className="h-3.5 w-3.5" />
                           Itinerary
                           {itineraryHasUpdate && (
                             <span
@@ -575,9 +593,15 @@ export function TripPlanner({
                           )}
                         </span>
                       )}
-                      {view === "ideas" && "Ideas"}
+                      {view === "ideas" && (
+                        <span className="flex items-center justify-center gap-1.5">
+                          <Lightbulb className="h-3.5 w-3.5" />
+                          Ideas
+                        </span>
+                      )}
                       {view === "bookings" && (
-                        <span className="flex items-center justify-center gap-1">
+                        <span className="flex items-center justify-center gap-1.5">
+                          <FileText className="h-3.5 w-3.5" />
                           Documents
                         </span>
                       )}
@@ -630,9 +654,9 @@ export function TripPlanner({
             </div>
           </div>
 
-          <div className="flex min-h-0 flex-col overflow-hidden bg-white">
-            <div className="shrink-0 border-b border-neutral-100 bg-white px-4 py-3">
-              <div className="flex rounded-xl bg-neutral-100 p-1">
+          <div className="flex min-h-0 flex-col overflow-hidden bg-background">
+            <div className="shrink-0 border-b border-neutral-100 bg-background px-4 py-3 dark:border-neutral-800">
+              <div className="flex rounded-xl bg-neutral-100 p-1 dark:bg-neutral-800/50">
                 {(["map", "calendar"] as const).map((v) => (
                   <button
                     key={v}
@@ -641,8 +665,8 @@ export function TripPlanner({
                     className={cn(
                       "flex flex-1 cursor-pointer items-center justify-center rounded-lg px-3 py-2 text-[15px] font-medium transition-all",
                       rightView === v
-                        ? "bg-white text-neutral-900 shadow-sm"
-                        : "text-neutral-500 hover:text-neutral-700",
+                        ? desktopMapCalendarTabActiveClass
+                        : desktopMapCalendarTabInactiveClass,
                     )}
                   >
                     {v === "map" ? (
