@@ -372,7 +372,6 @@ export function ItemDetailDialog({
   if (!open || !item) return null;
 
   const contentProps = {
-    key: item.id,
     item,
     destination,
     onOpenChange,
@@ -386,7 +385,11 @@ export function ItemDetailDialog({
           aria-describedby={undefined}
           className={mobileDrawerClassName}
         >
-          <ItemDetailDialogContent {...contentProps} Title={DrawerTitle} />
+          <ItemDetailDialogContent
+            key={item.id}
+            {...contentProps}
+            Title={DrawerTitle}
+          />
         </DrawerContent>
       </Drawer>
     );
@@ -399,7 +402,11 @@ export function ItemDetailDialog({
         aria-describedby={undefined}
         className={desktopDialogClassName}
       >
-        <ItemDetailDialogContent {...contentProps} Title={DialogTitle} />
+        <ItemDetailDialogContent
+          key={item.id}
+          {...contentProps}
+          Title={DialogTitle}
+        />
       </DialogContent>
     </Dialog>
   );

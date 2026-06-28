@@ -89,7 +89,7 @@ function MobileHeader({
           </PopoverTrigger>
           <PopoverContent
             align="start"
-            className="flex w-[min(calc(100vw-2rem),20rem)] min-h-[min(calc(100dvh-6rem),20rem)] flex-col p-3"
+            className="flex w-[min(calc(100vw-2rem),16rem)] min-h-[min(calc(100dvh-6rem),17rem)] flex-col p-3"
           >
             {navLinks.map((link) => {
               const isActive =
