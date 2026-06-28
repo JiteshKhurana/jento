@@ -1,8 +1,10 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState, type ComponentProps, type ComponentType } from "react";
 import { Plus, Search, X } from "lucide-react";
-import { Dialog, DialogContent, DialogTitle, mobileNativeDialogContentClassName } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import { Drawer, DrawerContent, DrawerTitle } from "@/components/ui/drawer";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -42,6 +44,7 @@ export function AddIdeasDialog({
   destination,
   onIdeaAdded,
 }: AddIdeasDialogProps) {
+  const isMobile = useIsMobile();
   const [tab, setTab] = useState<Tab>("search");
   const [category, setCategory] =
     useState<(typeof CATEGORIES)[number]["id"]>("for-you");
@@ -196,52 +199,15 @@ export function AddIdeasDialog({
     }
   }
 
-  return (
+  const addIdeasContent = (
+    Title: ComponentType<ComponentProps<typeof DialogTitle>>,
+  ) => (
     <>
-      <ItemDetailDialog
-        item={selectedPlace ? placeToDetailItem(selectedPlace) : null}
-        destination={destination}
-        open={selectedPlace != null}
-        onOpenChange={(isOpen) => {
-          if (!isOpen) setSelectedPlace(null);
-        }}
-        headerActions={
-          selectedPlace ? (
-            <Button
-              size="sm"
-              disabled={addingFromDetail || selectedPlaceAdded}
-              onClick={handleAddFromDetail}
-              className="h-8 gap-1.5 text-xs cursor-pointer"
-            >
-              {addingFromDetail ? (
-                <Spinner size="sm" className="text-white" />
-              ) : (
-                <Plus className="h-3.5 w-3.5" />
-              )}
-              {selectedPlaceAdded
-                ? "Added"
-                : addingFromDetail
-                  ? "Adding…"
-                  : "Add idea"}
-            </Button>
-          ) : null
-        }
-      />
-
-      <Dialog open={open} onOpenChange={handleOpenChange}>
-        <DialogContent
-          showClose={false}
-          className={cn(
-            mobileNativeDialogContentClassName,
-            "flex h-full max-h-svh flex-col gap-0 overflow-hidden p-0 sm:rounded-2xl",
-            "md:h-[min(90vh,800px)] md:max-h-[min(90vh,800px)] md:max-w-2xl",
-          )}
-        >
-          <div className="sticky top-0 z-10 shrink-0 border-b border-neutral-100 bg-white px-4 pt-4">
+      <div className="sticky top-0 z-10 shrink-0 border-b border-neutral-100 bg-white px-4 pt-4">
             <div className="flex items-center justify-between gap-3 pb-4">
-              <DialogTitle className="text-base font-semibold md:text-lg">
+              <Title className="text-base font-semibold md:text-lg">
                 Add to trip
-              </DialogTitle>
+              </Title>
               <button
                 type="button"
                 onClick={() => onOpenChange(false)}
@@ -416,8 +382,64 @@ export function AddIdeasDialog({
               </div>
             </form>
           )}
-        </DialogContent>
-      </Dialog>
+    </>
+  );
+
+  return (
+    <>
+      <ItemDetailDialog
+        item={selectedPlace ? placeToDetailItem(selectedPlace) : null}
+        destination={destination}
+        open={selectedPlace != null}
+        onOpenChange={(isOpen) => {
+          if (!isOpen) setSelectedPlace(null);
+        }}
+        headerActions={
+          selectedPlace ? (
+            <Button
+              size="sm"
+              disabled={addingFromDetail || selectedPlaceAdded}
+              onClick={handleAddFromDetail}
+              className="h-8 gap-1.5 text-xs cursor-pointer"
+            >
+              {addingFromDetail ? (
+                <Spinner size="sm" className="text-white" />
+              ) : (
+                <Plus className="h-3.5 w-3.5" />
+              )}
+              {selectedPlaceAdded
+                ? "Added"
+                : addingFromDetail
+                  ? "Adding…"
+                  : "Add idea"}
+            </Button>
+          ) : null
+        }
+      />
+
+      {isMobile ? (
+        <Drawer open={open} onOpenChange={handleOpenChange}>
+          <DrawerContent
+            aria-describedby={undefined}
+            className="flex h-[88dvh] max-h-[88dvh] flex-col overflow-hidden border-0 bg-white p-0"
+          >
+            {addIdeasContent(DrawerTitle)}
+          </DrawerContent>
+        </Drawer>
+      ) : (
+        <Dialog open={open} onOpenChange={handleOpenChange}>
+          <DialogContent
+            showClose={false}
+            aria-describedby={undefined}
+            className={cn(
+              "flex flex-col gap-0 overflow-hidden p-0 sm:rounded-2xl",
+              "md:h-[min(90vh,800px)] md:max-h-[min(90vh,800px)] md:max-w-2xl",
+            )}
+          >
+            {addIdeasContent(DialogTitle)}
+          </DialogContent>
+        </Dialog>
+      )}
     </>
   );
 }

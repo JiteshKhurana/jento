@@ -1,9 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, type ComponentProps, type ComponentType } from "react";
 import { Clock, ExternalLink, MapPin, Navigation, Star, X } from "lucide-react";
 import { PlacePhotoCarousel } from "@/components/places/place-photo-carousel";
-import { Dialog, DialogContent, DialogTitle, mobileNativeDialogContentClassName } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import { Drawer, DrawerContent, DrawerTitle } from "@/components/ui/drawer";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 import { resolveItemBookUrl } from "@/lib/booking/links";
@@ -87,6 +89,7 @@ type ItemDetailDialogContentProps = {
   destination: string;
   onOpenChange: (open: boolean) => void;
   headerActions?: React.ReactNode;
+  Title: ComponentType<ComponentProps<typeof DialogTitle>>;
 };
 
 function ItemDetailDialogContent({
@@ -94,6 +97,7 @@ function ItemDetailDialogContent({
   destination,
   onOpenChange,
   headerActions,
+  Title,
 }: ItemDetailDialogContentProps) {
   const googlePlaceId = item.googlePlaceId ?? item.placeCache?.googlePlaceId;
   const [details, setDetails] = useState<FetchedPlaceDetails | null>(null);
@@ -177,19 +181,11 @@ function ItemDetailDialogContent({
 
   return (
     <>
-      <DialogContent
-        showClose={false}
-        className={cn(
-          mobileNativeDialogContentClassName,
-          "flex h-full max-h-svh flex-col gap-0 overflow-hidden p-0 sm:rounded-2xl",
-          "md:h-[min(92vh,860px)] md:max-h-[min(92vh,860px)] md:max-w-3xl",
-        )}
-      >
         <div className="sticky top-0 z-10 shrink-0 border-b border-neutral-100 bg-white px-4 py-3">
           <div className="flex items-center justify-between gap-3">
-            <DialogTitle className="min-w-0 truncate text-lg font-bold text-neutral-900 md:hidden">
+            <Title className="min-w-0 truncate text-lg font-bold text-neutral-900 md:hidden">
               {item.title}
-            </DialogTitle>
+            </Title>
             <div className="hidden items-center gap-2 md:flex">
               {headerActions}
               {mapsUrl && (
@@ -228,9 +224,9 @@ function ItemDetailDialogContent({
 
         <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain">
           <div className="min-w-0 px-4 pb-4 pt-5">
-            <DialogTitle className="hidden text-2xl font-bold text-neutral-900 md:block">
+            <Title className="hidden text-2xl font-bold text-neutral-900 md:block">
               {item.title}
-            </DialogTitle>
+            </Title>
 
             <div className="mt-2 flex min-w-0 flex-wrap items-center gap-3 text-sm text-neutral-500">
               <span className="rounded-full bg-neutral-100 px-2.5 py-0.5 text-xs font-medium text-neutral-700">
@@ -352,10 +348,17 @@ function ItemDetailDialogContent({
             </div>
           </div>
         )}
-      </DialogContent>
     </>
   );
 }
+
+const desktopDialogClassName = cn(
+  "flex flex-col gap-0 overflow-hidden p-0 sm:rounded-2xl",
+  "md:h-[min(92vh,860px)] md:max-h-[min(92vh,860px)] md:max-w-3xl",
+);
+
+const mobileDrawerClassName =
+  "flex h-[88dvh] max-h-[88dvh] flex-col overflow-hidden border-0 bg-white p-0";
 
 export function ItemDetailDialog({
   item,
@@ -364,17 +367,40 @@ export function ItemDetailDialog({
   onOpenChange,
   headerActions,
 }: ItemDetailDialogProps) {
+  const isMobile = useIsMobile();
+
+  if (!open || !item) return null;
+
+  const contentProps = {
+    key: item.id,
+    item,
+    destination,
+    onOpenChange,
+    headerActions,
+  };
+
+  if (isMobile) {
+    return (
+      <Drawer open={open} onOpenChange={onOpenChange}>
+        <DrawerContent
+          aria-describedby={undefined}
+          className={mobileDrawerClassName}
+        >
+          <ItemDetailDialogContent {...contentProps} Title={DrawerTitle} />
+        </DrawerContent>
+      </Drawer>
+    );
+  }
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      {open && item ? (
-        <ItemDetailDialogContent
-          key={item.id}
-          item={item}
-          destination={destination}
-          onOpenChange={onOpenChange}
-          headerActions={headerActions}
-        />
-      ) : null}
+      <DialogContent
+        showClose={false}
+        aria-describedby={undefined}
+        className={desktopDialogClassName}
+      >
+        <ItemDetailDialogContent {...contentProps} Title={DialogTitle} />
+      </DialogContent>
     </Dialog>
   );
 }
