@@ -422,19 +422,6 @@ export function TripPlanner({
     <div className="flex items-center gap-1.5">
       <button
         type="button"
-        onClick={() => handleMobileTabChange("calendar")}
-        className={cn(
-          "flex h-8 items-center gap-1.5 rounded-full px-3 text-sm font-medium transition-all",
-          mobileActiveTab === "calendar"
-            ? "bg-neutral-900 text-white dark:bg-white dark:text-neutral-900"
-            : "bg-neutral-100 text-neutral-600 hover:bg-neutral-200 dark:bg-neutral-800 dark:text-neutral-400 dark:hover:bg-neutral-700",
-        )}
-      >
-        <Calendar className="h-3.5 w-3.5" />
-        Calendar
-      </button>
-      <button
-        type="button"
         onClick={() => handleMobileTabChange("map")}
         className={cn(
           "flex h-8 items-center gap-1.5 rounded-full px-3 text-sm font-medium transition-all",
@@ -445,6 +432,19 @@ export function TripPlanner({
       >
         <MapPin className="h-3.5 w-3.5" />
         Map
+      </button>
+      <button
+        type="button"
+        onClick={() => handleMobileTabChange("calendar")}
+        className={cn(
+          "flex h-8 items-center gap-1.5 rounded-full px-3 text-sm font-medium transition-all",
+          mobileActiveTab === "calendar"
+            ? "bg-neutral-900 text-white dark:bg-white dark:text-neutral-900"
+            : "bg-neutral-100 text-neutral-600 hover:bg-neutral-200 dark:bg-neutral-800 dark:text-neutral-400 dark:hover:bg-neutral-700",
+        )}
+      >
+        <Calendar className="h-3.5 w-3.5" />
+        Calendar
       </button>
     </div>
   );

@@ -35,7 +35,7 @@ type ThemeIllustrationProps = {
   size?: number;
 };
 
-const DEFAULT_ILLUSTRATION_SIZE = 260;
+const DEFAULT_ILLUSTRATION_SIZE = 320;
 
 export function ThemeIllustration({
   variant,
@@ -49,7 +49,7 @@ export function ThemeIllustration({
     <div
       className={cn(
         "relative mx-auto shrink-0",
-        size ? undefined : "size-[240px] md:size-[260px]",
+        size ? undefined : "size-[300px] md:size-[320px]",
         className,
       )}
       style={size ? { width: size, height: size } : undefined}

@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { MapPin, Plus, Star } from "lucide-react";
 import { Spinner } from "@/components/ui/spinner";
 import { Button } from "@/components/ui/button";
+import { PlacePhotoCarousel } from "@/components/places/place-photo-carousel";
 import { getPlacePhotoUrl } from "@/lib/places/utils";
 import type { PlaceSearchResult } from "@/lib/places/google-places";
 
@@ -31,7 +32,14 @@ export function PlaceSearchCard({
   added = false,
 }: PlaceSearchCardProps) {
   const [loading, setLoading] = useState(false);
-  const imageUrl = getPlacePhotoUrl(place.googlePlaceId);
+  const photoUrls = useMemo(
+    () =>
+      [0, 1, 2, 3, 4].flatMap((index) => {
+        const url = getPlacePhotoUrl(place.googlePlaceId, index);
+        return url ? [url] : [];
+      }),
+    [place.googlePlaceId],
+  );
 
   async function handleAdd() {
     setLoading(true);
@@ -53,19 +61,12 @@ export function PlaceSearchCard({
       tabIndex={onSelect ? 0 : undefined}
     >
       <div className="relative overflow-hidden rounded-2xl bg-neutral-100">
-        {imageUrl ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={imageUrl}
-            alt={place.name}
-            className="aspect-4/3 w-full object-cover"
-            loading="lazy"
-          />
-        ) : (
-          <div className="flex aspect-4/3 w-full items-center justify-center bg-linear-to-br from-neutral-100 to-neutral-200/60">
-            <MapPin className="h-8 w-8 text-neutral-300" />
-          </div>
-        )}
+        <PlacePhotoCarousel
+          photos={photoUrls}
+          title={place.name}
+          FallbackIcon={MapPin}
+          imageClassName="transition-transform duration-300 group-hover:scale-[1.02]"
+        />
 
         <Button
           size="sm"

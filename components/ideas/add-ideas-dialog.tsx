@@ -400,7 +400,7 @@ export function AddIdeasDialog({
               size="sm"
               disabled={addingFromDetail || selectedPlaceAdded}
               onClick={handleAddFromDetail}
-              className="h-8 gap-1.5 text-xs cursor-pointer"
+              className="h-auto flex-1 cursor-pointer gap-1.5 rounded-xl py-2.5 text-sm md:h-8 md:flex-none md:rounded-full md:py-0 md:text-xs"
             >
               {addingFromDetail ? (
                 <Spinner size="sm" className="text-white" />
