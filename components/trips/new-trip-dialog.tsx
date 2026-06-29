@@ -1140,10 +1140,10 @@ export function NewTripDialog({ open, onOpenChange }: NewTripDialogProps) {
 
   if (isMobile) {
     return (
-      <Drawer fixed open={open} onOpenChange={onOpenChange}>
+      <Drawer open={open} onOpenChange={onOpenChange}>
         <DrawerContent
           aria-describedby={undefined}
-          className="mt-0 flex h-[88dvh] max-h-[88dvh] flex-col overflow-hidden border-0 bg-white p-0"
+          className="mt-0 flex h-[88svh] max-h-[88svh] flex-col overflow-hidden border-0 bg-white p-0"
         >
           <div className="flex min-h-0 flex-1 flex-col">
             <div className="flex shrink-0 items-center justify-between gap-3 px-4 pt-5">

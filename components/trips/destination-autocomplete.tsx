@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { MapPin, Plus, Search, X } from "lucide-react";
 import { Spinner } from "@/components/ui/spinner";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
 
@@ -45,11 +46,13 @@ export function DestinationAutocomplete({
   leadingIconClassName,
   disabled,
 }: DestinationAutocompleteProps) {
+  const isMobile = useIsMobile();
   const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
   const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
   const [activeIndex, setActiveIndex] = useState(0);
   const containerRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const requestIdRef = useRef(0);
 
@@ -156,9 +159,20 @@ export function DestinationAutocomplete({
           />
         )}
         <Input
+          ref={inputRef}
           value={value}
           onChange={(e) => onChange(e.target.value)}
-          onFocus={() => visibleSuggestions.length > 0 && setOpen(true)}
+          onFocus={() => {
+            if (visibleSuggestions.length > 0) setOpen(true);
+            if (isMobile) {
+              requestAnimationFrame(() => {
+                inputRef.current?.scrollIntoView({
+                  block: "nearest",
+                  behavior: "smooth",
+                });
+              });
+            }
+          }}
           onKeyDown={handleKeyDown}
           placeholder={placeholder}
           autoFocus={autoFocus}
@@ -174,7 +188,12 @@ export function DestinationAutocomplete({
       </div>
 
       {open && visibleSuggestions.length > 0 && (
-        <ul className="absolute z-50 mt-1 max-h-56 w-full overflow-auto rounded-xl border border-neutral-200 bg-white py-1 shadow-lg">
+        <ul
+          className={cn(
+            "z-50 mt-1 max-h-56 w-full overflow-auto rounded-xl border border-neutral-200 bg-white py-1 shadow-lg",
+            isMobile ? "relative" : "absolute",
+          )}
+        >
           {visibleSuggestions.map((suggestion, index) => (
             <li key={suggestion.id}>
               <button

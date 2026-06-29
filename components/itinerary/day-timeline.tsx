@@ -372,16 +372,16 @@ function ItemBlock({
 
       {/* Drag handle + actions — always visible on touch; hover on desktop */}
       {!readOnly && (
-        <div className="absolute right-2 top-2 z-1 flex items-center gap-1 opacity-100 transition-opacity md:opacity-0 md:group-hover:opacity-100 md:group-focus-within:opacity-100">
+        <div className="absolute right-2 top-2 z-1 flex items-center gap-1.5 opacity-100 transition-opacity md:gap-1 md:opacity-0 md:group-hover:opacity-100 md:group-focus-within:opacity-100">
           <button
             type="button"
             onClick={handleSuggestAlternative}
             disabled={suggestingAlternative}
             title="Suggest alternative"
-            className="flex h-7 w-7 cursor-pointer items-center justify-center rounded-full bg-white/90 text-neutral-500 shadow-sm backdrop-blur-sm hover:text-violet-600 disabled:cursor-not-allowed disabled:opacity-50"
+            className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-full bg-white/90 text-neutral-500 shadow-sm backdrop-blur-sm hover:text-violet-600 disabled:cursor-not-allowed disabled:opacity-50 md:h-7 md:w-7"
             aria-label="Suggest alternative"
           >
-            <Shuffle className="h-3.5 w-3.5" />
+            <Shuffle className="h-4 w-4 md:h-3.5 md:w-3.5" />
           </button>
           <button
             type="button"
@@ -389,20 +389,20 @@ function ItemBlock({
               e.stopPropagation();
               setEditing(true);
             }}
-            className="flex h-7 w-7 cursor-pointer items-center justify-center rounded-full bg-white/90 text-neutral-500 shadow-sm backdrop-blur-sm hover:text-neutral-900"
+            className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-full bg-white/90 text-neutral-500 shadow-sm backdrop-blur-sm hover:text-neutral-900 md:h-7 md:w-7"
             aria-label="Edit"
           >
-            <Pencil className="h-3.5 w-3.5" />
+            <Pencil className="h-4 w-4 md:h-3.5 md:w-3.5" />
           </button>
           {dragHandleProps && (
             <button
               type="button"
-              className="flex h-7 w-7 cursor-grab items-center justify-center rounded-full bg-white/90 text-neutral-400 shadow-sm backdrop-blur-sm active:cursor-grabbing"
+              className="flex h-9 w-9 cursor-grab items-center justify-center rounded-full bg-white/90 text-neutral-400 shadow-sm backdrop-blur-sm active:cursor-grabbing md:h-7 md:w-7"
               aria-label="Drag to reorder"
               {...dragHandleProps}
               onClick={(e) => e.stopPropagation()}
             >
-              <GripVertical className="h-3.5 w-3.5" />
+              <GripVertical className="h-4 w-4 md:h-3.5 md:w-3.5" />
             </button>
           )}
         </div>
@@ -776,9 +776,9 @@ function DayItems({
               className={cn("relative flex gap-3", !isLast && "pb-1")}
             >
               {showTimeRail && (
-                <div className="w-12 shrink-0 pt-6 text-right">
+                <div className="w-16 shrink-0 pt-6 text-right">
                   {item.startTime ? (
-                    <span className="block text-[12px] font-bold tabular-nums leading-none text-neutral-600">
+                    <span className="block whitespace-nowrap text-[12px] font-bold tabular-nums leading-none text-neutral-600">
                       {item.startTime}
                     </span>
                   ) : (
