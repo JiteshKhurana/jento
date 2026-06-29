@@ -12,6 +12,7 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { PendoInitializer } from "@/components/pendo-initializer";
 import { PwaRegister } from "@/components/pwa-register";
 import { PwaInstallPrompt } from "@/components/pwa-install-prompt";
+import { PwaOnboarding } from "@/components/pwa-onboarding";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -101,6 +102,7 @@ export default function RootLayout({
             disableTransitionOnChange
           >
             <PendoInitializer />
+            <PwaOnboarding />
             {children}
             <PwaInstallPrompt />
           </ThemeProvider>

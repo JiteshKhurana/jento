@@ -10,7 +10,13 @@ export default function SignUpPage() {
         </Link>
       </header>
       <div className="flex flex-1 items-center justify-center px-4 pb-12">
-        <SignUp routing="path" path="/sign-up" signInUrl="/sign-in" />
+        <SignUp
+          routing="path"
+          path="/sign-up"
+          signInUrl="/sign-in"
+          fallbackRedirectUrl="/trips"
+          forceRedirectUrl="/trips"
+        />
       </div>
     </div>
   );
