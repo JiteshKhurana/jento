@@ -75,11 +75,6 @@ export function PwaOnboarding() {
     }
   };
 
-  const complete = () => {
-    markOnboardingSeen();
-    setDismissed(true);
-  };
-
   const finishAndContinue = () => {
     markOnboardingSeen();
     setDismissed(true);
@@ -136,7 +131,7 @@ export function PwaOnboarding() {
     >
       {/* Safe-area top + header */}
       <div
-        className="flex items-center justify-between px-6 pt-safe"
+        className="px-6 pt-safe"
         style={{ paddingTop: "max(env(safe-area-inset-top), 16px)" }}
       >
         <div className="flex items-center gap-2 py-3">
@@ -155,22 +150,14 @@ export function PwaOnboarding() {
             JENTO
           </span>
         </div>
-        {!isLast && (
-          <button
-            onClick={complete}
-            className="text-sm text-white/50 font-medium px-2 py-1 active:text-white/80 transition-colors"
-          >
-            Skip
-          </button>
-        )}
       </div>
 
       {/* Slide illustration — fills remaining space above text */}
-      <div className="relative flex-1 min-h-0 overflow-hidden">
+      <div className="relative flex-1 min-h-0 overflow-hidden px-10 py-6">
         {slides.map((s, i) => (
           <div
             key={s.image}
-            className="absolute inset-0 transition-opacity duration-350 ease-in-out"
+            className="absolute inset-10 transition-opacity duration-350 ease-in-out"
             style={{ opacity: i === current ? 1 : 0, pointerEvents: i === current ? "auto" : "none" }}
           >
             <Image
@@ -219,14 +206,14 @@ export function PwaOnboarding() {
 
       {/* CTA button */}
       <div
-        className="px-6"
+        className="flex justify-center px-6"
         style={{
           paddingBottom: "max(env(safe-area-inset-bottom), 32px)",
         }}
       >
         <button
           onClick={next}
-          className="w-full bg-white text-black rounded-full py-[14px] text-[15px] font-semibold transition-opacity active:opacity-80"
+          className="min-w-[200px] px-12 bg-white text-black rounded-full py-[14px] text-[15px] font-semibold transition-opacity active:opacity-80"
           style={{ fontFamily: "var(--font-geist-sans)" }}
         >
           {isLast ? "Get Started" : "Next"}
